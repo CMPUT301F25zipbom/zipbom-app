@@ -7,7 +7,7 @@
     android:background="#49317C">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/cancelButton"
         android:layout_width="186dp"
         android:layout_height="55dp"
         android:layout_marginStart="8dp"
@@ -38,9 +38,9 @@
         android:id="@+id/saveEventButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:text="Create"
+        android:layout_marginBottom="50dp"
         android:backgroundTint="#2E2E2E"
+        android:text="Create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -128,10 +128,10 @@
         android:id="@+id/editTextText7"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="50dp"
+        android:layout_marginBottom="24dp"
         android:ems="10"
-        android:inputType="text"
         android:hint="Location"
+        android:inputType="text"
         android:textColorHint="#BCBCBC"
         app:layout_constraintBottom_toTopOf="@+id/saveEventButton"
         app:layout_constraintEnd_toEndOf="parent"

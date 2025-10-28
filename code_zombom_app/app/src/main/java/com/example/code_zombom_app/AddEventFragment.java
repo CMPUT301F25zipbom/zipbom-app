@@ -19,7 +19,7 @@ import com.example.code_zombom_app.R;
 public class AddEventFragment extends Fragment {
 
     private EventViewModel eventViewModel;private EditText eventNameEditText;
-    private Button saveButton;
+    private Button saveEventButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,10 +36,18 @@ public class AddEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        eventNameEditText = view.findViewById(R.id.editTextText2); // Use your actual ID
-        saveButton = view.findViewById(R.id.saveEventButton); // Use your actual ID
+        //find all buttons TODO: add rest of buttons
+        Button cancelButton = view.findViewById(R.id.cancelButton);
+        eventNameEditText = view.findViewById(R.id.editTextText2);
+        saveEventButton = view.findViewById(R.id.saveEventButton);
 
-        saveButton.setOnClickListener(v -> {
+        cancelButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+        });
+
+        //TODO: make it so that all sections except for location must be filled out
+        //TODO: add poster and QR code generation
+        saveEventButton.setOnClickListener(v -> {
             String eventName = eventNameEditText.getText().toString();
             if (!eventName.isEmpty()) {
                 // Use the ViewModel to add the new event

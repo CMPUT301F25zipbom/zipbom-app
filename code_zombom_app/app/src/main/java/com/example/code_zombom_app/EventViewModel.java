@@ -7,19 +7,18 @@ import androidx.lifecycle.ViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-// You'll need an 'Event' class to hold your event data
-// For now, let's just use a String for simplicity.
+// Event class to hold event data
 public class EventViewModel extends ViewModel {
 
     // Private MutableLiveData that can be modified within the ViewModel.
     private final MutableLiveData<List<String>> eventList = new MutableLiveData<>(new ArrayList<>());
 
-    // Public LiveData that is exposed to the UI for observation (read-only).
+    // Public Read-Only LiveData that is exposed to the UI for observation
     public LiveData<List<String>> getEventList() {
         return eventList;
     }
 
-    // Method to add a new event.
+    // Add a new event.
     public void addEvent(String newEvent) {
         // Get the current list, add the new item, and set the new list to trigger observers.
         List<String> currentList = eventList.getValue();
