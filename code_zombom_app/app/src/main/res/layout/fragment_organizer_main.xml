@@ -41,13 +41,14 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent">
+
         <TextView
             android:id="@+id/event_display_textview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:textColor="@color/white"
             android:padding="8dp"
-            android:text="No events yet." />
+            android:text="No events yet."
+            android:textColor="@color/white"
+            android:textSize="24sp" />
         ></LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
