@@ -62,23 +62,43 @@ public class AddEventFragment extends Fragment {
 
         //TODO: add poster and QR code generation
         saveEventButton.setOnClickListener(v -> {
-            ArrayList<String> eventInfo = new ArrayList<>();
-            eventInfo.add(eventNameEditText.getText().toString());
-            eventInfo.add(maxPeopleEditText.getText().toString());
-            eventInfo.add(dateEditText.getText().toString());
-            eventInfo.add(deadlineEditText.getText().toString());
-            eventInfo.add(genreEditText.getText().toString());
 
             String eventName = eventNameEditText.getText().toString();
             if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
                     && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
                     && !genreEditText.getText().toString().isEmpty()) {
+                //just for the UI visuals
+                String name = eventNameEditText.getText().toString();
+                String maxPeople = maxPeopleEditText.getText().toString();
+                String date = dateEditText.getText().toString();
+                String deadline = deadlineEditText.getText().toString();
+                String genre = genreEditText.getText().toString();
+                String location = locationEditText.getText().toString();
+
+                StringBuilder formattedEvent = new StringBuilder();
+                formattedEvent.append("Name: ").append(name).append("\n");
+                formattedEvent.append("Max People: ").append(maxPeople).append("\n");
+                formattedEvent.append("Date: ").append(date).append("\n");
+                formattedEvent.append("Deadline: ").append(deadline).append("\n");
+                formattedEvent.append("Genre: ").append(genre);
+
+                // Append location only if it's provided
+                if (!location.isEmpty()) {
+                    formattedEvent.append("\nLocation: ").append(location);
+                }
+                eventViewModel.addEvent(formattedEvent.toString());
+
+                // For storing the actual data
+                ArrayList<String> eventInfo = new ArrayList<>();
+                eventInfo.add(eventNameEditText.getText().toString());
+                eventInfo.add(maxPeopleEditText.getText().toString());
+                eventInfo.add(dateEditText.getText().toString());
+                eventInfo.add(deadlineEditText.getText().toString());
+                eventInfo.add(genreEditText.getText().toString());
                 if (!locationEditText.getText().toString().isEmpty()) {
                     eventInfo.add(locationEditText.getText().toString());
                 }
                 // Use the ViewModel to add the new event
-                //eventViewModel.addEvent(eventName);
-                eventViewModel.addEvent(eventInfo.toString()); //just for testing
                 listOfEvents.add(eventInfo);
 
                 // Navigate back to the main fragment
