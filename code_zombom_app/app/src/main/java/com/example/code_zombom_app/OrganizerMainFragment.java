@@ -5,19 +5,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
-import androidx.lifecycle.ViewModelProvider;
-
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class OrganizerMainFragment extends Fragment {
-
+    private FirebaseFirestore db;
     private EventViewModel eventViewModel;
     private TextView eventDisplayTextView;
 
@@ -26,6 +25,7 @@ public class OrganizerMainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         // Get the same shared ViewModel instance
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
+        db = FirebaseFirestore.getInstance();
     }
 
     @Override
