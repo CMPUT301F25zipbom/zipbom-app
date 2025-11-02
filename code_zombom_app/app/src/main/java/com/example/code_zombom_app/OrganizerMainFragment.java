@@ -85,7 +85,7 @@ public class OrganizerMainFragment extends Fragment {
                 TextView eventTextView = new TextView(getContext());
                 eventTextView.setText(eventText);
                 eventTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                eventTextView.setTextSize(16);
+                eventTextView.setTextSize(24);
                 eventTextView.setPadding(16, 24, 16, 24); // Add some vertical padding
                 eventTextView.setOnClickListener(v -> {
                     Toast.makeText(getContext(), "Clicked: " + eventText.substring(0, 20) + "...", Toast.LENGTH_SHORT).show();

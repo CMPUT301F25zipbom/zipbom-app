@@ -8,9 +8,9 @@
 
     <Button
         android:id="@+id/add_event_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_width="186dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="32dp"
         android:backgroundTint="#2E2E2E"
         android:text="Add Event"
         android:textSize="20sp"

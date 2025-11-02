@@ -61,7 +61,6 @@ public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHold
     // --- onBindViewHolder is slightly different ---
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
-        // 5. Use getItem(position) to get the data item for the ListAdapter
         String currentEvent = getItem(position);
         holder.eventTextView.setText(currentEvent);
 
