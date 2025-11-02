@@ -1,9 +1,13 @@
 package com.example.code_zombom_app;
 
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -15,8 +19,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 
 import java.util.List;
 
@@ -86,9 +93,10 @@ public class OrganizerMainFragment extends Fragment {
                 eventTextView.setText(eventText);
                 eventTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
                 eventTextView.setTextSize(24);
-                eventTextView.setPadding(16, 24, 16, 24); // Add some vertical padding
+                eventTextView.setPadding(16, 24, 16, 24); // vertical padding
+
                 eventTextView.setOnClickListener(v -> {
-                    Toast.makeText(getContext(), "Clicked: " + eventText.substring(0, 20) + "...", Toast.LENGTH_SHORT).show();
+                    showEventOptionsDialog(eventText);
                 });
 
                 // Add the newly created TextView to our LinearLayout container
@@ -96,4 +104,50 @@ public class OrganizerMainFragment extends Fragment {
             }
         }
     }
+    // In OrganizerMainFragment.java
+
+    private void showEventOptionsDialog(String eventText) {
+        // Create a new dialog
+        final Dialog dialog = new Dialog(getContext());
+        // We don't want a title bar
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        // Set the custom layout for the dialog
+        dialog.setContentView(R.layout.dialog_event_options);
+
+        // Find the buttons inside the dialog's layout
+        Button viewStartButton = dialog.findViewById(R.id.button_start_draw);
+        Button messageButton = dialog.findViewById(R.id.button_message_participants);
+        Button editEventButton = dialog.findViewById(R.id.button_edit_event);
+        Button cancelButton = dialog.findViewById(R.id.button_cancel);
+
+        // Set click listeners for each button
+        viewStartButton.setOnClickListener(v -> {
+            // TODO: Implement Draw
+            Toast.makeText(getContext(), "Viewing details for the event...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss(); // Close the dialog
+        });
+
+        messageButton.setOnClickListener(v -> {
+            // TODO: Implement Message Entrants
+            Toast.makeText(getContext(), "Editing event...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        editEventButton.setOnClickListener(v -> {
+            // TODO: Implement Editing
+            Toast.makeText(getContext(), "Sharing event...", Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
+        });
+
+        cancelButton.setOnClickListener(v -> {
+            // This should just get rid of the pop up
+            dialog.dismiss();
+        });
+
+        // Make the dialog's background transparent
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        // Show the dialog
+        dialog.show();
+    }
+
 }
