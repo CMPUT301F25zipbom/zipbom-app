@@ -35,8 +35,8 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.lifecycle.livedata.ktx)
