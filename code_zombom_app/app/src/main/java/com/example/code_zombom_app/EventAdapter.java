@@ -11,18 +11,12 @@ import androidx.recyclerview.widget.DiffUtil; // <-- Import DiffUtil
 import androidx.recyclerview.widget.ListAdapter; // <-- Import ListAdapter
 import androidx.recyclerview.widget.RecyclerView;
 
-// 1. Change "RecyclerView.Adapter" to "ListAdapter"
 public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHolder> {
 
-    // 2. The list is now managed by ListAdapter, so you can remove this:
-    // private List<String> eventList = new ArrayList<>();
-
-    // 3. The constructor now needs a DiffUtil.ItemCallback
     public EventAdapter() {
         super(DIFF_CALLBACK);
     }
-
-    // 4. Create the mandatory DIFF_CALLBACK object.
+    // DIFF_CALLBACK object.
     // This tells the ListAdapter how to know if two items are the same or have the same contents.
     private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK = new DiffUtil.ItemCallback<String>() {
         @Override
@@ -39,7 +33,6 @@ public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHold
     };
 
 
-    // --- ViewHolder class remains exactly the same ---
     public static class EventViewHolder extends RecyclerView.ViewHolder {
         public TextView eventTextView;
 
@@ -49,7 +42,6 @@ public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHold
         }
     }
 
-    // --- onCreateViewHolder remains exactly the same ---
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -58,10 +50,8 @@ public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHold
         return new EventViewHolder(view);
     }
 
-    // --- onBindViewHolder is slightly different ---
     @Override
     public void onBindViewHolder(@NonNull EventViewHolder holder, int position) {
-        // 5. Use getItem(position) to get the data item for the ListAdapter
         String currentEvent = getItem(position);
         holder.eventTextView.setText(currentEvent);
 
