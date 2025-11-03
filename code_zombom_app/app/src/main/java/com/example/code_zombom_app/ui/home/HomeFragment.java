@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button; // <-- Import Button
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable; // <-- Import Nullable
@@ -16,7 +17,7 @@ import com.example.code_zombom_app.R; // <-- Make sure this import is correct
 import com.example.code_zombom_app.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
-    private HomeViewModel homeViewModel;
+    //private HomeViewModel homeViewModel;
 
     private FragmentHomeBinding binding;
 
@@ -28,8 +29,7 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textHome;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
+        final LinearLayout linearLayout = binding.homeContainer;
         return root;
     }
     @Override
