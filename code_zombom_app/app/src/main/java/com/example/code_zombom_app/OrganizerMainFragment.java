@@ -111,6 +111,10 @@ public class OrganizerMainFragment extends Fragment {
                     eventdisplay.setTextSize(18);
                     eventdisplay.setPadding(16, 16, 16, 16);
                     eventsContainer.addView(eventdisplay);
+
+                    eventdisplay.setOnClickListener(v -> {
+                        showEventOptionsDialog();
+                    });
                 }
             }
             else{
@@ -122,12 +126,13 @@ public class OrganizerMainFragment extends Fragment {
                 noEventsTextView.setPadding(16, 16, 16, 16);
                 eventsContainer.addView(noEventsTextView);
             }
+
         });
 
     }
     // In OrganizerMainFragment.java
 
-    private void showEventOptionsDialog(String eventText) {
+    private void showEventOptionsDialog() {
         // Create a new dialog
         final Dialog dialog = new Dialog(getContext());
         // We don't want a title bar
@@ -170,5 +175,4 @@ public class OrganizerMainFragment extends Fragment {
         // Show the dialog
         dialog.show();
     }
-
 }
