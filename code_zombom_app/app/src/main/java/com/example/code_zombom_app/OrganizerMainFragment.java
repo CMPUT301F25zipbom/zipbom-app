@@ -100,7 +100,7 @@ public class OrganizerMainFragment extends Fragment {
                     eventTextView.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
                     eventTextView.append("Date: ").append(snapshot.getString("Date")).append("\n");
                     eventTextView.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
-                    eventTextView.append("Genre: ").append(snapshot.getString("genre")).append("\n");
+                    eventTextView.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
                     //eventTextView.append("Location: ").append(snapshot.getString("Location"));
 
                     String texttodisplay = eventTextView.toString();

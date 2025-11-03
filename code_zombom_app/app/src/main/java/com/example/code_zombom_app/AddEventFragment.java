@@ -95,7 +95,7 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Max People", maxPeople);
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
-                eventData.put("genre", genre);
+                eventData.put("Genre", genre);
                 //eventData.put("Location", location);
                 db.collection("Events").add(eventData);
 
