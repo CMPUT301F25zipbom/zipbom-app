@@ -88,40 +88,16 @@ public class AddEventFragment extends Fragment {
                 String date = dateEditText.getText().toString();
                 String deadline = deadlineEditText.getText().toString();
                 String genre = genreEditText.getText().toString();
-                String location = locationEditText.getText().toString();
+                //String location = locationEditText.getText().toString();
 
-                StringBuilder formattedEvent = new StringBuilder();
-                formattedEvent.append("Name: ").append(name).append("\n");
-                formattedEvent.append("Max People: ").append(maxPeople).append("\n");
-                formattedEvent.append("Date: ").append(date).append("\n");
-                formattedEvent.append("Deadline: ").append(deadline).append("\n");
-                formattedEvent.append("Genre: ").append(genre);
-
-                // Append location only if it's provided
-                if (!location.isEmpty()) {
-                    formattedEvent.append("\nLocation: ").append(location);
-                }
-                eventViewModel.addEvent(formattedEvent.toString());
-
-                // For storing the actual data
-                ArrayList<String> eventInfo = new ArrayList<>();
-                eventInfo.add(eventNameEditText.getText().toString());
-                eventInfo.add(maxPeopleEditText.getText().toString());
-                eventInfo.add(dateEditText.getText().toString());
-                eventInfo.add(deadlineEditText.getText().toString());
-                eventInfo.add(genreEditText.getText().toString());
-                if (!locationEditText.getText().toString().isEmpty()) {
-                    eventInfo.add(locationEditText.getText().toString());
-                }
-                // Use the ViewModel to add the new event
-                listOfEvents.add(eventInfo);
-
-                DocumentReference docref = eventref.document(eventInfo.toString());
-
-                Map<String, Object> map = new HashMap<>();
-                map.put("Event", eventInfo);
-
-                docref.set(map);
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("Name", name);
+                eventData.put("Max People", maxPeople);
+                eventData.put("Date", date);
+                eventData.put("Deadline", deadline);
+                eventData.put("genre", genre);
+                //eventData.put("Location", location);
+                db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment
                 NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
