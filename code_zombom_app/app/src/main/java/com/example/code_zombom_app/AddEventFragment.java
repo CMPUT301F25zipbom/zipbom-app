@@ -13,7 +13,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
@@ -24,6 +30,9 @@ public class AddEventFragment extends Fragment {
     private EditText deadlineEditText;
     private EditText genreEditText;
     private EditText locationEditText;
+    private CollectionReference eventref;
+    private FirebaseFirestore db;
+    private CollectionReference events;
     private Button saveEventButton;
     // Create list of events
     ArrayList<ArrayList<String>> listOfEvents = new ArrayList<ArrayList<String>>();
@@ -40,9 +49,15 @@ public class AddEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_add_event, container, false);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db = FirebaseFirestore.getInstance();
+        events = db.collection("Events");
+
+        eventref = db.collection("Events");
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
@@ -75,31 +90,16 @@ public class AddEventFragment extends Fragment {
                 String genre = genreEditText.getText().toString();
                 String location = locationEditText.getText().toString();
 
-                StringBuilder formattedEvent = new StringBuilder();
-                formattedEvent.append("Name: ").append(name).append("\n");
-                formattedEvent.append("Max People: ").append(maxPeople).append("\n");
-                formattedEvent.append("Date: ").append(date).append("\n");
-                formattedEvent.append("Deadline: ").append(deadline).append("\n");
-                formattedEvent.append("Genre: ").append(genre);
-
-                // Append location only if it's provided
-                if (!location.isEmpty()) {
-                    formattedEvent.append("\nLocation: ").append(location);
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("Name", name);
+                eventData.put("Max People", maxPeople);
+                eventData.put("Date", date);
+                eventData.put("Deadline", deadline);
+                eventData.put("Genre", genre);
+                if (location != ""){
+                    eventData.put("Location", location);
                 }
-                eventViewModel.addEvent(formattedEvent.toString());
-
-                // For storing the actual data
-                ArrayList<String> eventInfo = new ArrayList<>();
-                eventInfo.add(eventNameEditText.getText().toString());
-                eventInfo.add(maxPeopleEditText.getText().toString());
-                eventInfo.add(dateEditText.getText().toString());
-                eventInfo.add(deadlineEditText.getText().toString());
-                eventInfo.add(genreEditText.getText().toString());
-                if (!locationEditText.getText().toString().isEmpty()) {
-                    eventInfo.add(locationEditText.getText().toString());
-                }
-                // Use the ViewModel to add the new event
-                listOfEvents.add(eventInfo);
+                db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment
                 NavHostFragment.findNavController(AddEventFragment.this).navigateUp();

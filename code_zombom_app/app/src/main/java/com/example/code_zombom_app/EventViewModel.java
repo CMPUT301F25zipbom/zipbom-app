@@ -27,4 +27,6 @@ public class EventViewModel extends ViewModel {
             eventList.setValue(currentList);
         }
     }
+
+
 }
