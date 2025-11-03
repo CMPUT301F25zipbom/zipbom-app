@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "683584044919",
+    "firebase_url": "https://zipbom-app-default-rtdb.firebaseio.com",
+    "project_id": "zipbom-app",
+    "storage_bucket": "zipbom-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683584044919:android:eec93d5e90b44989fa2b72",
+        "android_client_info": {
+          "package_name": "com.example.code_zombom_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACS4nkjbNAlWTljC_kIt07GwcNHbcTz_E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

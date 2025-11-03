@@ -13,7 +13,13 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AddEventFragment extends Fragment {
 
@@ -24,6 +30,9 @@ public class AddEventFragment extends Fragment {
     private EditText deadlineEditText;
     private EditText genreEditText;
     private EditText locationEditText;
+    private CollectionReference eventref;
+    private FirebaseFirestore db;
+    private CollectionReference events;
     private Button saveEventButton;
     // Create list of events
     ArrayList<ArrayList<String>> listOfEvents = new ArrayList<ArrayList<String>>();
@@ -40,9 +49,15 @@ public class AddEventFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_add_event, container, false);
     }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db = FirebaseFirestore.getInstance();
+        events = db.collection("Events");
+
+        eventref = db.collection("Events");
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
@@ -100,6 +115,13 @@ public class AddEventFragment extends Fragment {
                 }
                 // Use the ViewModel to add the new event
                 listOfEvents.add(eventInfo);
+
+                DocumentReference docref = eventref.document(eventInfo.toString());
+
+                Map<String, Object> map = new HashMap<>();
+                map.put("Event", eventInfo);
+
+                docref.set(map);
 
                 // Navigate back to the main fragment
                 NavHostFragment.findNavController(AddEventFragment.this).navigateUp();

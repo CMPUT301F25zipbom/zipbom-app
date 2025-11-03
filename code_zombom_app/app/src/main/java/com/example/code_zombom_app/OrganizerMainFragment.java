@@ -25,6 +25,9 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.List;
 
 
@@ -33,13 +36,17 @@ public class OrganizerMainFragment extends Fragment {
     private EventViewModel eventViewModel;
     private LinearLayout eventsContainer;// <-- Changed from TextView
     //private EventAdapter eventAdapter;
-
+    private FirebaseFirestore db;
+    private CollectionReference events;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Get the same shared ViewModel instance
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
+
+        db = FirebaseFirestore.getInstance();
+        events = db.collection("Events");
     }
 
     @Override
