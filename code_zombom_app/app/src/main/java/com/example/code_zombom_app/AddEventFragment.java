@@ -88,7 +88,7 @@ public class AddEventFragment extends Fragment {
                 String date = dateEditText.getText().toString();
                 String deadline = deadlineEditText.getText().toString();
                 String genre = genreEditText.getText().toString();
-                //String location = locationEditText.getText().toString();
+                String location = locationEditText.getText().toString();
 
                 Map<String, Object> eventData = new HashMap<>();
                 eventData.put("Name", name);
@@ -96,7 +96,9 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                //eventData.put("Location", location);
+                if (location != ""){
+                    eventData.put("Location", location);
+                }
                 db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment

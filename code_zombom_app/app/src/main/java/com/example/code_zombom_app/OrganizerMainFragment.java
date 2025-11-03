@@ -85,14 +85,12 @@ public class OrganizerMainFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
         eventsdb = db.collection("Events");
-
-
-
         eventsdb.addSnapshotListener((value, error) ->{
             if (error != null){
                 Log.e("Firestore", error.toString());
             }
             if (value != null && !value.isEmpty()){
+                // Clearing the list and then looping through all of the events in the database and adding them to the list
                 eventsContainer.removeAllViews();
                 for (QueryDocumentSnapshot snapshot : value){
                     StringBuilder eventTextView = new StringBuilder();
@@ -101,16 +99,17 @@ public class OrganizerMainFragment extends Fragment {
                     eventTextView.append("Date: ").append(snapshot.getString("Date")).append("\n");
                     eventTextView.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
                     eventTextView.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                    //eventTextView.append("Location: ").append(snapshot.getString("Location"));
+                    if (snapshot.getString("Location") != null){
+                        eventTextView.append("Location: ").append(snapshot.getString("Location"));
+                    }
 
+                    // Adding the special effects to the eventdisplay. We also convert the StringBuilder to a TextView
                     String texttodisplay = eventTextView.toString();
                     TextView eventdisplay = new TextView(getContext());
                     eventdisplay.setText(texttodisplay);
                     eventdisplay.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
                     eventdisplay.setTextSize(18);
                     eventdisplay.setPadding(16, 16, 16, 16);
-                    //add styling later
-
                     eventsContainer.addView(eventdisplay);
                 }
             }
@@ -126,25 +125,6 @@ public class OrganizerMainFragment extends Fragment {
         });
 
     }
-        //else {
-            // If there are events, loop through them and create a TextView for each one
-        //    for (String eventText : events) {
-                // Create a new TextView for the event
-        //        TextView eventTextView = new TextView(getContext());
-        //        eventTextView.setText(eventText);
-        //        eventTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-        //        eventTextView.setTextSize(24);
-        //        eventTextView.setPadding(16, 24, 16, 24); // vertical padding
-
-        //        eventTextView.setOnClickListener(v -> {
-        //            showEventOptionsDialog(eventText);
-        //        });
-
-                // Add the newly created TextView to our LinearLayout container
-        //        eventsContainer.addView(eventTextView);
-        //    }
-        //}
-
     // In OrganizerMainFragment.java
 
     private void showEventOptionsDialog(String eventText) {
