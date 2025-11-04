@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#49317C"
-    tools:context=".OrganizerMainFragment">
+    tools:context=".organizer.OrganizerMainFragment">
 
     <Button
         android:id="@+id/add_event_button"

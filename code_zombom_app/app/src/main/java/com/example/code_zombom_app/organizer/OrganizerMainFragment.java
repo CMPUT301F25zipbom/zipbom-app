@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.organizer;
 
 import android.app.Dialog;
 import android.graphics.Bitmap;
@@ -14,15 +14,16 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -129,13 +130,6 @@ public class OrganizerMainFragment extends Fragment {
                         // This will catch NullPointerExceptions if a view ID is wrong
                         Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
                     }
-                    // --- CREATE AND ADD THE TEXTVIEW ---
-//                    TextView eventDisplay = new TextView(getContext());
-//                    eventDisplay.setText(eventText);
-//                    eventDisplay.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-//                    eventDisplay.setTextSize(18);
-//                    eventDisplay.setPadding(16, 16, 16, 16);
-//                    eventsContainer.addView(eventDisplay);
                 }
             }else {
                 // If there are no documents, show a "No events" message
@@ -149,59 +143,11 @@ public class OrganizerMainFragment extends Fragment {
         });
     }
     private void showEventOptionsDialog(String eventId, String eventText) {
-        // Create dialog popup
-        final Dialog dialog = new Dialog(getContext());
-        // We don't want a title bar
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // Set the custom layout for the dialog popup
-        dialog.setContentView(R.layout.dialog_event_options);
+        NavController navController = NavHostFragment.findNavController(this);
+        // We need to pass the fragment's root view so the dialog can find the ImageView tag
+        View fragmentView = getView();
 
-        // Find the buttons
-        Button viewStartButton = dialog.findViewById(R.id.button_start_draw);
-        Button messageButton = dialog.findViewById(R.id.button_message_participants);
-        Button editEventButton = dialog.findViewById(R.id.button_edit_event);
-        Button genQRButton = dialog.findViewById(R.id.genQRButton);
-        Button cancelButton = dialog.findViewById(R.id.button_cancel);
-
-        // Set click listeners for each button
-        viewStartButton.setOnClickListener(v -> {
-            // TODO: Implement Draw
-            dialog.dismiss(); // Close the dialog
-        });
-
-        messageButton.setOnClickListener(v -> {
-            // TODO: Implement Message Entrants
-
-            dialog.dismiss();
-        });
-
-        editEventButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            Bundle bundle = new Bundle();
-            bundle.putString("eventId", eventId); // You need the document ID
-            bundle.putString("eventText", eventText); // The full text for parsing
-
-            // Navigate to the edit fragment\\
-            NavHostFragment.findNavController(OrganizerMainFragment.this)
-                    .navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
-        });
-        genQRButton.setOnClickListener(v -> {
-            dialog.dismiss();
-            ImageView qrToShow = eventsContainer.findViewWithTag(eventId);
-            if (qrToShow != null) {
-                if (qrToShow.getVisibility() == View.GONE) {
-                    qrToShow.setVisibility(View.VISIBLE);
-                }
-            }
-
-        });
-
-        cancelButton.setOnClickListener(v -> {
-            dialog.dismiss();
-        });
-
-        // Make the dialog's background transparent
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventId, eventText, navController, fragmentView);
         dialog.show();
     }
 }

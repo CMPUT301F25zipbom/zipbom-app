@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/organizerMainFragment"
-        android:name="com.example.code_zombom_app.OrganizerMainFragment"
+        android:name="com.example.code_zombom_app.organizer.OrganizerMainFragment"
         android:label="fragment_organizer_main"
         tools:layout="@layout/fragment_organizer_main" >
 
@@ -26,12 +26,12 @@
 
     <fragment
         android:id="@+id/addEventFragment"
-        android:name="com.example.code_zombom_app.AddEventFragment"
+        android:name="com.example.code_zombom_app.organizer.AddEventFragment"
         android:label="fragment_add_event"
         tools:layout="@layout/fragment_add_event" />
     <fragment
         android:id="@+id/editEventFragment"
-        android:name="com.example.code_zombom_app.EditEventFragment"
+        android:name="com.example.code_zombom_app.organizer.EditEventFragment"
         android:label="Edit Event"
         tools:layout="@layout/fragment_edit_event" />
 

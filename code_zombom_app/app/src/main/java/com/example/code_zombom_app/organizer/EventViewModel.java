@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.organizer;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

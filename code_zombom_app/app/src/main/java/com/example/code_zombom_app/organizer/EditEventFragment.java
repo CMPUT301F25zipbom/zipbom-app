@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.organizer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
@@ -117,7 +118,6 @@ public class EditEventFragment extends Fragment {
         db.collection("Events").document(originalEventId)
                 .set(updatedEventData) // or .update()
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
 
                     // --- Update in local ViewModel ---
                     if(locationEditText.getText().toString().isEmpty() == false){
@@ -130,9 +130,12 @@ public class EditEventFragment extends Fragment {
                         eventViewModel.updateEvent(originalEventId, newFormattedString);
                     }
 
-
                     // Navigate back
-                    NavHostFragment.findNavController(this).navigateUp();
+                    if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
+                            && !Genre.isEmpty()) {
+                        NavHostFragment.findNavController(this).navigateUp();
+                        Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+                    }
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
     }
