@@ -1,6 +1,7 @@
 package com.example.code_zombom_app;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -445,4 +446,67 @@ public class Event implements Comparable<Event> {
             return this.eventId.compareToIgnoreCase(o.getEventId());
     }
 
+    /**
+     * This class provides an additional method to sort the event by their created date from newest
+     * (earliest) to oldest (most recent)
+     *
+     * @author Dang Nguyen
+     * @version 1.0.0, 11/3/2025
+     * @see Event
+     * @see Comparator
+     */
+    public static class SortEventNewestToOldest implements Comparator<Event> {
+        @Override
+        public int compare(Event o1, Event o2) {
+            return o2.getCreatedDate().compareTo(o1.getCreatedDate());
+        }
+    }
+
+    /**
+     * This class provides an additional method to sort the event by their created date from oldest
+     * (most recent) to newest (earliest)
+     *
+     * @author Dang Nguyen
+     * @version 1.0.0, 11/3/2025
+     * @see Event
+     * @see Comparator
+     */
+    public static class SortEventOldestToNewest implements Comparator<Event> {
+        @Override
+        public int compare(Event o1, Event o2) {
+            return o1.getCreatedDate().compareTo(o2.getCreatedDate());
+        }
+    }
+
+    /**
+     * This class provides an additional method to sort the event by their increasing amount of
+     * restriction.
+     *
+     * @author Dang Nguyen
+     * @version 1.0.0, 11/3/2025
+     * @see Event
+     * @see Comparator
+     */
+    public static class SortEventLeastRestriction implements Comparator<Event> {
+        @Override
+        public int compare(Event o1, Event o2) {
+            return Integer.compare(o1.getRestrictions().size(), o2.getRestrictions().size());
+        }
+    }
+
+    /**
+     * This class provides an additional method to sort the event by their decreasing amount of
+     * people in the waiting list (most trendy to least trendy)
+     *
+     * @author Dang Nguyen
+     * @version 1.0.0, 11/3/2025
+     * @see Event
+     * @see Comparator
+     */
+    public static class SortEventMostTrendy implements Comparator<Event> {
+        @Override
+        public int compare(Event o1, Event o2) {
+            return Integer.compare(o2.getNumberOfWaiting(), o1.getNumberOfWaiting());
+        }
+    }
 }
