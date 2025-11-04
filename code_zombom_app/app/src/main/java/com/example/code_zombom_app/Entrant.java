@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Represents an entrant using the application. Stores profile data, notification preferences,
+ * Represents an entrant using the application. Stores notification preferences,
  * and the events this entrant has interacted with.
  *
  * @author Dang Nguyen, Deng
@@ -16,42 +16,37 @@ import java.util.List;
  * @see Event
  * @see Parcelable
  */
-public class Entrant implements Parcelable {
-
-    private String id;
-    private String name;
-    private String email;
-    private String phone;
-    private String deviceId;
+public class Entrant extends Profile implements Parcelable {
     private boolean notificationsEnabled = true;
     private boolean lastNotificationReceived;
 
-    private final ArrayList<Event> waitingEvents;
-    private final ArrayList<EventParticipation> eventHistory;
+    private ArrayList<Event> waitingEvents;
+    private ArrayList<EventParticipation> eventHistory;
 
     /**
-     * No-arg constructor required for Firestore/data binding.
-     * Initialises the collections so model methods remain safe.
+     * MUST always call this constructor. Initialises the collections so model methods remain safe
+     *
+     * @param email The email address to associate this entrant with
      */
-    public Entrant() {
+    public Entrant(String email) {
+        super(email);
         this.waitingEvents = new ArrayList<>();
         this.eventHistory = new ArrayList<>();
+        this.type = "Entrant";
     }
 
     /**
      * Convenient constructor for quickly instantiating an entrant profile.
      *
-     * @param id    unique identifier for persistence
      * @param name  entrant display name
      * @param email contact email
      * @param phone optional contact phone
      */
-    public Entrant(String id, String name, String email, String phone) {
-        this();
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
+    public Entrant(String name, String email, String phone) {
+        super(name, email, phone);
+        this.waitingEvents = new ArrayList<>();
+        this.eventHistory = new ArrayList<>();
+        this.type = "Entrant";
     }
 
     protected Entrant(Parcel in) {
@@ -79,82 +74,6 @@ public class Entrant implements Parcelable {
             return new Entrant[size];
         }
     };
-
-    // region Profile management
-
-    /**
-     * @return backing-store identifier (e.g. Firestore document id)
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Sets the unique identifier; typically only used when attaching Firestore IDs.
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    /**
-     * @return entrant display name
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Updates the entrant's display name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return entrant email contact
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Updates the entrant's contact email.
-     *
-     * @param email New email to update
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    /**
-     * @return entrant phone contact (optional)
-     */
-    public String getPhone() {
-        return phone;
-    }
-
-    /**
-     * Updates the entrant's contact phone.
-     *
-     * @param phone New phone number to add
-     */
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    /**
-     * @return device fingerprint used for passwordless identification
-     */
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    /**
-     * Persists the device fingerprint for this entrant.
-     */
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
 
     /**
      * @return whether this entrant opted in to organiser/admin notifications
