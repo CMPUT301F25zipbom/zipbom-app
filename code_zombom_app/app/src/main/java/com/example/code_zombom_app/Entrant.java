@@ -10,6 +10,11 @@ import java.util.List;
 /**
  * Represents an entrant using the application. Stores profile data, notification preferences,
  * and the events this entrant has interacted with.
+ *
+ * @author Dang Nguyen, Deng
+ * @version 1.0.0, 11/3/2025
+ * @see Event
+ * @see Parcelable
  */
 public class Entrant implements Parcelable {
 
@@ -114,6 +119,8 @@ public class Entrant implements Parcelable {
 
     /**
      * Updates the entrant's contact email.
+     *
+     * @param email New email to update
      */
     public void setEmail(String email) {
         this.email = email;
@@ -128,6 +135,8 @@ public class Entrant implements Parcelable {
 
     /**
      * Updates the entrant's contact phone.
+     *
+     * @param phone New phone number to add
      */
     public void setPhone(String phone) {
         this.phone = phone;
