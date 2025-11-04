@@ -3,4 +3,8 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="log_in">Log in</string>
+    <string name="enter_email">Enter email</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in_with_device">"<u>Log in with device</u>"</string>
 </resources>
