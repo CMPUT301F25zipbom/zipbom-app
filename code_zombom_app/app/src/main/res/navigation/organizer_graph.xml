@@ -14,6 +14,14 @@
         <action
             android:id="@+id/action_organizerMainFragment_to_addEventFragment"
             app:destination="@id/addEventFragment" />
+        <!-- This action defines the path TO the EditEventFragment -->
+        <action
+            android:id="@+id/action_organizerMainFragment_to_editEventFragment"
+            app:destination="@id/editEventFragment" />
+        <action
+            android:id="@+id/action_organizerMainFragment_to_editEventFragment2"
+            app:destination="@id/editEventFragment" />
+
     </fragment>
 
     <fragment
@@ -21,5 +29,10 @@
         android:name="com.example.code_zombom_app.AddEventFragment"
         android:label="fragment_add_event"
         tools:layout="@layout/fragment_add_event" />
+    <fragment
+        android:id="@+id/editEventFragment"
+        android:name="com.example.code_zombom_app.EditEventFragment"
+        android:label="Edit Event"
+        tools:layout="@layout/fragment_edit_event" />
 
 </navigation>
