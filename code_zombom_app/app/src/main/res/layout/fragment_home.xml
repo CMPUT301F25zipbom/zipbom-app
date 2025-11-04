@@ -10,13 +10,15 @@
         android:id="@+id/toOrganizerUIForNow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="32dp"
         android:text="temp button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/toAdminUI"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
+        android:id="@+id/scrollView2"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="16dp"
@@ -24,6 +26,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toOrganizerUIForNow">
+
         <LinearLayout
             android:id="@+id/home_container"
             android:layout_width="match_parent"
@@ -33,14 +36,16 @@
 
         </LinearLayout>
     </ScrollView>
+
     <Button
         android:id="@+id/toAdminUI"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
         android:text="Go to Admin UI"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="128dp"
-        tools:layout_editor_absoluteY="459dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

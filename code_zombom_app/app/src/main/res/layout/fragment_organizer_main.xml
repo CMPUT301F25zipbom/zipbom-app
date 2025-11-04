@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#49317C">
+    android:background="#49317C"
+    tools:context=".OrganizerMainFragment">
 
     <Button
         android:id="@+id/add_event_button"
@@ -33,26 +34,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="8dp">
-
         </LinearLayout>
+
     </ScrollView>
-<!--
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="409dp"
-        android:layout_height="681dp"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <TextView
-            android:id="@+id/event_display_textview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp"
-            android:text="No events yet."
-            android:textColor="@color/white"
-            android:textSize="24sp" />
-        </LinearLayout>
-        -->
 </androidx.constraintlayout.widget.ConstraintLayout>

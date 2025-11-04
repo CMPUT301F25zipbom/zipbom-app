@@ -1,11 +1,13 @@
 package com.example.code_zombom_app;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +22,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import android.graphics.Bitmap;
+import android.text.TextUtils;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class AddEventFragment extends Fragment {
 
@@ -96,7 +106,7 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                if (location != ""){
+                if(location.isEmpty() == false){
                     eventData.put("Location", location);
                 }
                 db.collection("Events").add(eventData);
@@ -106,4 +116,5 @@ public class AddEventFragment extends Fragment {
             }
         });
     }
+
 }

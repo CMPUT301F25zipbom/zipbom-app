@@ -51,6 +51,8 @@ public class EditEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Button cancelButton = view.findViewById(R.id.cancelButton);
+
         // Find all EditTexts
         eventNameEditText = view.findViewById(R.id.editTextName);
         maxPeopleEditText = view.findViewById(R.id.editTextMaxPeople);
@@ -61,6 +63,10 @@ public class EditEventFragment extends Fragment {
 
         // Pre-fill the fields with existing data
         populateFields();
+
+        cancelButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(EditEventFragment.this).navigateUp();
+        });
 
         Button updateButton = view.findViewById(R.id.saveEventButton);
         updateButton.setOnClickListener(v -> updateEvent());

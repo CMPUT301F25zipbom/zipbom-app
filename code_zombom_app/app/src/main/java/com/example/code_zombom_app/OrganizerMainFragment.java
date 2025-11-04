@@ -1,6 +1,7 @@
 package com.example.code_zombom_app;
 
 import android.app.Dialog;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,17 +23,12 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
-import android.app.Dialog;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.util.List;
-
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class OrganizerMainFragment extends Fragment {
 
@@ -66,20 +63,17 @@ public class OrganizerMainFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         eventsdb = db.collection("Events");
 
+        setupFirestoreListener();
         // Find the add event button
         Button addButton = view.findViewById(R.id.add_event_button);
 
         // Set the click listener to navigate to the next fragment.
-        //addButton.setOnClickListener(v -> {
+        addButton.setOnClickListener(v -> {
             // Use NavController to navigate to the AddEventFragment.
-            //NavHostFragment.findNavController(OrganizerMainFragment.this)
-                    //.navigate(R.id.action_organizerMainFragment_to_addEventFragment);
-        //});
-        // Observe data
-        //eventViewModel.getEventList().observe(getViewLifecycleOwner(), events -> {
-       //     updateUiWithEvents(events);
-        //});
-        setupFirestoreListener();
+            NavHostFragment.findNavController(OrganizerMainFragment.this)
+                    .navigate(R.id.action_organizerMainFragment_to_addEventFragment);
+        });
+        //setupFirestoreListener();
     }
 
 
@@ -94,34 +88,56 @@ public class OrganizerMainFragment extends Fragment {
 
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
-                    // --- GET THE EVENT ID AND BUILD THE TEXT ---
-                    String eventId = snapshot.getId(); // <<< GET THE DOCUMENT ID HERE
+                    try {
+                        // --- GET THE EVENT ID AND BUILD THE TEXT ---
+                        String eventId = snapshot.getId(); // <<< GET THE DOCUMENT ID HERE
+                        View eventItemView = LayoutInflater.from(getContext()).inflate(R.layout.event_list_item, eventsContainer, false);
+                        TextView eventDetailsTextView = eventItemView.findViewById(R.id.event_item_textview);
+                        ImageView qrCodeImageView = eventItemView.findViewById(R.id.event_qr_code_imageview);
 
-                    StringBuilder eventTextBuilder = new StringBuilder();
-                    eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
-                    eventTextBuilder.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
-                    eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
-                    eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
-                    eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                    if (snapshot.getString("Location") != null) {
-                        eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
+                        qrCodeImageView.setTag(eventId);
+
+                        String eventNameForQR = snapshot.getString("Name");
+                        StringBuilder eventTextBuilder = new StringBuilder();
+
+                        eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
+                        eventTextBuilder.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
+                        eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
+                        eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
+                        eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
+                        if (snapshot.getString("Location") != null) {
+                            eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
+                        }
+                        String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
+
+                        eventDetailsTextView.setText(eventText);
+
+                        // Generate and set the QR code
+                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+                        // Use the eventName variable as the content for the QR code
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(eventNameForQR, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
+                        qrCodeImageView.setImageBitmap(bitmap);
+
+                        // Set click listener for the whole item
+                        eventItemView.setOnClickListener(v -> showEventOptionsDialog(eventId, eventText));
+                        // Add the finished view to the screen
+                        eventsContainer.addView(eventItemView);
+
+                    } catch (WriterException e) {
+                        Log.e("QRCode", "Error generating QR code", e);                        // Optionally set a placeholder if the QR code fails to generate
+                    } catch (Exception e) {
+                        // This will catch NullPointerExceptions if a view ID is wrong
+                        Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
                     }
-                    String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
                     // --- CREATE AND ADD THE TEXTVIEW ---
-                    TextView eventDisplay = new TextView(getContext());
-                    eventDisplay.setText(eventText);
-                    eventDisplay.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                    eventDisplay.setTextSize(18);
-                    eventDisplay.setPadding(16, 16, 16, 16);
-                    eventsContainer.addView(eventDisplay);
-
-                    // --- SET THE CLICK LISTENER AND PASS THE DATA ---
-                    eventDisplay.setOnClickListener(v -> {
-                        // Pass the specific ID and Text for this event to the dialog
-                        showEventOptionsDialog(eventId, eventText);
-                    });
+//                    TextView eventDisplay = new TextView(getContext());
+//                    eventDisplay.setText(eventText);
+//                    eventDisplay.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
+//                    eventDisplay.setTextSize(18);
+//                    eventDisplay.setPadding(16, 16, 16, 16);
+//                    eventsContainer.addView(eventDisplay);
                 }
-            } else {
+            }else {
                 // If there are no documents, show a "No events" message
                 TextView noEventsTextView = new TextView(getContext());
                 noEventsTextView.setText("No events yet.");
@@ -132,69 +148,19 @@ public class OrganizerMainFragment extends Fragment {
             }
         });
     }
-    //private void updateUiWithEvents(List<String> events) {
-        // First, remove all previous TextViews to avoid duplicates
-        //eventsContainer.removeAllViews();
-
-        //db = FirebaseFirestore.getInstance();
-        //eventsdb = db.collection("Events");
-        //eventsdb.addSnapshotListener((value, error) ->{
-            //if (error != null){
-                //Log.e("Firestore", error.toString());
-            //}
-            //if (value != null && !value.isEmpty()){
-                // Clearing the list and then looping through all of the events in the database and adding them to the list
-                //eventsContainer.removeAllViews();
-                //for (QueryDocumentSnapshot snapshot : value){
-                    //StringBuilder eventTextView = new StringBuilder();
-                    //eventTextView.append("Name: ").append(snapshot.getString("Name")).append("\n");
-                    //eventTextView.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
-                    //eventTextView.append("Date: ").append(snapshot.getString("Date")).append("\n");
-                    //eventTextView.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
-                    //eventTextView.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                    //if (snapshot.getString("Location") != null){
-                        //eventTextView.append("Location: ").append(snapshot.getString("Location"));
-                   //}
-
-                    // Adding the special effects to the eventdisplay. We also convert the StringBuilder to a TextView
-                    //String texttodisplay = eventTextView.toString();
-                    //TextView eventdisplay = new TextView(getContext());
-                    //eventdisplay.setText(texttodisplay);
-                    //eventdisplay.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                    //eventdisplay.setTextSize(18);
-                    //eventdisplay.setPadding(16, 16, 16, 16);
-                    //eventsContainer.addView(eventdisplay);
-
-                    //eventdisplay.setOnClickListener(v -> {
-                        //showEventOptionsDialog();
-                    //});
-                //}
-            //}
-            //else{
-                // If the list is empty, show a "No events" message
-                //TextView noEventsTextView = new TextView(getContext());
-                //noEventsTextView.setText("No events yet.");
-                //noEventsTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
-                //noEventsTextView.setTextSize(18);
-                //noEventsTextView.setPadding(16, 16, 16, 16);
-                //eventsContainer.addView(noEventsTextView);
-            //}
-        //});
-    //}
-    // In OrganizerMainFragment.java
-
     private void showEventOptionsDialog(String eventId, String eventText) {
-        // Create a new dialog
+        // Create dialog popup
         final Dialog dialog = new Dialog(getContext());
         // We don't want a title bar
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // Set the custom layout for the dialog
+        // Set the custom layout for the dialog popup
         dialog.setContentView(R.layout.dialog_event_options);
 
-        // Find the buttons inside the dialog's layout
+        // Find the buttons
         Button viewStartButton = dialog.findViewById(R.id.button_start_draw);
         Button messageButton = dialog.findViewById(R.id.button_message_participants);
         Button editEventButton = dialog.findViewById(R.id.button_edit_event);
+        Button genQRButton = dialog.findViewById(R.id.genQRButton);
         Button cancelButton = dialog.findViewById(R.id.button_cancel);
 
         // Set click listeners for each button
@@ -210,25 +176,32 @@ public class OrganizerMainFragment extends Fragment {
         });
 
         editEventButton.setOnClickListener(v -> {
-            // TODO: Implement Editing
             dialog.dismiss();
             Bundle bundle = new Bundle();
             bundle.putString("eventId", eventId); // You need the document ID
             bundle.putString("eventText", eventText); // The full text for parsing
 
-            // Navigate to the edit fragment with the arguments
+            // Navigate to the edit fragment\\
             NavHostFragment.findNavController(OrganizerMainFragment.this)
                     .navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
+        genQRButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            ImageView qrToShow = eventsContainer.findViewWithTag(eventId);
+            if (qrToShow != null) {
+                if (qrToShow.getVisibility() == View.GONE) {
+                    qrToShow.setVisibility(View.VISIBLE);
+                }
+            }
+
+        });
 
         cancelButton.setOnClickListener(v -> {
-            // This should just get rid of the pop up
             dialog.dismiss();
         });
 
         // Make the dialog's background transparent
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        // Show the dialog
         dialog.show();
     }
 }
