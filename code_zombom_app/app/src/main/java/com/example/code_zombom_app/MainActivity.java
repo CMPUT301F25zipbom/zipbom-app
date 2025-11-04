@@ -1,5 +1,6 @@
 package com.example.code_zombom_app;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -11,26 +12,26 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.code_zombom_app.databinding.ActivityMainBinding;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * The main activity of the project. For now we should use this activity to open other activity to
+ * avoid code conflict and to make everything easier to merge later on.
+ *
+ * @author zipbom-team
+ * @version 1.0.0, 11/4/2025
+ * @see AppCompatActivity
+ * @see LoginActivity
+ */
 public class MainActivity extends AppCompatActivity {
-
-    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        //BottomNavigationView navView = findViewById(R.id.nav_view);
-        // Passing each menu ID as a set of Ids
-        AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
-        //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        //NavigationUI.setupWithNavController(binding.navView, navController);
+        /* Open the login activity */
+        Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
     }
 
 

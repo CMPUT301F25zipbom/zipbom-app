@@ -52,7 +52,7 @@ public class Event implements Comparable<Event> {
     };
 
     // An unique identifier of each event
-    private String eventId;
+    private final String eventId;
 
     /**
      * Private constructor for class Event. This means an event cannot be created with new Event()
