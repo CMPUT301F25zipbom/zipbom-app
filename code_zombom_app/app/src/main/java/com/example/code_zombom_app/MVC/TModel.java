@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * @see TView
  */
 public abstract class TModel<V extends TView> {
-    private ArrayList<V> views;
+    private final ArrayList<V> views;
 
     protected TModel() {
         views = new ArrayList<V>();
