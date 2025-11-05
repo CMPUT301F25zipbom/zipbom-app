@@ -16,4 +16,13 @@
     <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
     <string name="home_welcome_message">Welcome back! Choose how you want to explore today.</string>
     <string name="home_organizer_portal_label">Organizer Tools</string>
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="back">Back</string>
+
+    <string-array name="user_types">
+        <item>Entrant</item>
+        <item>Organizer</item>
+        <item>Admin</item>
+    </string-array>
 </resources>

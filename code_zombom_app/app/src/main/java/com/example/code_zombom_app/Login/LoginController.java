@@ -1,6 +1,7 @@
 package com.example.code_zombom_app.Login;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -9,7 +10,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.code_zombom_app.MVC.TController;
+import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
+import com.example.code_zombom_app.Login.SignUp.SignUpActivity;
+import com.example.code_zombom_app.Helpers.MVC.GController;
+import com.example.code_zombom_app.Helpers.MVC.TController;
 
 /**
  * The controller for the login process
@@ -18,13 +22,13 @@ import com.example.code_zombom_app.MVC.TController;
  * @version 1.0.0, 11/4/2025
  * @see TController
  */
-public class LoginController extends TController<LoginModel> {
+public class LoginController extends GController<LoadUploadProfileModel> {
     private final EditText editTextemail;
     private final Button buttonLogin;
     private final Button buttonSignUp;
     private final Button buttonSignUpWithDevice;
 
-    public LoginController(LoginModel M,
+    public LoginController(LoadUploadProfileModel M,
                            EditText email, Button login, Button signup, Button signUpDevice) {
         super(M);
         editTextemail = email;
@@ -46,31 +50,19 @@ public class LoginController extends TController<LoginModel> {
             }
         });
 
-
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                model.loadProfile(getEmailInput());
+                ((LoadUploadProfileModel) model).loadProfile(getInput(editTextemail));
             }
         });
 
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                /*...*/
+                ((LoadUploadProfileModel) model).open();
             }
         });
-    }
-
-    /**
-     * Get the input email address from the users
-     *
-     * @return The users's input
-     * @see EditText
-     */
-    private String getEmailInput() {
-        return editTextemail.getText().toString().trim();
     }
 
 }

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Helpers.Event.Event;
 
 /**
  * Simple adapter that renders a catalog of events for entrants to browse and join.

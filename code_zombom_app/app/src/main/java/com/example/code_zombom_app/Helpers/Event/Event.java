@@ -1,9 +1,10 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.Helpers.Event;
+
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 /**

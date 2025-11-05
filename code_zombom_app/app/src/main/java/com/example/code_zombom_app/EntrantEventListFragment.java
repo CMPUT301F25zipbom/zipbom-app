@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Helpers.Event.Event;
 
 /**
  * UI for US 01.01.03 — allows entrants to browse available events.
