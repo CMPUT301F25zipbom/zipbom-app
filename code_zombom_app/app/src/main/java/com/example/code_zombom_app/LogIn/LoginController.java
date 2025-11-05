@@ -47,7 +47,15 @@ public class LoginController extends TController<LoginModel> {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                M.loadProfile(getEmailInput());
+                model.loadProfile(getEmailInput());
+            }
+        });
+
+        buttonSignUp.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                /*...*/
             }
         });
     }
