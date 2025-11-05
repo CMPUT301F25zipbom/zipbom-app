@@ -116,4 +116,15 @@ public abstract class GModel extends TModel<TView> {
         state = State.CLOSE;
         notifyViews();
     }
+
+    /**
+     * Additional opening method that help you send additional intermediate message. The message
+     * always uses key "Extra" to avoid overwriting previously written data used by other process
+     *
+     * @param msg The extra message object to send
+     */
+    public void open(Object msg) {
+        setInterMsg("Extra", msg);
+        open();
+    }
 }
