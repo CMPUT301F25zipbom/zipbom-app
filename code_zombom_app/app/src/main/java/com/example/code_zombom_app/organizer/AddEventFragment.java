@@ -75,9 +75,8 @@ public class AddEventFragment extends Fragment {
             NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
         });
 
-        //TODO: add poster and QR code generation
+        //TODO: add poster
         saveEventButton.setOnClickListener(v -> {
-
             String eventName = eventNameEditText.getText().toString();
             if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
                     && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
@@ -96,7 +95,7 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                if(location.isEmpty() == false){
+                if(!location.isEmpty()){
                     eventData.put("Location", location);
                 }
                 db.collection("Events").add(eventData);

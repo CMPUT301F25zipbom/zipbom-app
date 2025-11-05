@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -106,8 +108,9 @@ public class OrganizerMainFragment extends Fragment {
                         eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
                         eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
                         eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                        if (snapshot.getString("Location") != null) {
-                            eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
+                        String location = snapshot.getString("Location");
+                        if (!TextUtils.isEmpty(location)) {
+                            eventTextBuilder.append("Location: ").append(location).append("\n");
                         }
                         String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
 
