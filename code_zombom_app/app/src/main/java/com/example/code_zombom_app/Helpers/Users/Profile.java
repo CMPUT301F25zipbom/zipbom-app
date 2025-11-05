@@ -1,4 +1,4 @@
-package com.example.code_zombom_app.Objects;
+package com.example.code_zombom_app.Helpers.Users;
 
 /**
  * Represent a profile. Store the personal information such as email addresses, name, phone number,
@@ -7,12 +7,17 @@ package com.example.code_zombom_app.Objects;
  * @author Dang Nguyen
  * @version 1.0.0, 11/4/2025
  */
-public abstract class Profile {
+public class Profile {
     protected String name;
     protected String email;
     protected String phone;
     protected String deviceId;
     protected String type; // Admin, organizer or entrant
+
+    /**
+     * This constructor is required for Firestore deserialization
+     */
+    public Profile() {}
 
     /**
      * ALWAYS call this constructor. A profile MUST always be associated with an email address

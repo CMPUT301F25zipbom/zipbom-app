@@ -1,6 +1,6 @@
 package com.example.code_zombom_app;
 
-import com.example.code_zombom_app.Objects.Profile;
+import com.example.code_zombom_app.Helpers.Users.Profile;
 
 /**
  * A callback interface to handle asynchronous loading of an object the database.
