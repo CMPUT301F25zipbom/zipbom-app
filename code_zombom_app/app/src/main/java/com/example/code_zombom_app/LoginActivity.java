@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * @see AppCompatActivity
  * @see MainActivity
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
