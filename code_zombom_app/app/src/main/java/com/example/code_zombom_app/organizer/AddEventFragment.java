@@ -17,6 +17,7 @@ import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class AddEventFragment extends Fragment {
     private EditText deadlineEditText;
     private EditText genreEditText;
     private EditText locationEditText;
+    private EditText maxentrantEditText;
     private CollectionReference eventref;
     private FirebaseFirestore db;
     private CollectionReference events;
@@ -67,7 +69,7 @@ public class AddEventFragment extends Fragment {
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
-
+        maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
         saveEventButton = view.findViewById(R.id.saveEventButton);
 
@@ -88,6 +90,7 @@ public class AddEventFragment extends Fragment {
                 String deadline = deadlineEditText.getText().toString();
                 String genre = genreEditText.getText().toString();
                 String location = locationEditText.getText().toString();
+                String listmax = maxentrantEditText.getText().toString();
 
                 Map<String, Object> eventData = new HashMap<>();
                 eventData.put("Name", name);
@@ -98,6 +101,12 @@ public class AddEventFragment extends Fragment {
                 if(!location.isEmpty()){
                     eventData.put("Location", location);
                 }
+                if (listmax.isEmpty() == false){
+                    eventData.put("Wait List Maximum", listmax);
+                }
+                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Cancelled Entrants", new ArrayList<String>());
+                eventData.put("Accepted Entrants", new ArrayList<String>());
                 db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment

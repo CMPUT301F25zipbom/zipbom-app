@@ -15,8 +15,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,8 +29,15 @@ public class EditEventFragment extends Fragment {
     private FirebaseFirestore db;
     private String originalEventId;
     private String originalEventText; // The full text of the event
+    private CollectionReference eventref;
+    private FirebaseFirestore db1;
+    private CollectionReference events;
+    private ArrayList<String> entrantlist;
+    private ArrayList<String> acceptedentrantlist;
+    private ArrayList<String> cancelledentrantlist;
+    private String maxentrantstring;
 
-    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText;
+    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,6 +62,28 @@ public class EditEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        db1 = FirebaseFirestore.getInstance();
+        events = db1.collection("Events");
+
+        eventref = db1.collection("Events");
+        events.addSnapshotListener((valuedb, error) -> {
+            for (QueryDocumentSnapshot snapshot : valuedb) {
+                if ((ArrayList<String>) snapshot.get("Entrants") != null) {
+                    entrantlist = (ArrayList<String>) snapshot.get("Entrants");
+                }
+                if ((ArrayList<String>) snapshot.get("Accepted Entrants") != null) {
+                    acceptedentrantlist = (ArrayList<String>) snapshot.get("Accepted Entrants");
+                }
+                if ((ArrayList<String>) snapshot.get("Cancelled Entrants") != null) {
+                    cancelledentrantlist = (ArrayList<String>) snapshot.get("Cancelled Entrants");
+                }
+                if (snapshot.getString("Wait List Maximum") != null) {
+                    maxentrantstring = snapshot.getString("Wait List Maximum");
+                }
+            }
+        });
+
+
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
         // Find all EditTexts
@@ -61,6 +93,7 @@ public class EditEventFragment extends Fragment {
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
+        maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
         // Store original texts incase of a cancel
         Map<String, Object> updatedEventDataIfCancel = new HashMap<>();
@@ -108,6 +141,7 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
+            maxentrantEditText.setText(maxentrantstring);
         }
     }
 
@@ -123,12 +157,20 @@ public class EditEventFragment extends Fragment {
             String Location = locationEditText.getText().toString();
             updatedEventData.put("Location", Location);
         }
+        if(maxentrantEditText.getText().toString().isEmpty() == false){
+            String maxentrant = maxentrantEditText.getText().toString();
+            updatedEventData.put("Wait List Maximum", maxentrant);
+        }
         // --- Update in Firebase ---
         updatedEventData.put("Name", Name);
         updatedEventData.put("Max People", MaxPeople);
         updatedEventData.put("Date", Date);
         updatedEventData.put("Deadline", Deadline);
         updatedEventData.put("Genre", Genre);
+        updatedEventData.put("Entrants", new ArrayList<String>());
+        updatedEventData.put("Accepted Entrants", new ArrayList<String>());
+        updatedEventData.put("Cancelled Entrants", new ArrayList<String>());
+
 
 
         db.collection("Events").document(originalEventId)

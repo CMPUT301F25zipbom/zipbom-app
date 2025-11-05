@@ -155,7 +155,8 @@ public class OrganizerMainFragment extends Fragment {
                         Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
                     }
                 }
-            }else {
+            }
+            else {
                 // If there are no documents, show a "No events" message
                 TextView noEventsTextView = new TextView(getContext());
                 noEventsTextView.setText("No events yet.");
