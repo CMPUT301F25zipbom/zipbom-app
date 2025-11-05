@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.code_zombom_app.LogIn.LoginActivity;
+import com.example.code_zombom_app.Login.LoginActivity;
 
 /**
  * The main activity of the project. For now we should use this activity to open other activity to

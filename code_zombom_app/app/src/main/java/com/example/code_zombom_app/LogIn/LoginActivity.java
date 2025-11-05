@@ -1,4 +1,4 @@
-package com.example.code_zombom_app.LogIn;
+package com.example.code_zombom_app.Login;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,6 +12,9 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.code_zombom_app.LogIn.LoginController;
+import com.example.code_zombom_app.LogIn.LoginModel;
+import com.example.code_zombom_app.LogIn.LoginView;
 import com.example.code_zombom_app.MVC.TView;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
