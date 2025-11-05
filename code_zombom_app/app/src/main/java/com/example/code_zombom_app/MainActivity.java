@@ -3,9 +3,9 @@ package com.example.code_zombom_app;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.code_zombom_app.LogIn.LoginActivity;
-
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.code_zombom_app.LogIn.LoginActivity;
 
 /**
  * The main activity of the project. For now we should use this activity to open other activity to
