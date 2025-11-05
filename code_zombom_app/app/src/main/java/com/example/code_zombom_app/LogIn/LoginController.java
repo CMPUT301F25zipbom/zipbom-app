@@ -15,6 +15,13 @@ import androidx.core.content.ContextCompat;
 
 import com.example.code_zombom_app.MVC.TController;
 
+/**
+ * The controller for the login process
+ *
+ * @author Dang Nguyen
+ * @version 1.0.0, 11/4/2025
+ * @see TController
+ */
 public class LoginController extends TController<LoginModel> {
     private final EditText editTextemail;
     private final Button buttonLogin;
@@ -60,6 +67,12 @@ public class LoginController extends TController<LoginModel> {
         });
     }
 
+    /**
+     * Get the input email address from the users
+     *
+     * @return The users's input
+     * @see EditText
+     */
     private String getEmailInput() {
         return editTextemail.getText().toString().trim();
     }
