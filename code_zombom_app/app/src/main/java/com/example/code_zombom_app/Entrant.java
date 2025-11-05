@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Represents an entrant using the application. Stores notification preferences,
  * and the events this entrant has interacted with.
  *
- * @author Dang Nguyen, Deng
+ * @author Dang Nguyen, Deng Ngut
  * @version 1.0.0, 11/3/2025
  * @see Event
  * @see Parcelable
