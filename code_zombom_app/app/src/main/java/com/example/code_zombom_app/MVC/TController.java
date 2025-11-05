@@ -7,15 +7,11 @@ package com.example.code_zombom_app.MVC;
  * @author The Internet
  * @version 1.0.0, 11/4/2025
  * @param <M> The model
- * @param <V> The view
  */
-public abstract class TController<M extends TModel<V>, V extends TView<M>> {
+public abstract class TController<M extends TModel> {
     protected final M model;
-    protected  final V view;
 
-    protected TController(M model, V view) {
+    protected TController(M model) {
         this.model = model;
-        this.view = view;
-        model.addView(view);
     }
 }
