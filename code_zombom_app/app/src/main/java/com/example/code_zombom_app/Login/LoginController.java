@@ -50,7 +50,6 @@ public class LoginController extends GController<LoginModel> {
             }
         });
 
-
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -59,7 +58,6 @@ public class LoginController extends GController<LoginModel> {
         });
 
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Intent signUp = new Intent(context, SignUpActivity.class);

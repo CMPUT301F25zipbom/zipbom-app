@@ -19,4 +19,10 @@
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="back">Back</string>
+
+    <string-array name="user_types">
+        <item>Entrant</item>
+        <item>Organizer</item>
+        <item>Admin</item>
+    </string-array>
 </resources>

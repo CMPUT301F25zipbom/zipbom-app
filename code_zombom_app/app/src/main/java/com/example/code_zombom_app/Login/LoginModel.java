@@ -1,14 +1,12 @@
 package com.example.code_zombom_app.Login;
 
-import com.example.code_zombom_app.Entrant;
+import android.content.Context;
+
+import com.example.code_zombom_app.Objects.Entrant;
 import com.example.code_zombom_app.MVC.GModel;
 import com.example.code_zombom_app.MVC.TModel;
-import com.example.code_zombom_app.MVC.TView;
-import com.example.code_zombom_app.Profile;
+import com.example.code_zombom_app.Objects.Profile;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * The idea for now is this is the MAIN model ("brain") of our project. Every other activity should
@@ -19,8 +17,8 @@ import java.util.Map;
  * @see TModel
  */
 public class LoginModel extends GModel {
-    public LoginModel() {
-        super();
+    public LoginModel(FirebaseFirestore db) {
+        super(db);
     }
 
 //    /**
@@ -87,6 +85,15 @@ public class LoginModel extends GModel {
      * @see FirebaseFirestore
      */
     public void loadProfile(String email) {
+        resetState();
+
+        if (email == null || email.trim().isEmpty()) {
+            state = State.LOGIN_FAILURE;
+            errorMsg = "Cannot find profile!";
+            notifyViews();
+            return;
+        }
+
         db.collection("Profiles").document(email)
                 .get()
                 .addOnSuccessListener(snapshot -> {
@@ -96,6 +103,7 @@ public class LoginModel extends GModel {
                     }
                     else {
                         state = State.LOGIN_FAILURE;
+                        errorMsg = "Cannot find profile!";
                         notifyViews();
                     }
 
@@ -103,6 +111,7 @@ public class LoginModel extends GModel {
                 .addOnFailureListener(e -> {
                     e.printStackTrace();
                     state = State.LOGIN_FAILURE;
+                    errorMsg = "Cannot query the database!";
                     notifyViews();
                 });
     }

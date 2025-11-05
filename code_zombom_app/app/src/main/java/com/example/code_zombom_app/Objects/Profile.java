@@ -1,7 +1,4 @@
-package com.example.code_zombom_app;
-
-import java.util.ArrayList;
-import java.util.UUID;
+package com.example.code_zombom_app.Objects;
 
 /**
  * Represent a profile. Store the personal information such as email addresses, name, phone number,
@@ -19,8 +16,13 @@ public abstract class Profile {
 
     /**
      * ALWAYS call this constructor. A profile MUST always be associated with an email address
+     *
+     * @param email The email address associated with this profile
+     * @throws IllegalArgumentException If the email is null, blank or empty
      */
     public Profile(String email) {
+        if (email == null || email.trim().isEmpty())
+            throw new IllegalArgumentException("Email cannot be null, blank or empty");
         this.email = email;
     }
 
@@ -30,6 +32,8 @@ public abstract class Profile {
      * @param name  entrant display name
      * @param email contact email
      * @param phone optional contact phone
+     *
+     * @throws IllegalArgumentException If the email is null, blank or empty
      */
     public Profile(String name, String email, String phone) {
         this(email);
