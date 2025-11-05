@@ -27,7 +27,7 @@ public class EditEventFragment extends Fragment {
     private String originalEventId;
     private String originalEventText; // The full text of the event
 
-    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText;
+    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,6 +61,7 @@ public class EditEventFragment extends Fragment {
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
+        maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
         // Pre-fill the fields with existing data
         populateFields();
@@ -91,6 +92,7 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
+            else if ("Wait List Maximum".equals(key)) maxentrantEditText.setText(value);
         }
     }
 
@@ -105,6 +107,10 @@ public class EditEventFragment extends Fragment {
         if(locationEditText.getText().toString().isEmpty() == false){
             String Location = locationEditText.getText().toString();
             updatedEventData.put("Location", Location);
+        }
+        if(maxentrantEditText.getText().toString().isEmpty() == false){
+            String maxentrant = maxentrantEditText.getText().toString();
+            updatedEventData.put("Wait List Maximum", maxentrant);
         }
         // --- Update in Firebase ---
         updatedEventData.put("Name", Name);
@@ -133,7 +139,7 @@ public class EditEventFragment extends Fragment {
                     // Navigate back
                     if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
                             && !Genre.isEmpty()) {
-                        NavHostFragment.findNavController(this).navigateUp();
+
                         Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     }
                 })
