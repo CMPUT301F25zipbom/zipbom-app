@@ -3,7 +3,7 @@ package com.example.code_zombom_app;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.code_zombom_app.LogIn.LoginActivity;
+import com.example.code_zombom_app.Login.LoginActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
