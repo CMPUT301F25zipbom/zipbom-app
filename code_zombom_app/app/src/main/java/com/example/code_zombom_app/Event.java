@@ -286,14 +286,15 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Add an entrant to the chosen list (they won the lottery)
+     * Add an entrant to the chosen list (they won the lottery) if they have not in the chosen list
      *
      * @param cEntrant The chosen entrant (a winner)
      * @see Entrant
      * @since 1.0.0
      */
     public void addChosenEntrant(Entrant cEntrant) {
-        this.chosenList.add(cEntrant);
+        if (!chosenList.contains(cEntrant))
+            this.chosenList.add(cEntrant);
     }
 
     /**
@@ -320,14 +321,16 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Add an entrant to the pending list (when they accept the invitation)
+     * Add an entrant to the pending list (when they accept the invitation) if they have not already
+     * in the list
      *
      * @param pEntrant The entrant to add to the pending list
      * @see Entrant
      * @since 1.0.0
      */
     public void addPendingEntrant(Entrant pEntrant) {
-        this.pendingList.add(pEntrant);
+        if (!pendingList.contains(pEntrant))
+            this.pendingList.add(pEntrant);
     }
 
     /**
@@ -355,13 +358,15 @@ public class Event implements Comparable<Event> {
 
     /**
      * Add an entrant to the registered list (after they have registered to participate successfully)
+     * if they have not already in the list
      *
      * @param rEntrant The participated entrant
      * @see Entrant
      * @since 1.0.0
      */
     public void addRegisteredEntrant(Entrant rEntrant) {
-        this.registeredList.add(rEntrant);
+        if (!registeredList.contains(rEntrant))
+            this.registeredList.add(rEntrant);
     }
 
     /**
@@ -388,13 +393,14 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Add a lottery guideline to the lottery guideline list
+     * Add a lottery guideline to the lottery guideline list if they have not already in the list
      *
      * @param guideline A guideline to add to the lottery guideline list
      * @since 1.0.0
      */
     public void addLotteryGuideline(String guideline) {
-        this.lotterySelectionGuidelines.add(guideline);
+        if (!lotterySelectionGuidelines.contains(guideline))
+            this.lotterySelectionGuidelines.add(guideline);
     }
 
     /**

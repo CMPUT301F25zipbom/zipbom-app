@@ -1,5 +1,6 @@
 package com.example.code_zombom_app;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 /**
@@ -10,7 +11,6 @@ import java.util.UUID;
  * @version 1.0.0, 11/4/2025
  */
 public abstract class Profile {
-    protected final String id;
     protected String name;
     protected String email;
     protected String phone;
@@ -21,7 +21,6 @@ public abstract class Profile {
      * ALWAYS call this constructor. A profile MUST always be associated with an email address
      */
     public Profile(String email) {
-        this.id = UUID.randomUUID().toString();
         this.email = email;
     }
 
@@ -36,13 +35,6 @@ public abstract class Profile {
         this(email);
         this.name = name;
         this.phone = phone;
-    }
-
-    /**
-     * @return backing-store identifier (e.g. Firestore document id)
-     */
-    public String getId() {
-        return id;
     }
 
     /**
