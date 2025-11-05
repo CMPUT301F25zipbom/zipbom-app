@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.organizer;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil; // <-- Import DiffUtil
 import androidx.recyclerview.widget.ListAdapter; // <-- Import ListAdapter
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.code_zombom_app.R;
 
 public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHolder> {
 
