@@ -49,18 +49,8 @@ public class LoginModel extends TModel<TView> {
      * @see Profile
      */
     public void setProfile(Profile profile) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("Name", profile.getName());
-        data.put("Email", profile.getEmail());
-        data.put("Phone", profile.getPhone());
-        data.put("Type", profile.getType());
-        data.put("Device ID", profile.getDeviceId());
-
-        if (profile.getType().equals("Entrant"))
-            setEntrant(data, (Entrant) profile);
-
         db.collection("Profiles").document(profile.getEmail())
-                .set(data)
+                .set(profile)
                 .addOnSuccessListener(aVoid -> {
                     state = State.SIGNUP_SUCCESS;
                     notifyViews();
@@ -154,19 +144,5 @@ public class LoginModel extends TModel<TView> {
                     state = State.LOGIN_FAILURE;
                     notifyViews();
                 });
-    }
-
-    /**
-     * Handle putting the entrant in a data Hashmap
-     *
-     * @param data    The Hashmap to put the data in
-     * @param entrant The entrant to be put in the database
-     * @see Map
-     * @see HashMap
-     * @see Entrant
-     */
-    private void setEntrant(Map data, Entrant entrant) {
-        data.put("Event History", entrant.getEventHistory());
-        data.put("Waiting Events", entrant.getWaitingEvents());
     }
 }
