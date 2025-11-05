@@ -3,17 +3,9 @@ package com.example.code_zombom_app;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.code_zombom_app.LogIn.LoginActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.code_zombom_app.databinding.ActivityMainBinding;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * The main activity of the project. For now we should use this activity to open other activity to
@@ -32,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
         /* Open the login activity */
         Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(loginIntent);
     }
 
 

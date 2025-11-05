@@ -134,7 +134,6 @@ public class EntrantEventListViewModel extends ViewModel {
         }
 
         Event event = new Event(name);
-        event.setEventId(snapshot.getId());
 
         String genre = snapshot.getString("Genre");
         if (genre != null && !genre.trim().isEmpty()) {
