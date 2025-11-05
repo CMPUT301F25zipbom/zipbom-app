@@ -1,13 +1,18 @@
-package com.example.code_zombom_app.LogIn;
+package com.example.code_zombom_app.Login;
 
 import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.code_zombom_app.MVC.TView;
 
+/**
+ * The view of the login process
+ *
+ * @author Dang Nguyen
+ * @version 1.0.0, 11/4/2025
+ * @see TView
+ */
 public class LoginView implements TView<LoginModel> {
     private final Context context;
 

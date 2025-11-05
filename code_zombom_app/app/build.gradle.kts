@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-firestore")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation(libs.appcompat)
     implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation(libs.material)
@@ -48,6 +49,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.rendering)
     implementation(libs.lifecycle.viewmodel)
+    implementation(libs.firebase.firestore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

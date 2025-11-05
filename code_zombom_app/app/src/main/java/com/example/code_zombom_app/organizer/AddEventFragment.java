@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.organizer;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -96,7 +96,7 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                if (location != ""){
+                if(location.isEmpty() == false){
                     eventData.put("Location", location);
                 }
                 db.collection("Events").add(eventData);
@@ -106,4 +106,5 @@ public class AddEventFragment extends Fragment {
             }
         });
     }
+
 }

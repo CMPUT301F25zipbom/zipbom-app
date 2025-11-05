@@ -3,39 +3,54 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
 
+    <!-- Home Fragment -->
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.example.code_zombom_app.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" >
-        <action
-            android:id="@+id/action_navigation_home_to_entrantEventListFragment"
-            app:destination="@id/entrantEventListFragment" />
+        tools:layout="@layout/fragment_home">
+
+        <!-- Action: Home -> Organizer Graph -->
         <action
             android:id="@+id/action_home_to_events_graph"
             app:destination="@id/org_graph" />
+
+        <!-- Action: Home -> Admin Fragment -->
+        <action
+            android:id="@+id/action_home_to_admin"
+            app:destination="@id/adminFragment" />
     </fragment>
 
+    <!-- Dashboard Fragment -->
     <fragment
         android:id="@+id/navigation_dashboard"
         android:name="com.example.code_zombom_app.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
 
+        <!-- Action: Dashboard -> Admin Fragment -->
+        <action
+            android:id="@+id/action_dashboard_to_admin"
+            app:destination="@id/adminFragment" />
+    </fragment>
+
+    <!-- Notifications Fragment -->
     <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.example.code_zombom_app.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 
+    <!-- Admin Fragment -->
     <fragment
-        android:id="@+id/entrantEventListFragment"
-        android:name="com.example.code_zombom_app.EntrantEventListFragment"
-        android:label="@string/entrant_event_catalog_title"
-        tools:layout="@layout/fragment_entrant_event_list" />
+        android:id="@+id/adminFragment"
+        android:name="com.example.code_zombom_app.ui.admin.AdminFragment"
+        android:label="Admin"
+        tools:layout="@layout/fragment_admin" />
 
-    <!-- Nest Nav_graph into mobile_navigation -->
+    <!-- Nested Organizer Graph -->
     <include app:graph="@navigation/organizer_graph" />
+
 </navigation>
