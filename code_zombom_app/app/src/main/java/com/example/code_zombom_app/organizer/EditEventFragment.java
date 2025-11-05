@@ -15,8 +15,11 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,6 +29,13 @@ public class EditEventFragment extends Fragment {
     private FirebaseFirestore db;
     private String originalEventId;
     private String originalEventText; // The full text of the event
+    private CollectionReference eventref;
+    private FirebaseFirestore db1;
+    private CollectionReference events;
+    private ArrayList<String> entrantlist;
+    private ArrayList<String> acceptedentrantlist;
+    private ArrayList<String> cancelledentrantlist;
+    private String maxentrantstring;
 
     private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
@@ -51,6 +61,28 @@ public class EditEventFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db1 = FirebaseFirestore.getInstance();
+        events = db1.collection("Events");
+
+        eventref = db1.collection("Events");
+        events.addSnapshotListener((valuedb, error) -> {
+            for (QueryDocumentSnapshot snapshot : valuedb) {
+                if ((ArrayList<String>) snapshot.get("Entrants") != null) {
+                    entrantlist = (ArrayList<String>) snapshot.get("Entrants");
+                }
+                if ((ArrayList<String>) snapshot.get("Accepted Entrants") != null) {
+                    acceptedentrantlist = (ArrayList<String>) snapshot.get("Accepted Entrants");
+                }
+                if ((ArrayList<String>) snapshot.get("Cancelled Entrants") != null) {
+                    cancelledentrantlist = (ArrayList<String>) snapshot.get("Cancelled Entrants");
+                }
+                if (snapshot.getString("Wait List Maximum") != null) {
+                    maxentrantstring = snapshot.getString("Wait List Maximum");
+                }
+            }
+        });
+
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
@@ -92,7 +124,7 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
-            else if ("Wait List Maximum".equals(key)) maxentrantEditText.setText(value);
+            maxentrantEditText.setText(maxentrantstring);
         }
     }
 
@@ -118,6 +150,10 @@ public class EditEventFragment extends Fragment {
         updatedEventData.put("Date", Date);
         updatedEventData.put("Deadline", Deadline);
         updatedEventData.put("Genre", Genre);
+        updatedEventData.put("Entrants", new ArrayList<String>());
+        updatedEventData.put("Accepted Entrants", new ArrayList<String>());
+        updatedEventData.put("Cancelled Entrants", new ArrayList<String>());
+
 
 
 
@@ -139,7 +175,7 @@ public class EditEventFragment extends Fragment {
                     // Navigate back
                     if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
                             && !Genre.isEmpty()) {
-
+                        NavHostFragment.findNavController(this).navigateUp();
                         Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     }
                 })

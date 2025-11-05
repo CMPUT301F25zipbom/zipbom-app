@@ -105,9 +105,9 @@ public class AddEventFragment extends Fragment {
                 if (listmax.isEmpty() == false){
                     eventData.put("Wait List Maximum", listmax);
                 }
-                eventData.put("Entrants", new ArrayList<>());
-                eventData.put("Cancelled Entrants", new ArrayList<>());
-                eventData.put("Accepted Entrants", new ArrayList<>());
+                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Cancelled Entrants", new ArrayList<String>());
+                eventData.put("Accepted Entrants", new ArrayList<String>());
                 db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment
