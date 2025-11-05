@@ -128,7 +128,7 @@ public class OrganizerMainFragment extends Fragment {
                         if (!TextUtils.isEmpty(genre)) {
                             eventTextBuilder.append("Genre: ").append(genre).append("\n");
                         }
-                        String location = snapshot.getString("Location");
+
                         if (!TextUtils.isEmpty(location)) {
                             eventTextBuilder.append("Location: ").append(location).append("\n");
                         }
