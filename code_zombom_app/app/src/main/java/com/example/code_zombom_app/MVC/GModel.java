@@ -1,5 +1,8 @@
 package com.example.code_zombom_app.MVC;
 
+import android.content.Context;
+
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
@@ -10,7 +13,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * @see TModel
  */
 public abstract class GModel extends TModel<TView> {
-    protected final FirebaseFirestore db = FirebaseFirestore.getInstance();
+    protected FirebaseFirestore db;
+    protected String errorMsg;
     public enum State {
         LOGIN_SUCCESS,
         LOGIN_FAILURE,
@@ -22,8 +26,9 @@ public abstract class GModel extends TModel<TView> {
     }
     protected State state;
 
-    public GModel() {
-        state = State.NEUTRAL;
+    public GModel(FirebaseFirestore db) {
+        resetState();
+        this.db = db;
     }
 
     /**
@@ -31,5 +36,20 @@ public abstract class GModel extends TModel<TView> {
      */
     public State getState() {
         return state;
+    }
+
+    /**
+     * @return The error message
+     */
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    /**
+     * Reset the state back to NEUTRAL and the error message to null
+     */
+    public void resetState() {
+        state = State.NEUTRAL;
+        errorMsg = null;
     }
 }

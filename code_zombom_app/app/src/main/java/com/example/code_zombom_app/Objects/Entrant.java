@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.Objects;
 
 import android.os.Parcelable;
 

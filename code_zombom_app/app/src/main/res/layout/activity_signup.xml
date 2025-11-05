@@ -90,4 +90,16 @@
         app:layout_constraintStart_toEndOf="@+id/buttonSignUpBack"
         app:layout_constraintTop_toBottomOf="@+id/editTextSignUpPhone"
         app:layout_constraintVertical_bias="0.169" />
+
+    <Spinner
+        android:id="@+id/spinnerSignUpUserType"
+        android:layout_width="168dp"
+        android:layout_height="23dp"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonSignUpBack"
+        app:layout_constraintVertical_bias="0.164" />
 </androidx.constraintlayout.widget.ConstraintLayout>
