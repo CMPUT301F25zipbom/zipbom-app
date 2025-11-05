@@ -1,16 +1,19 @@
 package com.example.code_zombom_app.Login;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.code_zombom_app.MVC.TView;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 
 /**
  * This is the login activity. Will return to the main activity after a successful login
  * <p>
- *     This is the Application level
+ *     This is the Application and View level
  * </p>
  *
  * @author Dang Nguyen
@@ -18,7 +21,7 @@ import com.example.code_zombom_app.R;
  * @see AppCompatActivity
  * @see MainActivity
  */
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements TView<LoginModel> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,11 +33,18 @@ public class LoginActivity extends AppCompatActivity {
                 findViewById(R.id.editTextEmailAddress),
                 findViewById(R.id.buttonLogIn),
                 findViewById(R.id.buttonSignUp),
-                findViewById(R.id.buttonSignInWithDevice));
-        LoginView view = new LoginView(this);
+                findViewById(R.id.buttonSignInWithDevice),
+                this);
 
-        model.addView(view);
+        model.addView(this);
     }
 
-
+    @Override
+    public void update(LoginModel model) {
+        if (model.getState() == LoginModel.State.LOGIN_SUCCESS) {
+            finish(); // Return to the main activity
+        } else if (model.getState() == LoginModel.State.LOGIN_FAILURE) {
+            Toast.makeText(this, "Login failed!", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
