@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import android.text.TextUtils;
 
 public class OrganizerMainFragment extends Fragment {
 
@@ -101,15 +102,40 @@ public class OrganizerMainFragment extends Fragment {
                         String eventNameForQR = snapshot.getString("Name");
                         StringBuilder eventTextBuilder = new StringBuilder();
 
-                        eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
-                        eventTextBuilder.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
-                        eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
-                        eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
-                        eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                        if (snapshot.getString("Location") != null) {
-                            eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
+                        // Required fields
+                        //eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
+
+                        String name = snapshot.getString("Name");
+                        if (!TextUtils.isEmpty(name)) {
+                            eventTextBuilder.append("Name: ").append(name).append("\n");
                         }
-                        String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
+
+                        // Optional fields - Check each one before appending
+                        String maxPeople = snapshot.getString("Max People");
+                        if (!TextUtils.isEmpty(maxPeople)) {
+                            eventTextBuilder.append("Max People: ").append(maxPeople).append("\n");
+                        }
+
+                        String date = snapshot.getString("Date");
+                        if (!TextUtils.isEmpty(date)) {
+                            eventTextBuilder.append("Date: ").append(date).append("\n");
+                        }
+
+                        String deadline = snapshot.getString("Deadline");
+                        if (!TextUtils.isEmpty(deadline)) {
+                            eventTextBuilder.append("Deadline: ").append(deadline).append("\n");
+                        }
+
+                        String genre = snapshot.getString("Genre");
+                        if (!TextUtils.isEmpty(genre)) {
+                            eventTextBuilder.append("Genre: ").append(genre).append("\n");
+                        }
+                        String location = snapshot.getString("Location");
+                        if (!TextUtils.isEmpty(location)) {
+                            eventTextBuilder.append("Location: ").append(location).append("\n");
+                        }
+
+                        String eventText = eventTextBuilder.toString().trim();
 
                         eventDetailsTextView.setText(eventText);
 
