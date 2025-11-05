@@ -1,4 +1,4 @@
-package com.example.code_zombom_app.MVC;
+package com.example.code_zombom_app.Helpers.MVC;
 
 /**
  * A generic controller template. A controller should only be associated with A view and A model, but

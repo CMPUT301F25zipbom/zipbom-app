@@ -1,4 +1,4 @@
-package com.example.code_zombom_app.MVC;
+package com.example.code_zombom_app.Helpers.MVC;
 
 import android.content.Context;
 

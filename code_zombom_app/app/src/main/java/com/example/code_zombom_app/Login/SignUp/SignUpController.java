@@ -12,10 +12,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.example.code_zombom_app.MVC.GController;
+import com.example.code_zombom_app.Helpers.MVC.GController;
+import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.R;
 
-public class SignUpController extends GController<SignUpModel> {
+public class SignUpController extends GController<LoadUploadProfileModel> {
     private final EditText editTextName;
     private final EditText editTextEmail;
     private final EditText editTextPhone;
@@ -28,7 +29,7 @@ public class SignUpController extends GController<SignUpModel> {
     private String Email;
     private String Phone;
 
-    public SignUpController(SignUpModel M, Context context,
+    public SignUpController(LoadUploadProfileModel M, Context context,
                             EditText name, EditText email, EditText phone, Button back,
                             Button signUp, Spinner userType)
     {
@@ -105,7 +106,7 @@ public class SignUpController extends GController<SignUpModel> {
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((SignUpModel) model).setProfile(Name, Email, Phone, selectedType);
+                ((LoadUploadProfileModel) model).setProfile(Name, Email, Phone, selectedType);
             }
         });
 

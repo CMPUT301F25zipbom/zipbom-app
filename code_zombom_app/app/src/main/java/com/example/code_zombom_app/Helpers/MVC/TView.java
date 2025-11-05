@@ -1,4 +1,4 @@
-package com.example.code_zombom_app.MVC;
+package com.example.code_zombom_app.Helpers.MVC;
 
 /**
  * A generic view as shown in lectures. A view should be associated with a SINGLE model. Every view

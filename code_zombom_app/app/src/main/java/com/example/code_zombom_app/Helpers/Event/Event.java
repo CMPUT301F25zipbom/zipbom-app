@@ -1,4 +1,6 @@
-package com.example.code_zombom_app.Objects;
+package com.example.code_zombom_app.Helpers.Event;
+
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 
 import java.util.ArrayList;
 import java.util.Comparator;

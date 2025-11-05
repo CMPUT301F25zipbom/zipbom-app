@@ -1,8 +1,10 @@
-package com.example.code_zombom_app.Objects;
+package com.example.code_zombom_app.Helpers.Users;
 
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+
+import com.example.code_zombom_app.Helpers.Event.Event;
 
 import java.util.ArrayList;
 
