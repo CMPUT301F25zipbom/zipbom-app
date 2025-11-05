@@ -29,11 +29,12 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
     private String Email;
     private String Phone;
 
-    public SignUpController(LoadUploadProfileModel M, Context context,
+    public SignUpController(LoadUploadProfileModel M,
                             EditText name, EditText email, EditText phone, Button back,
-                            Button signUp, Spinner userType)
+                            Button signUp, Spinner userType,
+                            ArrayAdapter<CharSequence> adapter)
     {
-        super(M, context);
+        super(M);
         editTextName = name;
         editTextEmail = email;
         editTextPhone = phone;
@@ -41,11 +42,7 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
         buttonSignUp = signUp;
         spinnerUserType = userType;
 
-        userTypeAdapter = ArrayAdapter.createFromResource(
-                this.context,
-                R.array.user_types,
-                android.R.layout.simple_spinner_item
-        );
+        userTypeAdapter = adapter;
         userTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerUserType.setAdapter(userTypeAdapter);
 
@@ -113,7 +110,7 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((android.app.Activity) context).finish();
+                ((LoadUploadProfileModel) model).close();
             }
         });
     }
