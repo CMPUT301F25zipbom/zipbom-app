@@ -32,6 +32,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import android.text.TextUtils;
 
 public class OrganizerMainFragment extends Fragment {
 
@@ -112,7 +113,27 @@ public class OrganizerMainFragment extends Fragment {
                         if (!TextUtils.isEmpty(location)) {
                             eventTextBuilder.append("Location: ").append(location).append("\n");
                         }
-                        String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
+
+                        String date = snapshot.getString("Date");
+                        if (!TextUtils.isEmpty(date)) {
+                            eventTextBuilder.append("Date: ").append(date).append("\n");
+                        }
+
+                        String deadline = snapshot.getString("Deadline");
+                        if (!TextUtils.isEmpty(deadline)) {
+                            eventTextBuilder.append("Deadline: ").append(deadline).append("\n");
+                        }
+
+                        String genre = snapshot.getString("Genre");
+                        if (!TextUtils.isEmpty(genre)) {
+                            eventTextBuilder.append("Genre: ").append(genre).append("\n");
+                        }
+                        String location = snapshot.getString("Location");
+                        if (!TextUtils.isEmpty(location)) {
+                            eventTextBuilder.append("Location: ").append(location).append("\n");
+                        }
+
+                        String eventText = eventTextBuilder.toString().trim();
 
                         eventDetailsTextView.setText(eventText);
 
