@@ -21,7 +21,7 @@ public class EntrantMainController extends GController<EntrantMainModel> {
         imageButtonProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                ((EntrantMainModel) model).open("Profile");
             }
         });
     }
