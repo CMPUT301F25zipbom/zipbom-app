@@ -11,6 +11,9 @@
         android:label="@string/title_home"
         tools:layout="@layout/fragment_home" >
         <action
+            android:id="@+id/action_navigation_home_to_entrantEventListFragment"
+            app:destination="@id/entrantEventListFragment" />
+        <action
             android:id="@+id/action_home_to_events_graph"
             app:destination="@id/org_graph" />
     </fragment>
@@ -26,6 +29,12 @@
         android:name="com.example.code_zombom_app.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/entrantEventListFragment"
+        android:name="com.example.code_zombom_app.EntrantEventListFragment"
+        android:label="@string/entrant_event_catalog_title"
+        tools:layout="@layout/fragment_entrant_event_list" />
 
     <!-- Nest Nav_graph into mobile_navigation -->
     <include app:graph="@navigation/organizer_graph" />

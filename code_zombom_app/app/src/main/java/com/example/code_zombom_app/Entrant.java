@@ -20,8 +20,11 @@ public class Entrant extends Profile {
     private boolean notificationsEnabled = true;
     private boolean lastNotificationReceived;
 
-    private final ArrayList<Event> waitingEvents;
-    private final ArrayList<EventParticipation> eventHistory;
+    /* Note that we keep the event's ID instead of the actual
+     * Event object to avoid overhead
+     */
+    private final ArrayList<String> waitingEvents;
+    private final ArrayList<String> eventHistory;
 
     /**
      * MUST always call this constructor. Initialises the collections so model methods remain safe
@@ -49,31 +52,47 @@ public class Entrant extends Profile {
         this.type = "Entrant";
     }
 
-//    protected Entrant(Parcel in) {
-//        id = in.readString();
-//        name = in.readString();
-//        email = in.readString();
-//        phone = in.readString();
-//        deviceId = in.readString();
-//        notificationsEnabled = in.readByte() != 0;
-//        lastNotificationReceived = in.readByte() != 0;
-//        waitingEvents = new ArrayList<>();
-//        in.readTypedList(waitingEvents, Event.CREATOR);
-//        eventHistory = new ArrayList<>();
-//        in.readTypedList(eventHistory, EventParticipation.CREATOR);
-//    }
+    /**
+     * @return entrant display name
+     */
+    public String getName() {
+        return name;
+    }
 
-//    public static final Creator<Entrant> CREATOR = new Creator<Entrant>() {
-//        @Override
-//        public Entrant createFromParcel(Parcel in) {
-//            return new Entrant(in);
-//        }
-//
-//        @Override
-//        public Entrant[] newArray(int size) {
-//            return new Entrant[size];
-//        }
-//    };
+    /**
+     * Updates the entrant's display name.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return entrant email contact
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * Updates the entrant's contact email.
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @return entrant phone contact (optional)
+     */
+    public String getPhone() {
+        return phone;
+    }
+
+    /**
+     * Updates the entrant's contact phone.
+     */
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 
     /**
      * @return whether this entrant opted in to organiser/admin notifications
@@ -111,34 +130,50 @@ public class Entrant extends Profile {
      * Adds an event to the entrant's waiting list if it is not already present.
      *
      * @param event event that the entrant joined the waiting list for
-     * @return true when the event was added, false when it was already tracked
+     * @return true when the event id was added, false when it was already tracked
      */
     public boolean addWaitingEvent(Event event) {
         if (event == null) {
             return false;
         }
-        if (waitingEvents.stream().anyMatch(existing -> existing.getId() != null
-                && existing.getId().equals(event.getId()))) {
+        return addWaitingEventId(event.getEventId());
+    }
+
+    /**
+     * Adds an event identifier to the waiting list without requiring a full Event object.
+     */
+    public boolean addWaitingEventId(String eventId) {
+        if (eventId == null || eventId.isEmpty()) {
             return false;
         }
-        return waitingEvents.add(event);
+        if (waitingEvents.contains(eventId)) {
+            return false;
+        }
+        return waitingEvents.add(eventId);
     }
 
     /**
-     * Removes an event from the waiting list.
-     *
-     * @param event event to remove
-     * @return true if the event was present, false otherwise
+     * Removes an event from the waiting list. Accepts either the event object or just the identifier.
      */
     public boolean removeWaitingEvent(Event event) {
-        return waitingEvents.remove(event);
+        if (event == null) {
+            return false;
+        }
+        return removeWaitingEventId(event.getEventId());
+    }
+
+    public boolean removeWaitingEventId(String eventId) {
+        if (eventId == null) {
+            return false;
+        }
+        return waitingEvents.remove(eventId);
     }
 
     /**
-     * @return immutable view of the events this entrant is waiting on
+     * @return immutable view of the event identifiers this entrant is waiting on
      */
-    public List<Event> getWaitingEvents() {
-        return Collections.unmodifiableList(waitingEvents);
+    public ArrayList<String> getWaitingEventIds() {
+        return new ArrayList<String>(waitingEvents);
     }
 
     /**
@@ -147,7 +182,15 @@ public class Entrant extends Profile {
      * @param eventId event identifier (may be null)
      */
     public boolean isWaitingForEvent(String eventId) {
-        return waitingEvents.stream().anyMatch(event -> eventId != null && eventId.equals(event.getId()));
+        return eventId != null && waitingEvents.contains(eventId);
+    }
+
+    public int getWaitingEventCount() {
+        return waitingEvents.size();
+    }
+
+    public void clearWaitingEvents() {
+        waitingEvents.clear();
     }
 
     // endregion
@@ -159,123 +202,96 @@ public class Entrant extends Profile {
      */
     public void addEventToHistory(EventParticipation participation) {
         if (participation != null) {
-            eventHistory.add(participation);
+            eventHistory.add(participation.getEventId());
         }
+    }
+
+    /**
+     * Convenience helper to log a participation outcome using an Event object.
+     */
+    public void addEventToHistory(Event event, EventParticipation.Outcome outcome) {
+        if (event == null || outcome == null) {
+            return;
+        }
+        eventHistory.add((new EventParticipation(event.getEventId(), event.getName(), outcome)).getEventId());
     }
 
     /**
      * Removes a participation record. Useful when organisers delete an event.
      */
     public void removeEventFromHistory(EventParticipation participation) {
-        eventHistory.remove(participation);
+        eventHistory.remove(participation.getEventId());
     }
 
     /**
      * @return immutable view of historic participation outcomes
      */
-    public List<EventParticipation> getEventHistory() {
-        return Collections.unmodifiableList(eventHistory);
+    public ArrayList<String> getEventHistory() {
+        return new ArrayList<String>(eventHistory);
     }
 
-    // endregion
+    /**
+     * Value object describing an entrant's outcome for a given event.
+     */
+    public static class EventParticipation {
+        public enum Outcome {
+            WAITLISTED,
+            SELECTED,
+            CONFIRMED,
+            DECLINED,
+            NOT_SELECTED
+        }
 
-//    @Override
-//    public void writeToParcel(Parcel dest, int flags) {
-//        dest.writeString(id);
-//        dest.writeString(name);
-//        dest.writeString(email);
-//        dest.writeString(phone);
-//        dest.writeString(deviceId);
-//        dest.writeByte((byte) (notificationsEnabled ? 1 : 0));
-//        dest.writeByte((byte) (lastNotificationReceived ? 1 : 0));
-//        dest.writeTypedList(waitingEvents);
-//        dest.writeTypedList(eventHistory);
-//    }
-//
-//    @Override
-//    public int describeContents() {
-//        return 0;
-//    }
-//
-//    /**
-//     * Value object describing an entrant's outcome for a given event.
-//     */
-//    public static class EventParticipation implements Parcelable {
-//        public enum Outcome {
-//            WAITLISTED,
-//            SELECTED,
-//            CONFIRMED,
-//            DECLINED,
-//            NOT_SELECTED
-//        }
-//
-//        private final Event event;
-//        private Outcome outcome;
-//        private long decisionTimestamp;
-//
-//        public EventParticipation(Event event, Outcome outcome) {
-//            this.event = event;
-//            this.outcome = outcome;
-//            this.decisionTimestamp = System.currentTimeMillis();
-//        }
-//
-//        protected EventParticipation(Parcel in) {
-//            event = in.readParcelable(Event.class.getClassLoader());
-//            outcome = Outcome.valueOf(in.readString());
-//            decisionTimestamp = in.readLong();
-//        }
-//
-//        public static final Creator<EventParticipation> CREATOR = new Creator<EventParticipation>() {
-//            @Override
-//            public EventParticipation createFromParcel(Parcel in) {
-//                return new EventParticipation(in);
-//            }
-//
-//            @Override
-//            public EventParticipation[] newArray(int size) {
-//                return new EventParticipation[size];
-//            }
-//        };
-//
-//        /**
-//         * @return event backing this participation record
-//         */
-//        public Event getEvent() {
-//            return event;
-//        }
-//
-//        /**
-//         * @return current outcome/state for the entrant in this event
-//         */
-//        public Outcome getOutcome() {
-//            return outcome;
-//        }
-//
-//        /**
-//         * Updates the outcome and resets the decision timestamp.
-//         */
-//        public void setOutcome(Outcome outcome) {
-//            this.outcome = outcome;
-//            this.decisionTimestamp = System.currentTimeMillis();
-//        }
-//
-//        /**
-//         * @return epoch milliseconds of the last outcome change
-//         */
-//        public long getDecisionTimestamp() {
-//            return decisionTimestamp;
-//        }
-//
-//        @Override
-//        public void writeToParcel(Parcel dest, int flags) {
-//            dest.writeParcelable(event, flags);
-//            dest.writeString(outcome.name());
-//            dest.writeLong(decisionTimestamp);
-//        }
-//
-//        @Override
-//        public int describeContents() {
-//            return 0;
-//        }
-//    }
+        private final String eventId;
+        private String eventName;
+        private Outcome outcome;
+        private long decisionTimestamp;
+
+        public EventParticipation(String eventId, String eventName, Outcome outcome) {
+            this.eventId = eventId;
+            this.eventName = eventName;
+            this.outcome = outcome;
+            this.decisionTimestamp = System.currentTimeMillis();
+        }
+
+        /**
+         * @return event identifier backing this participation record
+         */
+        public String getEventId() {
+            return eventId;
+        }
+
+        /**
+         * @return human-readable event name cached at the time of logging
+         */
+        public String getEventName() {
+            return eventName;
+        }
+
+        public void setEventName(String eventName) {
+            this.eventName = eventName;
+        }
+
+        /**
+         * @return current outcome/state for the entrant in this event
+         */
+        public Outcome getOutcome() {
+            return outcome;
+        }
+
+        /**
+         * Updates the outcome and resets the decision timestamp.
+         */
+        public void setOutcome(Outcome outcome) {
+            this.outcome = outcome;
+            this.decisionTimestamp = System.currentTimeMillis();
+        }
+
+        /**
+         * @return epoch milliseconds of the last outcome change
+         */
+        public long getDecisionTimestamp() {
+            return decisionTimestamp;
+        }
+    }
 }

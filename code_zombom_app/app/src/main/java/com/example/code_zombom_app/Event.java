@@ -47,6 +47,12 @@ public class Event implements Comparable<Event> {
     // End date for an event. Will be set to null if an event has no end date
     private Date endDate;
 
+    // Optional additional metadata exposed to entrants
+    private String location;
+    private int capacity;
+    private String eventDateText;
+    private String registrationClosesAtText;
+
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
@@ -72,6 +78,10 @@ public class Event implements Comparable<Event> {
         createdDate = new Date(); // Get the current (created) date
         endDate = null;
         eventId = UUID.randomUUID().toString();
+        location = "";
+        capacity = 0;
+        eventDateText = "";
+        registrationClosesAtText = "";
     }
 
     /**
@@ -425,6 +435,19 @@ public class Event implements Comparable<Event> {
     }
 
     /**
+     * Sets the identifier for this event. Used when syncing with Firestore where the document id
+     * represents the event id.
+     *
+     * @param eventId unique identifier from persistence
+     */
+    public void setEventId(String eventId) {
+        if (eventId == null || eventId.trim().isEmpty()) {
+            return;
+        }
+        this.eventId = eventId;
+    }
+
+    /**
      * Get the event identifier
      *
      * @return The event's unique identifier
@@ -450,6 +473,85 @@ public class Event implements Comparable<Event> {
             return nameComparison;
         else
             return this.eventId.compareToIgnoreCase(o.getEventId());
+    }
+
+    /**
+     * Updates the event location. Blank inputs are treated as no location.
+     *
+     * @param location user supplied location (may be null)
+     */
+    public void setLocation(String location) {
+        if (location == null) {
+            this.location = "";
+        } else {
+            this.location = location.trim();
+        }
+    }
+
+    /**
+     * @return user facing location string, or empty if not provided
+     */
+    public String getLocation() {
+        return location;
+    }
+
+    /**
+     * Updates the event capacity; values less than zero are treated as zero.
+     *
+     * @param capacity desired capacity
+     */
+    public void setCapacity(int capacity) {
+        if (capacity < 0) {
+            capacity = 0;
+        }
+        this.capacity = capacity;
+    }
+
+    /**
+     * @return maximum number of confirmed entrants for the event
+     */
+    public int getCapacity() {
+        return capacity;
+    }
+
+    /**
+     * Stores a human-readable event date/time string (organizer supplied).
+     *
+     * @param eventDate formatted date/time string
+     */
+    public void setEventDate(String eventDate) {
+        if (eventDate == null) {
+            this.eventDateText = "";
+        } else {
+            this.eventDateText = eventDate.trim();
+        }
+    }
+
+    /**
+     * @return formatted event date/time string
+     */
+    public String getEventDateText() {
+        return eventDateText;
+    }
+
+    /**
+     * Stores a human-readable registration deadline string.
+     *
+     * @param deadline formatted deadline value (may be null)
+     */
+    public void setRegistrationClosesAt(String deadline) {
+        if (deadline == null) {
+            this.registrationClosesAtText = "";
+        } else {
+            this.registrationClosesAtText = deadline.trim();
+        }
+    }
+
+    /**
+     * @return formatted registration closing time
+     */
+    public String getRegistrationClosesAtText() {
+        return registrationClosesAtText;
     }
 
     /**
