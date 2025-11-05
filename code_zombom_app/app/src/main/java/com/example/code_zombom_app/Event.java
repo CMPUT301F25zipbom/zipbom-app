@@ -435,19 +435,6 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Sets the identifier for this event. Used when syncing with Firestore where the document id
-     * represents the event id.
-     *
-     * @param eventId unique identifier from persistence
-     */
-    public void setEventId(String eventId) {
-        if (eventId == null || eventId.trim().isEmpty()) {
-            return;
-        }
-        this.eventId = eventId;
-    }
-
-    /**
      * Get the event identifier
      *
      * @return The event's unique identifier

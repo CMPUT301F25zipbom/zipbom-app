@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.code_zombom_app.MVC.TView;
+
 /**
  * This is the login activity. Will return to the main activity after a successful login
  *
@@ -12,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
  * @see AppCompatActivity
  * @see MainActivity
  */
-public class LoginActivity extends AppCompatActivity implements {
+public class LoginActivity extends AppCompatActivity implements TView<MainModel> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
