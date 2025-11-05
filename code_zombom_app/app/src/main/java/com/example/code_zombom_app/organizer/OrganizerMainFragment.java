@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,18 +104,14 @@ public class OrganizerMainFragment extends Fragment {
                         String eventNameForQR = snapshot.getString("Name");
                         StringBuilder eventTextBuilder = new StringBuilder();
 
-                        // Required fields
-                        //eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
-
-                        String name = snapshot.getString("Name");
-                        if (!TextUtils.isEmpty(name)) {
-                            eventTextBuilder.append("Name: ").append(name).append("\n");
-                        }
-
-                        // Optional fields - Check each one before appending
-                        String maxPeople = snapshot.getString("Max People");
-                        if (!TextUtils.isEmpty(maxPeople)) {
-                            eventTextBuilder.append("Max People: ").append(maxPeople).append("\n");
+                        eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
+                        eventTextBuilder.append("Max People: ").append(snapshot.getString("Max People")).append("\n");
+                        eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
+                        eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
+                        eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
+                        String location = snapshot.getString("Location");
+                        if (!TextUtils.isEmpty(location)) {
+                            eventTextBuilder.append("Location: ").append(location).append("\n");
                         }
 
                         String date = snapshot.getString("Date");

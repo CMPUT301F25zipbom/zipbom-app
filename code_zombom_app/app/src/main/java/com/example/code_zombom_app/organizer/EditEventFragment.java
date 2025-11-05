@@ -62,10 +62,27 @@ public class EditEventFragment extends Fragment {
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
 
+        // Store original texts incase of a cancel
+        Map<String, Object> updatedEventDataIfCancel = new HashMap<>();
+        String ogName = eventNameEditText.getText().toString();
+        String ogMaxPeople = maxPeopleEditText.getText().toString();
+        String ogDate = dateEditText.getText().toString();
+        String ogDeadline = deadlineEditText.getText().toString();
+        String ogGenre = genreEditText.getText().toString();
+        String ogLocation = locationEditText.getText().toString();
+
         // Pre-fill the fields with existing data
         populateFields();
 
         cancelButton.setOnClickListener(v -> {
+            updatedEventDataIfCancel.put("Name", ogName);
+            updatedEventDataIfCancel.put("Max People", ogMaxPeople);
+            updatedEventDataIfCancel.put("Date", ogDate);
+            updatedEventDataIfCancel.put("Deadline", ogDeadline);
+            updatedEventDataIfCancel.put("Genre", ogGenre);
+            if (!ogLocation.isEmpty()){
+                updatedEventDataIfCancel.put("Location", ogLocation);
+            }
             NavHostFragment.findNavController(EditEventFragment.this).navigateUp();
         });
 
@@ -102,7 +119,7 @@ public class EditEventFragment extends Fragment {
         String Date = dateEditText.getText().toString();
         String Deadline = deadlineEditText.getText().toString();
         String Genre = genreEditText.getText().toString();
-        if(locationEditText.getText().toString().isEmpty() == false){
+        if(!locationEditText.getText().toString().isEmpty()){
             String Location = locationEditText.getText().toString();
             updatedEventData.put("Location", Location);
         }
@@ -114,21 +131,9 @@ public class EditEventFragment extends Fragment {
         updatedEventData.put("Genre", Genre);
 
 
-
         db.collection("Events").document(originalEventId)
                 .set(updatedEventData) // or .update()
                 .addOnSuccessListener(aVoid -> {
-
-                    // --- Update in local ViewModel ---
-                    if(locationEditText.getText().toString().isEmpty() == false){
-                        String Location = locationEditText.getText().toString();
-                        String newFormattedString = "Name: " + Name + "\nMax People: " + MaxPeople + "\nDate: " + Date + "\nDeadline: " + Deadline + "\nGenre: " + Genre + "\nLocation: " + Location;
-                        eventViewModel.updateEvent(originalEventId, newFormattedString);
-                    }
-                    else {
-                        String newFormattedString = "Name: " + Name + "\nMax People: " + MaxPeople + "\nDate: " + Date + "\nDeadline: " + Deadline + "\nGenre: " + Genre;
-                        eventViewModel.updateEvent(originalEventId, newFormattedString);
-                    }
 
                     // Navigate back
                     if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
