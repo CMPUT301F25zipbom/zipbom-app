@@ -1,6 +1,7 @@
 package com.example.code_zombom_app.Login.SignUp;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,13 +20,18 @@ public class SignUpActivity extends AppCompatActivity implements TView<LoadUploa
         setContentView(R.layout.activity_signup);
 
         LoadUploadProfileModel model = new LoadUploadProfileModel(FirebaseFirestore.getInstance());
-        SignUpController controller = new SignUpController(model, this,
+        SignUpController controller = new SignUpController(model,
                 findViewById(R.id.editTextSignUpName),
                 findViewById(R.id.editTextSignUpEmail),
                 findViewById(R.id.editTextSignUpPhone),
                 findViewById(R.id.buttonSignUpBack),
                 findViewById(R.id.buttonSignUpSignUp),
-                findViewById(R.id.spinnerSignUpUserType));
+                findViewById(R.id.spinnerSignUpUserType),
+                ArrayAdapter.createFromResource(
+                        this,
+                        R.array.user_types,
+                        android.R.layout.simple_spinner_item
+                ));
 
         model.addView(this);
     }
@@ -38,6 +44,9 @@ public class SignUpActivity extends AppCompatActivity implements TView<LoadUploa
         } else if (model.getState() == GModel.State.SIGNUP_FAILURE) {
             Toast.makeText(this, "Sign Up failed: " + model.getErrorMsg(),
                     Toast.LENGTH_SHORT).show();
+        }
+        else if (model.getState() == GModel.State.CLOSE) {
+            finish();
         }
     }
 }

@@ -29,9 +29,8 @@ public class LoginController extends GController<LoadUploadProfileModel> {
     private final Button buttonSignUpWithDevice;
 
     public LoginController(LoadUploadProfileModel M,
-                           EditText email, Button login, Button signup, Button signUpDevice,
-                           Context context) {
-        super(M, context);
+                           EditText email, Button login, Button signup, Button signUpDevice) {
+        super(M);
         editTextemail = email;
         buttonLogin = login;
         buttonSignUp = signup;
@@ -54,27 +53,16 @@ public class LoginController extends GController<LoadUploadProfileModel> {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((LoadUploadProfileModel) model).loadProfile(getEmailInput());
+                ((LoadUploadProfileModel) model).loadProfile(getInput(editTextemail));
             }
         });
 
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent signUp = new Intent(context, SignUpActivity.class);
-                context.startActivity(signUp);
+                ((LoadUploadProfileModel) model).open();
             }
         });
-    }
-
-    /**
-     * Get the input email address from the users
-     *
-     * @return The users's input
-     * @see EditText
-     */
-    private String getEmailInput() {
-        return editTextemail.getText().toString().trim();
     }
 
 }

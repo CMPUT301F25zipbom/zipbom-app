@@ -23,7 +23,8 @@ public abstract class GModel extends TModel<TView> {
         LOGIN_FAILURE,
         SIGNUP_SUCCESS,
         SIGNUP_FAILURE,
-
+        OPEN, // Use this state when you want to open an activity
+        CLOSE, // Use this state when you want to go back from an activity
 
         INTERNAL_ERROR,
         NEUTRAL
@@ -98,5 +99,21 @@ public abstract class GModel extends TModel<TView> {
         errorMsg = null;
         if (interMsg != null)
             interMsg.replaceAll((k, v) -> null);
+    }
+
+    /**
+     * Declare that you want to open a new activity
+     */
+    public void open() {
+        state = State.OPEN;
+        notifyViews();
+    }
+
+    /**
+     * Declare that you want to close (go back from) an activity
+     */
+    public void close() {
+        state = State.CLOSE;
+        notifyViews();
     }
 }

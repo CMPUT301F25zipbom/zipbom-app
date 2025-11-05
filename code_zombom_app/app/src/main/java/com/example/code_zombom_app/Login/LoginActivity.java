@@ -11,6 +11,7 @@ import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Profile;
+import com.example.code_zombom_app.Login.SignUp.SignUpActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,8 +39,7 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
                 findViewById(R.id.editTextEmailAddress),
                 findViewById(R.id.buttonLogIn),
                 findViewById(R.id.buttonSignUp),
-                findViewById(R.id.buttonSignInWithDevice),
-                this);
+                findViewById(R.id.buttonSignInWithDevice));
 
         model.addView(this);
     }
@@ -60,6 +60,10 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
         } else if (model.getState() == GModel.State.LOGIN_FAILURE) {
             Toast.makeText(this, "Login failed: " + model.getErrorMsg(),
                     Toast.LENGTH_SHORT).show();
+        }
+        else if (model.getState() == GModel.State.OPEN) {
+            Intent signUp = new Intent(this, SignUpActivity.class);
+            startActivity(signUp);
         }
     }
 }
