@@ -7,4 +7,13 @@
     <string name="enter_email">Enter email</string>
     <string name="sign_up">Sign Up</string>
     <string name="log_in_with_device">"<u>Log in with device</u>"</string>
+    <string name="entrant_event_catalog_title">Browse Events</string>
+    <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
+    <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
+    <string name="entrant_event_join_button">Join Waiting List</string>
+    <string name="entrant_event_list_error">Unable to load events. Please try again.</string>
+    <string name="no_categories_assigned">General</string>
+    <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
+    <string name="home_welcome_message">Welcome back! Choose how you want to explore today.</string>
+    <string name="home_organizer_portal_label">Organizer Tools</string>
 </resources>
