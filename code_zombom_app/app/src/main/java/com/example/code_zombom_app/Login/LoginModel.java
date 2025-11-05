@@ -1,7 +1,6 @@
-package com.example.code_zombom_app.LogIn;
+package com.example.code_zombom_app.Login;
 
 import com.example.code_zombom_app.Entrant;
-import com.example.code_zombom_app.FireStoreCallBack;
 import com.example.code_zombom_app.MVC.TModel;
 import com.example.code_zombom_app.MVC.TView;
 import com.example.code_zombom_app.Profile;

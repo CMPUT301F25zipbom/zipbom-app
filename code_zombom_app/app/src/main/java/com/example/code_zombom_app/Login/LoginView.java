@@ -1,10 +1,8 @@
-package com.example.code_zombom_app.LogIn;
+package com.example.code_zombom_app.Login;
 
 import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.code_zombom_app.MVC.TView;
 
