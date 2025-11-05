@@ -1,11 +1,10 @@
 package com.example.code_zombom_app;
 
-import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Represents an entrant using the application. Stores notification preferences,
@@ -53,45 +52,20 @@ public class Entrant extends Profile {
     }
 
     /**
-     * @return entrant display name
+     * Another convenient constructor for quickly instantiating an entrant profile
+     * @param name          entrant display name
+     * @param email         contact email
+     * @param phone         optional contact phone
+     * @param waitingEvents The current waiting event list of this entrant. Cannot be null
+     * @param eventHistory  The current event history list of this entrant. Cannot be null
      */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Updates the entrant's display name.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return entrant email contact
-     */
-    public String getEmail() {
-        return email;
-    }
-
-    /**
-     * Updates the entrant's contact email.
-     */
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    /**
-     * @return entrant phone contact (optional)
-     */
-    public String getPhone() {
-        return phone;
-    }
-
-    /**
-     * Updates the entrant's contact phone.
-     */
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public Entrant(String name, String email, String phone,
+                   @NonNull ArrayList<String> waitingEvents,
+                   @NonNull ArrayList<String> eventHistory) {
+        super(name, email, phone);
+        this.waitingEvents = new ArrayList<>(waitingEvents); // Deep-copy
+        this.eventHistory = new ArrayList<>(eventHistory);
+        this.type = "Entrant";
     }
 
     /**
@@ -172,7 +146,7 @@ public class Entrant extends Profile {
     /**
      * @return immutable view of the event identifiers this entrant is waiting on
      */
-    public ArrayList<String> getWaitingEventIds() {
+    public ArrayList<String> getWaitingEvents() {
         return new ArrayList<String>(waitingEvents);
     }
 
@@ -193,9 +167,6 @@ public class Entrant extends Profile {
         waitingEvents.clear();
     }
 
-    // endregion
-
-    // region Event history
 
     /**
      * Stores historical participation metadata for the entrant.
