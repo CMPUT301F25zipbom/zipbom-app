@@ -38,9 +38,16 @@
         android:text="Edit Event" />
 
     <Button
-        android:id="@+id/button_cancel"
+        android:id="@+id/genQRButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Generate QR Code" />
+
+    <Button
+        android:id="@+id/button_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="#C13F3F"
         android:text="Cancel" />
