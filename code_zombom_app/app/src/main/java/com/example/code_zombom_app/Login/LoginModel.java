@@ -1,6 +1,7 @@
 package com.example.code_zombom_app.Login;
 
 import com.example.code_zombom_app.Entrant;
+import com.example.code_zombom_app.MVC.GModel;
 import com.example.code_zombom_app.MVC.TModel;
 import com.example.code_zombom_app.MVC.TView;
 import com.example.code_zombom_app.Profile;
@@ -17,49 +18,9 @@ import java.util.Map;
  * @version 1.0.0, 11/4/2025
  * @see TModel
  */
-public class LoginModel extends TModel<TView> {
-    public enum State {
-        LOGIN_SUCCESS,
-        LOGIN_FAILURE,
-        SIGNUP_SUCCESS,
-        SIGNUP_FAILURE,
-
-        NEUTRAL
-        /* More to be implemented later */
-    }
-
-    private State state;
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-
+public class LoginModel extends GModel {
     public LoginModel() {
-        state = State.NEUTRAL;
-    }
-
-    /**
-     * @return The current state of the model
-     */
-    public State getState() {
-        return state;
-    }
-
-    /**
-     * Create a new profile
-     *
-     * @param profile The new profile to create
-     * @see Profile
-     */
-    public void setProfile(Profile profile) {
-        db.collection("Profiles").document(profile.getEmail())
-                .set(profile)
-                .addOnSuccessListener(aVoid -> {
-                    state = State.SIGNUP_SUCCESS;
-                    notifyViews();
-                })
-                .addOnFailureListener(e -> {
-                    e.printStackTrace();
-                    state = State.SIGNUP_FAILURE;
-                    notifyViews();
-                });
+        super();
     }
 
 //    /**

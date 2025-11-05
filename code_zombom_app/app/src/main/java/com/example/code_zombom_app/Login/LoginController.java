@@ -1,6 +1,7 @@
 package com.example.code_zombom_app.Login;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -9,6 +10,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.code_zombom_app.Login.SignUp.SignUpActivity;
+import com.example.code_zombom_app.MVC.GController;
 import com.example.code_zombom_app.MVC.TController;
 
 /**
@@ -18,15 +21,16 @@ import com.example.code_zombom_app.MVC.TController;
  * @version 1.0.0, 11/4/2025
  * @see TController
  */
-public class LoginController extends TController<LoginModel> {
+public class LoginController extends GController<LoginModel> {
     private final EditText editTextemail;
     private final Button buttonLogin;
     private final Button buttonSignUp;
     private final Button buttonSignUpWithDevice;
 
     public LoginController(LoginModel M,
-                           EditText email, Button login, Button signup, Button signUpDevice) {
-        super(M);
+                           EditText email, Button login, Button signup, Button signUpDevice,
+                           Context context) {
+        super(M, context);
         editTextemail = email;
         buttonLogin = login;
         buttonSignUp = signup;
@@ -50,7 +54,7 @@ public class LoginController extends TController<LoginModel> {
         buttonLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                model.loadProfile(getEmailInput());
+                ((LoginModel) model).loadProfile(getEmailInput());
             }
         });
 
@@ -58,7 +62,8 @@ public class LoginController extends TController<LoginModel> {
 
             @Override
             public void onClick(View v) {
-                /*...*/
+                Intent signUp = new Intent(context, SignUpActivity.class);
+                context.startActivity(signUp);
             }
         });
     }
