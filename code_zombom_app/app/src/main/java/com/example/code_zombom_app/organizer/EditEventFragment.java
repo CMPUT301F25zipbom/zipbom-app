@@ -107,6 +107,20 @@ public class EditEventFragment extends Fragment {
         // A more robust solution would be a proper data model.
         if (originalEventText == null) return;
 
+        // Setting Wait List Maximum text
+        if (originalEventId != null) {
+            db.collection("Events").document(originalEventId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Check if the field exists in the document
+                            if (documentSnapshot.contains("Wait List Maximum")) {
+                                String waitListMax = documentSnapshot.getString("Wait List Maximum");
+                                maxentrantEditText.setText(waitListMax);
+                            }
+                        }
+                    });
+        }
+
         String[] lines = originalEventText.split("\n");
         for (String line : lines) {
             String[] parts = line.split(": ", 2);
@@ -121,7 +135,6 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
-            //else if ("Wait List Maximum".equals(key)) maxentrantEditText.setText(value);
         }
     }
 
