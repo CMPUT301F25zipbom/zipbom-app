@@ -89,7 +89,7 @@
         app:layout_constraintVertical_bias="0.048" />
 
     <ToggleButton
-        android:id="@+id/toggleButtonNotification"
+        android:id="@+id/toggleButtonEntrantProfileNotification"
         android:layout_width="47dp"
         android:layout_height="48dp"
         android:background="@drawable/belloff"
@@ -158,7 +158,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.575"
         app:layout_constraintStart_toEndOf="@+id/textViewEntrantProfileName"
-        app:layout_constraintTop_toBottomOf="@+id/toggleButtonNotification"
+        app:layout_constraintTop_toBottomOf="@+id/toggleButtonEntrantProfileNotification"
         app:layout_constraintVertical_bias="0.101"
         app:srcCompat="@drawable/editicon" />
 
