@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class AddEventFragment extends Fragment {
                 if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
                         && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
                         && !genreEditText.getText().toString().isEmpty()
-                        && Integer.parseInt(listmax) >= 0) {
+                        && Integer.parseInt(listmax) >= 0 && validdate(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
                     //just for the UI visuals
                     String name = eventNameEditText.getText().toString();
                     String maxPeople = maxPeopleEditText.getText().toString();
@@ -124,6 +125,48 @@ public class AddEventFragment extends Fragment {
                 }
             }
         });
+    }
+
+    // This function is used so check if the dates are valid. If they are not, then we return false.
+    boolean validdate (String date1, String date2){
+        boolean isvalid = false;
+        // Splitting up the different parts of the date.
+        String[] eventdate = date1.split(" ");
+        String[] deadlinedate = date2.split(" ");
+
+        if (eventdate.length < 3 || deadlinedate.length < 3) {
+            Toast.makeText(getContext(), "Please use a valid format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure years are valid
+        try {
+            Integer.parseInt(eventdate[2]);
+            Integer.parseInt(deadlinedate[2]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid year format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure days are valid
+        try {
+            Integer.parseInt(eventdate[1]);
+            Integer.parseInt(deadlinedate[1]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid day format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure months are valid
+        String[] validmonths = {"Jan", "jan", "Feb", "feb", "Mar", "mar", "Apr", "apr", "May", "may", "Jun", "jun",
+                "Jul", "jul", "Aug", "aug", "Sep", "sep", "Oct", "oct", "Nov", "nov", "Dec", "dec"};
+        if (!Arrays.asList(validmonths).contains(eventdate[0]) && !Arrays.asList(validmonths).contains(deadlinedate[0])){
+            Toast.makeText(getContext(), "Invalid Month format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        //Check to make sure the deadline is before the event.
+        // Start with the event year, then check the month, then finally check the date. If dates are equal then its invalid.
+
+        return isvalid;
     }
 
 }
