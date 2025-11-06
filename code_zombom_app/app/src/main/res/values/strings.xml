@@ -35,6 +35,17 @@
     <string name="filter_sort_reset">Reset</string>
     <string name="filter_sort_applied_summary">Filters applied</string>
     <string name="filter_sort_reset_summary">Filters cleared</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="phone_optional">Phone (Optional)</string>
+    <string name="device_unlinked">Device Unlinked</string>
+    <string name="device_linked">Device Linked</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="filter">Filter</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="edit_name">Edit Name</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

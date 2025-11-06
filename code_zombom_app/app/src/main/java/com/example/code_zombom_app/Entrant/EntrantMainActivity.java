@@ -19,7 +19,6 @@ import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.R;
 
 public class EntrantMainActivity extends AppCompatActivity implements TView<EntrantMainModel> {
-
     private String email;
     private EntrantEventListViewModel eventViewModel;
     private ActivityResultLauncher<Intent> filterLauncher;

@@ -71,6 +71,19 @@ public class Entrant extends Profile {
     }
 
     /**
+     * Copy constructor for this entrant
+     *
+     * @param other The other entrant to copy into this entrant
+     */
+    public Entrant(Entrant other) {
+        super((Profile) other);
+        this.waitingEvents = other.getWaitingEvents();
+        this.eventHistory = other.getEventHistory();
+        this.notificationsEnabled = other.areNotificationsEnabled();
+        this.lastNotificationReceived = other.hasReceivedLastNotification();
+    }
+
+    /**
      * @return whether this entrant opted in to organiser/admin notifications
      */
     public boolean areNotificationsEnabled() {
