@@ -184,6 +184,11 @@ public class EditEventFragment extends Fragment {
         }
     }
 
+    /**
+     * This is a copy paste of the code from AddEventFragment
+     * @param listmax Contains a String that represents a positive number.
+     * @return Will return True if the string is a positive number, else, it will give an error message and return false
+     */
     boolean maxentrantchecker (String listmax){
         if (listmax.isEmpty()) {
             return true;
@@ -202,7 +207,13 @@ public class EditEventFragment extends Fragment {
             return true;
         }
     }
-    // This function is used so check if the dates are valid. If they are not, then we return false.
+
+    /**
+     * This is the same code from AddEventFragment. Serves same purpose.
+     * @param date1 Consists of a string MMM DD YYYY (example Jan 6 2025)
+     * @param date2 Consists of a string MMM DD YYYY
+     * @return returns the true if date1 is after date 2. Else, it returns false and a message why
+     */
     boolean validdatechecker (String date1, String date2) {
         boolean isvalid = false;
         // Splitting up the different parts of the date.

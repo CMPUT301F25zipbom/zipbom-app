@@ -24,6 +24,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Robert Enstrom, Tejwinder Johal
+ * @version 1.0
+ * This class is responsible for creating a new event, making sure the event is valid and saving it to firebase
+ */
 public class AddEventFragment extends Fragment {
 
     private EventViewModel eventViewModel;
@@ -39,6 +44,11 @@ public class AddEventFragment extends Fragment {
     private CollectionReference events;
     private Button saveEventButton;
 
+    /**
+     * We get the new view model in this method
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,11 +57,29 @@ public class AddEventFragment extends Fragment {
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
     }
 
+    /**
+     * Inflates the layout.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_add_event, container, false);
     }
 
+    /**
+     * This method gets the data from the user and creates a new event if data is valid.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -106,9 +134,10 @@ public class AddEventFragment extends Fragment {
                 if (listmax.isEmpty() == false) {
                     eventData.put("Wait List Maximum", listmax);
                 }
-                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Entrants", new ArrayList<String>()); // Change this type from String to Entrant once merge happens eventually
                 eventData.put("Cancelled Entrants", new ArrayList<String>());
                 eventData.put("Accepted Entrants", new ArrayList<String>());
+                eventData.put("Lottery Winners", new ArrayList<String>());
                 db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment
@@ -119,6 +148,12 @@ public class AddEventFragment extends Fragment {
     }
 
     // This function is used so check if the dates are valid. If they are not, then we return false.
+
+    /**
+     * @param date1 Consists of a string MMM DD YYYY (example Jan 6 2025)
+     * @param date2 Consists of a string MMM DD YYYY
+     * @return returns the true if date1 is after date 2. Else, it returns false and a message why
+     */
     boolean validdate (String date1, String date2){
         boolean isvalid = false;
         // Splitting up the different parts of the date.
@@ -180,6 +215,11 @@ public class AddEventFragment extends Fragment {
         return isvalid;
     }
 
+    /**
+     *
+     * @param listmax Contains a String that represents a positive number.
+     * @return Will return True if the string is a positive number, else, it will give an error message and return false
+     */
     boolean maxentrantchecker (String listmax){
         if (listmax.isEmpty()) {
             return true;
@@ -198,5 +238,4 @@ public class AddEventFragment extends Fragment {
             return true;
         }
     }
-
 }
