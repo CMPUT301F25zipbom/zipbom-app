@@ -77,7 +77,6 @@ public class OrganizerMainFragment extends Fragment {
             NavHostFragment.findNavController(OrganizerMainFragment.this)
                     .navigate(R.id.action_organizerMainFragment_to_addEventFragment);
         });
-        //setupFirestoreListener();
     }
 
 
@@ -110,25 +109,6 @@ public class OrganizerMainFragment extends Fragment {
                         eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
                         eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
                         String location = snapshot.getString("Location");
-                        if (!TextUtils.isEmpty(location)) {
-                            eventTextBuilder.append("Location: ").append(location).append("\n");
-                        }
-
-                        String date = snapshot.getString("Date");
-                        if (!TextUtils.isEmpty(date)) {
-                            eventTextBuilder.append("Date: ").append(date).append("\n");
-                        }
-
-                        String deadline = snapshot.getString("Deadline");
-                        if (!TextUtils.isEmpty(deadline)) {
-                            eventTextBuilder.append("Deadline: ").append(deadline).append("\n");
-                        }
-
-                        String genre = snapshot.getString("Genre");
-                        if (!TextUtils.isEmpty(genre)) {
-                            eventTextBuilder.append("Genre: ").append(genre).append("\n");
-                        }
-
                         if (!TextUtils.isEmpty(location)) {
                             eventTextBuilder.append("Location: ").append(location).append("\n");
                         }
