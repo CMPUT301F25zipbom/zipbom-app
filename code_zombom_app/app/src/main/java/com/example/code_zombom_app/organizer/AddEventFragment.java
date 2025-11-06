@@ -38,8 +38,6 @@ public class AddEventFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference events;
     private Button saveEventButton;
-    // Create list of events
-    ArrayList<ArrayList<String>> listOfEvents = new ArrayList<ArrayList<String>>();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,48 +80,41 @@ public class AddEventFragment extends Fragment {
         //TODO: add poster
         saveEventButton.setOnClickListener(v -> {
             String eventName = eventNameEditText.getText().toString();
-            Integer listmaxchecker = 1;
-            String listmax = maxentrantEditText.getText().toString();
-            try {
-                Integer.parseInt(listmax);
-            } catch (NumberFormatException e) {
-                listmaxchecker = 0;
-                Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
-            }
-            if (listmaxchecker == 1) {
-                if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
-                        && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
-                        && !genreEditText.getText().toString().isEmpty()
-                        && Integer.parseInt(listmax) >= 0 && validdate(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
-                    //just for the UI visuals
-                    String name = eventNameEditText.getText().toString();
-                    String maxPeople = maxPeopleEditText.getText().toString();
-                    String date = dateEditText.getText().toString();
-                    String deadline = deadlineEditText.getText().toString();
-                    String genre = genreEditText.getText().toString();
-                    String location = locationEditText.getText().toString();
 
-                    Map<String, Object> eventData = new HashMap<>();
-                    eventData.put("Name", name);
-                    eventData.put("Max People", maxPeople);
-                    eventData.put("Date", date);
-                    eventData.put("Deadline", deadline);
-                    eventData.put("Genre", genre);
-                    if (!location.isEmpty()) {
-                        eventData.put("Location", location);
-                    }
-                    if (listmax.isEmpty() == false) {
-                        eventData.put("Wait List Maximum", listmax);
-                    }
-                    eventData.put("Entrants", new ArrayList<String>());
-                    eventData.put("Cancelled Entrants", new ArrayList<String>());
-                    eventData.put("Accepted Entrants", new ArrayList<String>());
-                    db.collection("Events").add(eventData);
+            if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
+                    && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
+                    && !genreEditText.getText().toString().isEmpty()
+                    && maxentrantchecker(maxentrantEditText.getText().toString()) && validdate(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
+                //just for the UI visuals
+                String name = eventNameEditText.getText().toString();
+                String maxPeople = maxPeopleEditText.getText().toString();
+                String date = dateEditText.getText().toString();
+                String deadline = deadlineEditText.getText().toString();
+                String genre = genreEditText.getText().toString();
+                String location = locationEditText.getText().toString();
+                String listmax = maxentrantEditText.getText().toString();
 
-                    // Navigate back to the main fragment
-                    NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                Map<String, Object> eventData = new HashMap<>();
+                eventData.put("Name", name);
+                eventData.put("Max People", maxPeople);
+                eventData.put("Date", date);
+                eventData.put("Deadline", deadline);
+                eventData.put("Genre", genre);
+                if (!location.isEmpty()) {
+                    eventData.put("Location", location);
                 }
+                if (listmax.isEmpty() == false) {
+                    eventData.put("Wait List Maximum", listmax);
+                }
+                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Cancelled Entrants", new ArrayList<String>());
+                eventData.put("Accepted Entrants", new ArrayList<String>());
+                db.collection("Events").add(eventData);
+
+                // Navigate back to the main fragment
+                NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
             }
+
         });
     }
 
@@ -157,16 +148,55 @@ public class AddEventFragment extends Fragment {
             return isvalid;
         }
         // Making sure months are valid
-        String[] validmonths = {"Jan", "jan", "Feb", "feb", "Mar", "mar", "Apr", "apr", "May", "may", "Jun", "jun",
-                "Jul", "jul", "Aug", "aug", "Sep", "sep", "Oct", "oct", "Nov", "nov", "Dec", "dec"};
-        if (!Arrays.asList(validmonths).contains(eventdate[0]) && !Arrays.asList(validmonths).contains(deadlinedate[0])){
+        String[] validmonths = {"jan","feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+        if (!Arrays.asList(validmonths).contains(eventdate[0].toLowerCase()) || !Arrays.asList(validmonths).contains(deadlinedate[0].toLowerCase())){
             Toast.makeText(getContext(), "Invalid Month format.", Toast.LENGTH_SHORT).show();
             return isvalid;
         }
         //Check to make sure the deadline is before the event.
         // Start with the event year, then check the month, then finally check the date. If dates are equal then its invalid.
+        if (Integer.parseInt(eventdate[2]) < Integer.parseInt(deadlinedate[2])){
+            Toast.makeText(getContext(), "Invalid Years.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Testing the case in which years are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) < Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                Toast.makeText(getContext(), "Invalid Month.", Toast.LENGTH_SHORT).show();
+                return isvalid;
+            }
+        }
+        // Checking the case if years and months are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) == Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                if (Integer.parseInt(eventdate[1]) <= Integer.parseInt(deadlinedate[1])){
+                    Toast.makeText(getContext(), "Invalid Days.", Toast.LENGTH_SHORT).show();
+                    return isvalid;
+                }
+            }
+        }
 
+        isvalid = true;
         return isvalid;
+    }
+
+    boolean maxentrantchecker (String listmax){
+        if (listmax.isEmpty()) {
+            return true;
+        }
+        try {
+            Integer.parseInt(listmax);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (Integer.parseInt(listmax) < 0){
+            Toast.makeText(getContext(), "Enter in a positive Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            return true;
+        }
     }
 
 }
