@@ -187,7 +187,7 @@ public class EditEventFragment extends Fragment {
                     .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
         }
         else{
-            // In case the Max Enterant amount is negetive
+            // In case the Max Enterant amount is negetive :)
             Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
         }
     }
