@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="24dp"
@@ -20,13 +20,13 @@
     <Button
         android:id="@+id/button_start_draw"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:text="Start Draw" />
 
     <Button
         android:id="@+id/button_message_participants"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="message entrants" />
 
@@ -43,6 +43,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Generate QR Code" />
+
+    <Button
+        android:id="@+id/seeDetailsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="See Event Details" />
 
     <Button
         android:id="@+id/button_cancel"
