@@ -32,13 +32,14 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Load
                 findViewById(R.id.buttonEntrantProfileSave),
                 findViewById(R.id.buttonEntrantProfileDelete),
                 findViewById(R.id.toggleButtonEntrantProfileNotification),
-                findViewById(R.id.toggleButtonEntrantProfileLinkUnlinkDevice));
+                findViewById(R.id.toggleButtonEntrantProfileLinkUnlinkDevice),
+                email);
         model.addView(this);
     }
 
     @Override
     public void update(LoadUploadProfileModel model) {
         if (model.getState() == GModel.State.CLOSE)
-            finish();
+            finish(); // Close the activity
     }
 }

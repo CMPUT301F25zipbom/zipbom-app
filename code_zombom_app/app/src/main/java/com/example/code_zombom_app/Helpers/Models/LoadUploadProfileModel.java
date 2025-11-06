@@ -110,4 +110,14 @@ public class LoadUploadProfileModel extends GModel {
                     notifyViews();
                 });
     }
+
+    /** Edit a Profile in the database
+     *
+     * @param email   The email address that associated with the required to edit profile
+     * @param profile The new profile to edit the existed profile to
+     * @see Profile
+     */
+    public void editProfile(String email, Profile profile) {
+
+    }
 }
