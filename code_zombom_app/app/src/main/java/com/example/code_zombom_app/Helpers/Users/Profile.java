@@ -1,5 +1,8 @@
 package com.example.code_zombom_app.Helpers.Users;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 /**
  * Represent a profile. Store the personal information such as email addresses, name, phone number,
  * personal identifier and device ID.
@@ -11,7 +14,7 @@ public class Profile {
     protected String name;
     protected String email;
     protected String phone;
-    protected String deviceId;
+    protected ArrayList<String> deviceId = new ArrayList<>();
     protected String type; // Admin, organizer or entrant
 
     /**
@@ -95,15 +98,27 @@ public class Profile {
     /**
      * @return device fingerprint used for passwordless identification
      */
-    public String getDeviceId() {
-        return deviceId;
+    public ArrayList<String> getDeviceId() {
+        return new ArrayList<String>(deviceId);
     }
 
     /**
-     * Persists the device fingerprint for this entrant.
+     * Add the device fingerprint for this entrant if it has not yet existed
+     *
+     * @param deviceId
      */
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
+    public void addDeviceId(String deviceId) {
+        if (!this.deviceId.contains(deviceId))
+            this.deviceId.add(deviceId);
+    }
+
+    /**
+     * Remove a device Id from this profile
+     *
+     * @param deviceId The device Id to be removed
+     */
+    public void removeDeviceId(String deviceId) {
+        this.deviceId.remove(deviceId);
     }
 
     /**

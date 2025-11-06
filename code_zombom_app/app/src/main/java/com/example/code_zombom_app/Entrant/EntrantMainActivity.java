@@ -9,6 +9,7 @@ import com.example.code_zombom_app.Entrant.EditProfile.EditProfileActivity;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EntrantMainActivity extends AppCompatActivity implements TView<EntrantMainModel> {
     private String email;
@@ -20,6 +21,13 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         setContentView(R.layout.activity_entrant_main);
 
         email = getIntent().getStringExtra("Email"); // Get the email address
+
+        EntrantMainModel model = new EntrantMainModel(FirebaseFirestore.getInstance());
+        EntrantMainController controller = new EntrantMainController(model,
+                findViewById(R.id.imageButtonFilter),
+                findViewById(R.id.imageButtonProfile),
+                findViewById(R.id.imageButtonCamera));
+        model.addView(this);
     }
 
     @Override
