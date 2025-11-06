@@ -16,7 +16,7 @@ public abstract class GModel extends TModel<TView> {
     protected String errorMsg; // Used to display the error message
     private final HashMap<String, Object> interMsg; // Used to store the intermediate message (information)
     private final String[] allowedKeys = {
-            "Profile", "Extra"
+            "Profile", "Request", "Message", "Extra"
     };
     public enum State {
         LOGIN_SUCCESS,
@@ -25,6 +25,12 @@ public abstract class GModel extends TModel<TView> {
         SIGNUP_FAILURE,
         OPEN, // Use this state when you want to open an activity
         CLOSE, // Use this state when you want to go back from an activity
+        REQUEST,
+        EDIT_PROFILE_SUCCESS,
+        EDIT_PROFILE_FAILURE,
+        DELETE_PROFILE_SUCCESS,
+        DELETE_PROFILE_FAILURE,
+        NOTIFICATION_TOGGLE,
 
         INTERNAL_ERROR,
         NEUTRAL

@@ -50,6 +50,19 @@ public class Profile {
     }
 
     /**
+     * Copy constructor for this profile
+     *
+     * @param other The other profile to copy into this profile
+     */
+    public Profile(Profile other) {
+        this.name = other.getName();
+        this.email = other.getEmail();
+        this.phone = other.getPhone();
+        this.deviceId = other.getDeviceId();
+        this.type = other.type;
+    }
+
+    /**
      * @return profile's display name
      */
     public String getName() {

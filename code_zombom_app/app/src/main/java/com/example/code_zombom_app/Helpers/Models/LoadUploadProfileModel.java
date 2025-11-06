@@ -111,13 +111,121 @@ public class LoadUploadProfileModel extends GModel {
                 });
     }
 
-    /** Edit a Profile in the database
+    /**
+     * Edit a Profile in the database.
+     * This method sets the state to EDIT_PROFILE_SUCCESS or EDIT_PROFILE_FAILURE
      *
-     * @param email   The email address that associated with the required to edit profile
-     * @param profile The new profile to edit the existed profile to
+     * @param oldProfile The old profile
+     * @param newProfile The new profile to replace the old one
      * @see Profile
      */
-    public void editProfile(String email, Profile profile) {
+    public void editProfile(Profile oldProfile, Profile newProfile) {
+        resetState();
 
+        assert oldProfile != null && newProfile != null;
+
+        // If email didn't change → just update the profile document
+        if (oldProfile.getEmail().equals(newProfile.getEmail())) {
+            db.collection("Profiles").document(oldProfile.getEmail())
+                    .get()
+                    .addOnSuccessListener(snapshot -> {
+                        if (snapshot.exists()) {
+                            db.collection("Profiles").document(oldProfile.getEmail())
+                                    .set(newProfile)
+                                    .addOnSuccessListener(aVoid -> {
+                                        state = State.EDIT_PROFILE_SUCCESS;
+                                        setInterMsg("Profile", newProfile);
+                                        notifyViews();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        e.printStackTrace();
+                                        state = State.EDIT_PROFILE_FAILURE;
+                                        errorMsg = "Cannot update profile in the database!";
+                                        notifyViews();
+                                    });
+                        } else {
+                            state = State.EDIT_PROFILE_FAILURE;
+                            errorMsg = "Profile not found in the database!";
+                            notifyViews();
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        e.printStackTrace();
+                        state = State.EDIT_PROFILE_FAILURE;
+                        errorMsg = "Error querying the database!";
+                        notifyViews();
+                    });
+
+            return; // Done — don't proceed to email-change logic
+        }
+
+        // If email changed → check new email first, then delete old and add new
+        db.collection("Profiles").document(newProfile.getEmail())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        state = State.EDIT_PROFILE_FAILURE;
+                        errorMsg = "This email address is already associated with another profile!";
+                        notifyViews();
+                    } else {
+                        // Delete old document
+                        db.collection("Profiles").document(oldProfile.getEmail())
+                                .delete()
+                                .addOnSuccessListener(aVoid -> {
+                                    // Now upload the new profile
+                                    db.collection("Profiles").document(newProfile.getEmail())
+                                            .set(newProfile)
+                                            .addOnSuccessListener(aVoid2 -> {
+                                                state = State.EDIT_PROFILE_SUCCESS;
+                                                setInterMsg("Profile", newProfile);
+                                                notifyViews();
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                e.printStackTrace();
+                                                state = State.EDIT_PROFILE_FAILURE;
+                                                errorMsg = "Cannot upload the edited profile to the database!";
+                                                notifyViews();
+                                            });
+                                })
+                                .addOnFailureListener(e -> {
+                                    e.printStackTrace();
+                                    state = State.EDIT_PROFILE_FAILURE;
+                                    errorMsg = "Cannot delete the old profile from the database!";
+                                    notifyViews();
+                                });
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    state = State.EDIT_PROFILE_FAILURE;
+                    errorMsg = "Failure querying the database for the new email address!";
+                    notifyViews();
+                });
     }
+
+    /**
+     * Delete a profile from the database. Set the state to DELETE_PROFILE_SUCCESS or
+     * DELETE_PROFILE_FAILURE
+     *
+     * @param email The email address that associate with the profile to delete
+     */
+    public void deleteProfile(String email) {
+        resetState();
+
+        assert email != null;
+
+        db.collection("Profiles").document(email)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    state = State.DELETE_PROFILE_SUCCESS;
+                    setInterMsg("Message", email);
+                    notifyViews();
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    state = State.DELETE_PROFILE_FAILURE;
+                    errorMsg = "Cannot delete this profile from the database!";
+                });
+    }
+
 }

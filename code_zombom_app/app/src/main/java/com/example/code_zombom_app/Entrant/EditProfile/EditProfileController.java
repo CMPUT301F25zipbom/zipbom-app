@@ -2,6 +2,7 @@ package com.example.code_zombom_app.Entrant.EditProfile;
 
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -11,7 +12,7 @@ import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.Profile;
 
-public class EditProfileController extends GController<LoadUploadProfileModel> {
+public class EditProfileController extends GController<EditProfileModel> {
     private ImageButton imageButtonEditName;
     private ImageButton imageButtonEditEmail;
     private ImageButton imageButtonEditPhone;
@@ -23,15 +24,12 @@ public class EditProfileController extends GController<LoadUploadProfileModel> {
     private Button buttonDeleteProfile;
     private ToggleButton toggleButtonNotification;
     private ToggleButton toggleButtonLinkDevice;
-    private final String email;
-    private Entrant entrant;
 
-    public EditProfileController(LoadUploadProfileModel model,
+    public EditProfileController(EditProfileModel model,
                                  ImageButton editName, ImageButton editEmail, ImageButton editPhone,
                                  TextView Name, TextView Email, TextView Phone,
                                  Button back, Button save, Button delete,
-                                 ToggleButton notification, ToggleButton link,
-                                 String email) {
+                                 ToggleButton notification, ToggleButton link) {
         super(model);
 
         this.imageButtonEditName = editName;
@@ -45,31 +43,54 @@ public class EditProfileController extends GController<LoadUploadProfileModel> {
         this.buttonDeleteProfile = delete;
         this.toggleButtonNotification = notification;
         this.toggleButtonLinkDevice = link;
-        this.email = email;
-
-        /* Load the current profile */
-        ((LoadUploadProfileModel) model).loadProfile(email);
-        entrant = (Entrant) ((LoadUploadProfileModel) model).getInterMsg("Profile");
 
         this.buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((LoadUploadProfileModel) model).close();
+                ((EditProfileModel) model).close();
+            }
+        });
+
+        this.buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditProfileModel) model).editEntrant();
+            }
+        });
+
+        this.buttonDeleteProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditProfileModel) model).deleteEntrant();
             }
         });
 
         this.imageButtonEditName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((LoadUploadProfileModel) model).
+                ((EditProfileModel) model).requestPopUp("Change name",
+                        "Enter new name", "Name");
             }
         });
-    }
 
-    /**
-     * Create a popup window that prompts the users to edit a field
-     *
-     * @param title   The title of the popup window
-     * @param message The message to ask the users
-     */
+        this.imageButtonEditEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditProfileModel) model).requestPopUp("Change email",
+                        "Enter new email", "Email");
+            }
+        });
+
+        this.imageButtonEditPhone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditProfileModel) model).requestPopUp("Change phone number",
+                        "Enter new phone number", "Phone");
+            }
+        });
+
+        this.toggleButtonNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ((EditProfileModel) model).setNotification(isChecked);
+        });
+    }
 }
