@@ -20,6 +20,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -138,19 +139,10 @@ public class EditEventFragment extends Fragment {
         }
     }
 
+
     private void updateEvent() {
-        // Checking to see if maxentrant is a valid answer
-        Integer listmaxchecker = 1;
-        String listmax = maxentrantEditText.getText().toString();
-        // Making sure we won't crash if we make it into a positive number
-        try {
-            Integer.parseInt(listmax);
-        } catch (NumberFormatException e) {
-            listmaxchecker = 0;
-            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
-        }
-        // This will continue as long as the previous checks passed
-        if (listmaxchecker == 1 && Integer.parseInt(listmax) >= 0) {
+        // This will continue as long as we have valid dates and entrants.
+        if (maxentrantchecker(maxentrantEditText.getText().toString()) && validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
             Map<String, Object> updatedEventData = new HashMap<>();
 
             String Name = eventNameEditText.getText().toString();
@@ -191,4 +183,85 @@ public class EditEventFragment extends Fragment {
             Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
         }
     }
+
+    boolean maxentrantchecker (String listmax){
+        if (listmax.isEmpty()) {
+            return true;
+        }
+        try {
+            Integer.parseInt(listmax);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (Integer.parseInt(listmax) < 0){
+            Toast.makeText(getContext(), "Enter in a positive Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    // This function is used so check if the dates are valid. If they are not, then we return false.
+    boolean validdatechecker (String date1, String date2) {
+        boolean isvalid = false;
+        // Splitting up the different parts of the date.
+        String[] eventdate = date1.split(" ");
+        String[] deadlinedate = date2.split(" ");
+
+        if (eventdate.length < 3 || deadlinedate.length < 3) {
+            Toast.makeText(getContext(), "Please use a valid format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure years are valid
+        try {
+            Integer.parseInt(eventdate[2]);
+            Integer.parseInt(deadlinedate[2]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid year format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure days are valid
+        try {
+            Integer.parseInt(eventdate[1]);
+            Integer.parseInt(deadlinedate[1]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid day format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure months are valid
+        String[] validmonths = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+        if (!Arrays.asList(validmonths).contains(eventdate[0].toLowerCase()) || !Arrays.asList(validmonths).contains(deadlinedate[0].toLowerCase())) {
+            Toast.makeText(getContext(), "Invalid Month format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        //Check to make sure the deadline is before the event.
+        // Start with the event year, then check the month, then finally check the date. If dates are equal then its invalid.
+        if (Integer.parseInt(eventdate[2]) < Integer.parseInt(deadlinedate[2])) {
+            Toast.makeText(getContext(), "Invalid Years.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Testing the case in which years are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) < Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                Toast.makeText(getContext(), "Invalid Month.", Toast.LENGTH_SHORT).show();
+                return isvalid;
+            }
+        }
+        // Checking the case if years and months are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) == Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                if (Integer.parseInt(eventdate[1]) <= Integer.parseInt(deadlinedate[1])){
+                    Toast.makeText(getContext(), "Invalid Days.", Toast.LENGTH_SHORT).show();
+                    return isvalid;
+                }
+            }
+        }
+
+        isvalid = true;
+        return isvalid;
+    }
+
 }
