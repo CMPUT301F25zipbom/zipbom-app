@@ -197,7 +197,7 @@ public class Entrant extends Profile {
     }
 
     /**
-     * @return immutable view of historic participation outcomes
+     * @return immutable or unmodifiable view of historic participation outcomes
      */
     public ArrayList<String> getEventHistory() {
         return new ArrayList<String>(eventHistory);

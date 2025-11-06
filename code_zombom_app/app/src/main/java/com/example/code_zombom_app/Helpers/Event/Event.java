@@ -45,8 +45,11 @@ public class Event implements Comparable<Event> {
     // Created date of the event: Will be automatically assigned when an event is created
     private final Date createdDate;
 
-    // End date for an event. Will be set to null if an event has no end date
-    private Date endDate;
+    // Scheduled start date/time for an event. Null when not provided.
+    private Date eventStartDate;
+
+    // Scheduled end date/time for an event. Null when not provided.
+    private Date eventEndDate;
 
     // Optional additional metadata exposed to entrants
     private String location;
@@ -77,7 +80,8 @@ public class Event implements Comparable<Event> {
         categories = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
         createdDate = new Date(); // Get the current (created) date
-        endDate = null;
+        eventStartDate = null;
+        eventEndDate = null;
         eventId = UUID.randomUUID().toString();
         location = "";
         capacity = 0;
@@ -290,10 +294,40 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public void setEndDate(Date endDate) {
-        if (endDate != null && (endDate.before(this.createdDate) || endDate.before(new Date())))
-            throw new IllegalArgumentException("End-date cannot be earlier than created-date or today");
+        setEventEndDate(endDate);
+    }
 
-        this.endDate = endDate;
+    /**
+     * Set the start date/time for the event schedule.
+     *
+     * @param startDate desired start date (may be null to clear)
+     * @since 1.0.0
+     */
+    public void setEventStartDate(Date startDate) {
+        if (startDate == null) {
+            this.eventStartDate = null;
+        } else {
+            this.eventStartDate = new Date(startDate.getTime());
+        }
+    }
+
+    /**
+     * Set the end date/time for the event schedule.
+     *
+     * @param endDate desired end date (may be null to clear)
+     * @throws IllegalArgumentException when the supplied end date is earlier than the created date or today
+     * @since 1.0.0
+     */
+    public void setEventEndDate(Date endDate) {
+        if (endDate != null && (endDate.before(this.createdDate) || endDate.before(new Date()))) {
+            throw new IllegalArgumentException("End-date cannot be earlier than created-date or today");
+        }
+
+        if (endDate == null) {
+            this.eventEndDate = null;
+        } else {
+            this.eventEndDate = new Date(endDate.getTime());
+        }
     }
 
     /**
@@ -500,6 +534,26 @@ public class Event implements Comparable<Event> {
      */
     public int getCapacity() {
         return capacity;
+    }
+
+    /**
+     * @return defensive copy of the scheduled start date, or null if unset
+     */
+    public Date getEventStartDate() {
+        if (eventStartDate == null) {
+            return null;
+        }
+        return new Date(eventStartDate.getTime());
+    }
+
+    /**
+     * @return defensive copy of the scheduled end date, or null if unset
+     */
+    public Date getEventEndDate() {
+        if (eventEndDate == null) {
+            return null;
+        }
+        return new Date(eventEndDate.getTime());
     }
 
     /**

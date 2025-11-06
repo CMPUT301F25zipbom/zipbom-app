@@ -19,6 +19,22 @@
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="back">Back</string>
+    <string name="filter_sort_title">Filter</string>
+    <string name="filter_sort_filter_section">Filter</string>
+    <string name="filter_sort_filter_interests">Interests</string>
+    <string name="filter_sort_filter_availability">Availability</string>
+    <string name="filter_sort_interest_sport">Sport</string>
+    <string name="filter_sort_interest_esport">eSport</string>
+    <string name="filter_sort_interest_food">Food</string>
+    <string name="filter_sort_interest_music">Music</string>
+    <string name="filter_sort_interest_engineering">Engineering</string>
+    <string name="filter_sort_select_range">Select date range</string>
+    <string name="filter_sort_range_placeholder">No range selected</string>
+    <string name="filter_sort_range_error">End date cannot be before the start date</string>
+    <string name="filter_sort_apply">Apply</string>
+    <string name="filter_sort_reset">Reset</string>
+    <string name="filter_sort_applied_summary">Filters applied</string>
+    <string name="filter_sort_reset_summary">Filters cleared</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

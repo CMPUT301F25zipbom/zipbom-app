@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.code_zombom_app.Helpers.Event.Event;
 
 /**
- * UI for US 01.01.03 — allows entrants to browse available events.
+ * Displays the entrant event catalog inside the main entrant activity.
  */
 public class EntrantEventListFragment extends Fragment implements EntrantEventAdapter.OnEventActionListener {
 
@@ -38,7 +38,7 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        viewModel = new ViewModelProvider(this).get(EntrantEventListViewModel.class);
+        viewModel = new ViewModelProvider(requireActivity()).get(EntrantEventListViewModel.class);
 
         SearchView searchView = view.findViewById(R.id.entrant_event_search);
         RecyclerView recyclerView = view.findViewById(R.id.entrant_event_recycler);

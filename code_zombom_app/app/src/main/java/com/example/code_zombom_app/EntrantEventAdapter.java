@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -104,9 +105,20 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
                     return oldItem.getEventId().equals(newItem.getEventId());
                 }
 
-                @Override
-                public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-                    return oldItem.equals(newItem);
-                }
-            };
+        @Override
+        public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+            if (oldItem == newItem) {
+                return true;
+            }
+
+            return Objects.equals(oldItem.getName(), newItem.getName())
+                    && Objects.equals(oldItem.getLocation(), newItem.getLocation())
+                    && oldItem.getCapacity() == newItem.getCapacity()
+                    && Objects.equals(oldItem.getCategories(), newItem.getCategories())
+                    && Objects.equals(oldItem.getRestrictions(), newItem.getRestrictions())
+                    && Objects.equals(oldItem.getEventDateText(), newItem.getEventDateText())
+                    && Objects.equals(oldItem.getRegistrationClosesAtText(), newItem.getRegistrationClosesAtText())
+                    && oldItem.getNumberOfWaiting() == newItem.getNumberOfWaiting();
+        }
+    };
 }
