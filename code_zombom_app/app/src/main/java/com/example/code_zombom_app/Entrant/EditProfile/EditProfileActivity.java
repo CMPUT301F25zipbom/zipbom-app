@@ -3,7 +3,9 @@ package com.example.code_zombom_app.Entrant.EditProfile;
 import static java.lang.Thread.sleep;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.Profile;
+import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -52,13 +55,19 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantProfileBack),
                 findViewById(R.id.buttonEntrantProfileSave),
                 findViewById(R.id.buttonEntrantProfileDelete),
+                findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
         model.addView(this);
     }
 
     @Override
     public void update(EditProfileModel model) {
-        if (model.getState() == GModel.State.CLOSE)
+        String id = "";
+
+        if (model.getState() == GModel.State.LOGIN_SUCCESS) { // Synchronize the initialization
+            model.SyncronizeData();
+        }
+        else if (model.getState() == GModel.State.CLOSE)
             finish(); // Close the activity
         else if (model.getState() == GModel.State.REQUEST) {
             if (model.getEditState() == EditProfileModel.EditProfileRequest.POPUP_EDIT) {
@@ -80,7 +89,7 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
             Toast.makeText(this, model.getEmail() + " deleted successfully. Process " +
                     "stop in 5 seconds", Toast.LENGTH_LONG).show();
 
-            new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 // Reset the app after 5 seconds
                 finishAffinity();
                 System.exit(0);
@@ -89,6 +98,39 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
         else if (model.getState() == GModel.State.DELETE_PROFILE_FAILURE) {
             Toast.makeText(this, model.getEmail() + " deletion failure: " +
                     model.getErrorMsg(), Toast.LENGTH_SHORT).show();
+        }
+        else if (model.getState() == GModel.State.NOTIFICATION_TOGGLE) {
+            boolean isChecked = (Boolean) model.getInterMsg("Message");
+
+            if (isChecked) {
+                toggleNotification.setBackgroundResource(R.drawable.bellon);
+            }
+            else {
+                toggleNotification.setBackgroundResource(R.drawable.belloff);
+            }
+        }
+        else if (model.getState() == GModel.State.REQUEST_TOGGLE) {
+            boolean isLink = (Boolean) model.getInterMsg("Request");
+            if (isLink)
+                model.addId(this);
+            else
+                model.removeId(id);
+        }
+        else if (model.getState() == GModel.State.ADD_DEVICE_ID) {
+            id = (String) model.getInterMsg("Message");
+            Toast.makeText(this, "Add the device Id " + id + " to the profile",
+            Toast.LENGTH_SHORT).show();
+        }
+        else if (model.getState() == GModel.State.REMOVE_DEVICE_ID) {
+            Toast.makeText(this, "Remove the device Id " + id + " to the profile",
+                    Toast.LENGTH_SHORT).show();
+            id = "";
+        }
+        else if (model.getState() == GModel.State.LOG_OUT) {
+            Intent LogIn = new Intent(this, LoginActivity.class);
+            LogIn.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(LogIn);
+            finish();
         }
     }
 
@@ -126,7 +168,7 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                                     break;
                                 case "Phone":
                                     editPhone.setText(newInput);
-                                    model.editEmail(newInput);
+                                    model.editPhone(newInput);
                                     break;
                             }
                         }
@@ -138,5 +180,6 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                         dialog.cancel();
                     }
                 });
+        builder.show();
     }
 }

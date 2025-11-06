@@ -30,6 +30,7 @@
     <string name="edit_profile">Edit Profile</string>
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="edit_name">Edit Name</string>
+    <string name="log_out">Log out</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

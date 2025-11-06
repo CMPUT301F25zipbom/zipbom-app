@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.Entrant.EditProfile;
 
+import android.content.Context;
+
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.MockUpEntrant;
@@ -8,7 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditProfileModel extends LoadUploadProfileModel {
     private EditProfileRequest editState;
-    private final Entrant currentEntrant;
+    private Entrant currentEntrant;
     private final String email;
     private MockUpEntrant newEntrant;
 
@@ -50,6 +52,9 @@ public class EditProfileModel extends LoadUploadProfileModel {
 
         /* Load the current profile from the database */
         loadProfile(email);
+    }
+
+    public void SyncronizeData() {
         currentEntrant = (Entrant) getInterMsg("Profile");
         newEntrant = new MockUpEntrant(currentEntrant);
     }
@@ -147,5 +152,36 @@ public class EditProfileModel extends LoadUploadProfileModel {
         state = State.NOTIFICATION_TOGGLE;
         setInterMsg("Message", notification);
         notifyViews();
+    }
+
+    /**
+     * Request to link/unlink an Android device
+     *
+     * @param save To add or remove the device Id to the profile
+     */
+    public void toggleLinkDeviceId(Boolean save) {
+        resetState();
+        state = State.REQUEST_TOGGLE;
+        setInterMsg("Request", save);
+    }
+
+    /**
+     * Add the device Id to the profile
+     *
+     * @param context The context to get the device id from
+     */
+    public void addId(Context context) {
+        resetState();
+        addDeviceId(context, newEntrant);
+    }
+
+    /**
+     * Remove the device id from the profile
+     *
+     * @param id The device id to be removed
+     */
+    public void removeId(String id) {
+        resetState();
+        removeDeviceId(id, newEntrant);
     }
 }

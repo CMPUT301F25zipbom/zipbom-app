@@ -22,13 +22,14 @@ public class EditProfileController extends GController<EditProfileModel> {
     private Button buttonBack;
     private Button buttonSave;
     private Button buttonDeleteProfile;
+    private Button buttonLogout;
     private ToggleButton toggleButtonNotification;
     private ToggleButton toggleButtonLinkDevice;
 
     public EditProfileController(EditProfileModel model,
                                  ImageButton editName, ImageButton editEmail, ImageButton editPhone,
                                  TextView Name, TextView Email, TextView Phone,
-                                 Button back, Button save, Button delete,
+                                 Button back, Button save, Button delete, Button logout,
                                  ToggleButton notification, ToggleButton link) {
         super(model);
 
@@ -41,6 +42,7 @@ public class EditProfileController extends GController<EditProfileModel> {
         this.buttonBack = back;
         this.buttonSave = save;
         this.buttonDeleteProfile = delete;
+        this.buttonLogout = logout;
         this.toggleButtonNotification = notification;
         this.toggleButtonLinkDevice = link;
 
@@ -58,10 +60,18 @@ public class EditProfileController extends GController<EditProfileModel> {
             }
         });
 
+        //TODO: Create a popup window to ask if they are sure to delete the account
         this.buttonDeleteProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((EditProfileModel) model).deleteEntrant();
+            }
+        });
+
+        this.buttonLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((EditProfileModel) model).logout();
             }
         });
 
@@ -92,5 +102,9 @@ public class EditProfileController extends GController<EditProfileModel> {
         this.toggleButtonNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
             ((EditProfileModel) model).setNotification(isChecked);
         });
+
+        this.toggleButtonLinkDevice.setOnCheckedChangeListener(((buttonView, isChecked) -> {
+            ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
+        }));
     }
 }

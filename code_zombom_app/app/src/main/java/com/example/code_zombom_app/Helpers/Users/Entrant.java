@@ -24,8 +24,10 @@ public class Entrant extends Profile {
     /* Note that we keep the event's ID instead of the actual
      * Event object to avoid overhead
      */
-    private final ArrayList<String> waitingEvents;
-    private final ArrayList<String> eventHistory;
+    private ArrayList<String> waitingEvents;
+    private ArrayList<String> eventHistory;
+
+    public Entrant() {}
 
     /**
      * MUST always call this constructor. Initialises the collections so model methods remain safe

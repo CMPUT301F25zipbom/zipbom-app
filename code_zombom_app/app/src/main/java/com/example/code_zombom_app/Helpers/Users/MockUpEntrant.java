@@ -13,6 +13,7 @@ public class MockUpEntrant extends Entrant {
 
     public MockUpEntrant(Entrant other) {
         super(other);
+        MockUpEmail = other.getEmail();
     }
 
     public void setEmail(String email) {

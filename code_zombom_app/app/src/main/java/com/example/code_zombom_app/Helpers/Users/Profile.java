@@ -112,13 +112,13 @@ public class Profile {
      * @return device fingerprint used for passwordless identification
      */
     public ArrayList<String> getDeviceId() {
-        return new ArrayList<String>(deviceId);
+        return (deviceId != null) ? new ArrayList<String>(deviceId) : new ArrayList<String>();
     }
 
     /**
      * Add the device fingerprint for this entrant if it has not yet existed
      *
-     * @param deviceId
+     * @param deviceId The deviceId to add
      */
     public void addDeviceId(String deviceId) {
         if (!this.deviceId.contains(deviceId))

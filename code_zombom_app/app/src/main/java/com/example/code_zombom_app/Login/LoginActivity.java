@@ -55,6 +55,7 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
                 Intent entrantMain = new Intent(this, EntrantMainActivity.class);
                 entrantMain.putExtra("Email", email); // Send the email address to the next activity
                 startActivity(entrantMain);
+                finish();
             }
 
         } else if (model.getState() == GModel.State.LOGIN_FAILURE) {
