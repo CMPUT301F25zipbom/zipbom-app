@@ -129,7 +129,7 @@ public class OrganizerMainFragment extends Fragment {
                         eventsContainer.addView(eventItemView);
 
                     } catch (WriterException e) {
-                        Log.e("QRCode", "Error generating QR code", e);                        // Optionally set a placeholder if the QR code fails to generate
+                        Log.e("QRCode", "Error generating QR code", e);
                     } catch (Exception e) {
                         // This will catch NullPointerExceptions if a view ID is wrong
                         Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
