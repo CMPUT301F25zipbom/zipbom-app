@@ -32,10 +32,6 @@ public class EditEventFragment extends Fragment {
     private CollectionReference eventref;
     private FirebaseFirestore db1;
     private CollectionReference events;
-    private ArrayList<String> entrantlist;
-    private ArrayList<String> acceptedentrantlist;
-    private ArrayList<String> cancelledentrantlist;
-    private String maxentrantstring;
 
     private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
@@ -66,22 +62,6 @@ public class EditEventFragment extends Fragment {
         events = db1.collection("Events");
 
         eventref = db1.collection("Events");
-        events.addSnapshotListener((valuedb, error) -> {
-            for (QueryDocumentSnapshot snapshot : valuedb) {
-                if ((ArrayList<String>) snapshot.get("Entrants") != null) {
-                    entrantlist = (ArrayList<String>) snapshot.get("Entrants");
-                }
-                if ((ArrayList<String>) snapshot.get("Accepted Entrants") != null) {
-                    acceptedentrantlist = (ArrayList<String>) snapshot.get("Accepted Entrants");
-                }
-                if ((ArrayList<String>) snapshot.get("Cancelled Entrants") != null) {
-                    cancelledentrantlist = (ArrayList<String>) snapshot.get("Cancelled Entrants");
-                }
-                if (snapshot.getString("Wait List Maximum") != null) {
-                    maxentrantstring = snapshot.getString("Wait List Maximum");
-                }
-            }
-        });
 
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
@@ -141,7 +121,7 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
-            maxentrantEditText.setText(maxentrantstring);
+            //else if ("Wait List Maximum".equals(key)) maxentrantEditText.setText(value);
         }
     }
 
@@ -167,14 +147,10 @@ public class EditEventFragment extends Fragment {
         updatedEventData.put("Date", Date);
         updatedEventData.put("Deadline", Deadline);
         updatedEventData.put("Genre", Genre);
-        updatedEventData.put("Entrants", new ArrayList<String>());
-        updatedEventData.put("Accepted Entrants", new ArrayList<String>());
-        updatedEventData.put("Cancelled Entrants", new ArrayList<String>());
-
 
 
         db.collection("Events").document(originalEventId)
-                .set(updatedEventData) // or .update()
+                .update(updatedEventData) // or .update()
                 .addOnSuccessListener(aVoid -> {
 
                     // Navigate back
