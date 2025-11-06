@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -80,37 +81,47 @@ public class AddEventFragment extends Fragment {
         //TODO: add poster
         saveEventButton.setOnClickListener(v -> {
             String eventName = eventNameEditText.getText().toString();
-            if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
-                    && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
-                    && !genreEditText.getText().toString().isEmpty()) {
-                //just for the UI visuals
-                String name = eventNameEditText.getText().toString();
-                String maxPeople = maxPeopleEditText.getText().toString();
-                String date = dateEditText.getText().toString();
-                String deadline = deadlineEditText.getText().toString();
-                String genre = genreEditText.getText().toString();
-                String location = locationEditText.getText().toString();
-                String listmax = maxentrantEditText.getText().toString();
+            Integer listmaxchecker = 1;
+            String listmax = maxentrantEditText.getText().toString();
+            try {
+                Integer.parseInt(listmax);
+            } catch (NumberFormatException e) {
+                listmaxchecker = 0;
+                Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            }
+            if (listmaxchecker == 1) {
+                if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
+                        && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
+                        && !genreEditText.getText().toString().isEmpty()
+                        && Integer.parseInt(listmax) >= 0) {
+                    //just for the UI visuals
+                    String name = eventNameEditText.getText().toString();
+                    String maxPeople = maxPeopleEditText.getText().toString();
+                    String date = dateEditText.getText().toString();
+                    String deadline = deadlineEditText.getText().toString();
+                    String genre = genreEditText.getText().toString();
+                    String location = locationEditText.getText().toString();
 
-                Map<String, Object> eventData = new HashMap<>();
-                eventData.put("Name", name);
-                eventData.put("Max People", maxPeople);
-                eventData.put("Date", date);
-                eventData.put("Deadline", deadline);
-                eventData.put("Genre", genre);
-                if(!location.isEmpty()){
-                    eventData.put("Location", location);
-                }
-                if (listmax.isEmpty() == false){
-                    eventData.put("Wait List Maximum", listmax);
-                }
-                eventData.put("Entrants", new ArrayList<String>());
-                eventData.put("Cancelled Entrants", new ArrayList<String>());
-                eventData.put("Accepted Entrants", new ArrayList<String>());
-                db.collection("Events").add(eventData);
+                    Map<String, Object> eventData = new HashMap<>();
+                    eventData.put("Name", name);
+                    eventData.put("Max People", maxPeople);
+                    eventData.put("Date", date);
+                    eventData.put("Deadline", deadline);
+                    eventData.put("Genre", genre);
+                    if (!location.isEmpty()) {
+                        eventData.put("Location", location);
+                    }
+                    if (listmax.isEmpty() == false) {
+                        eventData.put("Wait List Maximum", listmax);
+                    }
+                    eventData.put("Entrants", new ArrayList<String>());
+                    eventData.put("Cancelled Entrants", new ArrayList<String>());
+                    eventData.put("Accepted Entrants", new ArrayList<String>());
+                    db.collection("Events").add(eventData);
 
-                // Navigate back to the main fragment
-                NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                    // Navigate back to the main fragment
+                    NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                }
             }
         });
     }

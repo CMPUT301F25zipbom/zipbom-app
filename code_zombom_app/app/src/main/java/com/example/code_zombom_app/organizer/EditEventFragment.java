@@ -139,40 +139,56 @@ public class EditEventFragment extends Fragment {
     }
 
     private void updateEvent() {
-        Map<String, Object> updatedEventData = new HashMap<>();
-
-        String Name = eventNameEditText.getText().toString();
-        String MaxPeople = maxPeopleEditText.getText().toString();
-        String Date = dateEditText.getText().toString();
-        String Deadline = deadlineEditText.getText().toString();
-        String Genre = genreEditText.getText().toString();
-        if(!locationEditText.getText().toString().isEmpty()){
-            String Location = locationEditText.getText().toString();
-            updatedEventData.put("Location", Location);
+        // Checking to see if maxentrant is a valid answer
+        Integer listmaxchecker = 1;
+        String listmax = maxentrantEditText.getText().toString();
+        // Making sure we won't crash if we make it into a positive number
+        try {
+            Integer.parseInt(listmax);
+        } catch (NumberFormatException e) {
+            listmaxchecker = 0;
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
         }
-        if(maxentrantEditText.getText().toString().isEmpty() == false){
-            String maxentrant = maxentrantEditText.getText().toString();
-            updatedEventData.put("Wait List Maximum", maxentrant);
+        // This will continue as long as the previous checks passed
+        if (listmaxchecker == 1 && Integer.parseInt(listmax) >= 0) {
+            Map<String, Object> updatedEventData = new HashMap<>();
+
+            String Name = eventNameEditText.getText().toString();
+            String MaxPeople = maxPeopleEditText.getText().toString();
+            String Date = dateEditText.getText().toString();
+            String Deadline = deadlineEditText.getText().toString();
+            String Genre = genreEditText.getText().toString();
+            if (!locationEditText.getText().toString().isEmpty()) {
+                String Location = locationEditText.getText().toString();
+                updatedEventData.put("Location", Location);
+            }
+            if (maxentrantEditText.getText().toString().isEmpty() == false) {
+                String maxentrant = maxentrantEditText.getText().toString();
+                updatedEventData.put("Wait List Maximum", maxentrant);
+            }
+            // --- Update in Firebase ---
+            updatedEventData.put("Name", Name);
+            updatedEventData.put("Max People", MaxPeople);
+            updatedEventData.put("Date", Date);
+            updatedEventData.put("Deadline", Deadline);
+            updatedEventData.put("Genre", Genre);
+
+
+            db.collection("Events").document(originalEventId)
+                    .update(updatedEventData) // or .update()
+                    .addOnSuccessListener(aVoid -> {
+                        // Navigate back
+                        if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
+                                && !Genre.isEmpty()) {
+                            NavHostFragment.findNavController(this).navigateUp();
+                            Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
         }
-        // --- Update in Firebase ---
-        updatedEventData.put("Name", Name);
-        updatedEventData.put("Max People", MaxPeople);
-        updatedEventData.put("Date", Date);
-        updatedEventData.put("Deadline", Deadline);
-        updatedEventData.put("Genre", Genre);
-
-
-        db.collection("Events").document(originalEventId)
-                .update(updatedEventData) // or .update()
-                .addOnSuccessListener(aVoid -> {
-
-                    // Navigate back
-                    if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
-                            && !Genre.isEmpty()) {
-                        NavHostFragment.findNavController(this).navigateUp();
-                        Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
+        else{
+            // In case the Max Enterant amount is negetive
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+        }
     }
 }
