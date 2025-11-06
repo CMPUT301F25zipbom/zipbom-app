@@ -33,6 +33,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
     private final OnEventActionListener actionListener;
 
+    /**
+     * @param actionListener receiver for item tap events and join clicks
+     */
     public EntrantEventAdapter(OnEventActionListener actionListener) {
         super(DIFF_CALLBACK);
         this.actionListener = actionListener;
@@ -67,6 +70,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             joinButton = itemView.findViewById(R.id.item_event_join_button);
         }
 
+        /**
+         * Binds a single event row and wires the click handlers for the supplied listener.
+         */
         void bind(@NonNull Event event, OnEventActionListener actionListener) {
             nameTextView.setText(event.getName());
             categoriesTextView.setText(buildCategoryLabel(event.getCategories()));
@@ -82,6 +88,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             joinButton.setOnClickListener(v -> actionListener.onJoinWaitingList(event));
         }
 
+        /**
+         * Builds a human-readable category label for the card, falling back to a default when none.
+         */
         private String buildCategoryLabel(List<String> categories) {
             if (categories == null || categories.isEmpty()) {
                 return itemView.getContext().getString(R.string.no_categories_assigned);

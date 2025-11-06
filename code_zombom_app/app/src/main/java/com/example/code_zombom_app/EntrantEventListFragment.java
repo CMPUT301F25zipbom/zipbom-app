@@ -53,6 +53,9 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
         setupSearch(searchView);
     }
 
+    /**
+     * Subscribes to the shared ViewModel streams and updates the UI with loading/errors.
+     */
     private void observeViewModel() {
         viewModel.getEvents().observe(getViewLifecycleOwner(), events -> {
             adapter.submitList(events);
@@ -75,6 +78,9 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
         });
     }
 
+    /**
+     * Wires the search view so that it forwards text changes to the ViewModel filter.
+     */
     private void setupSearch(@NonNull SearchView searchView) {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override

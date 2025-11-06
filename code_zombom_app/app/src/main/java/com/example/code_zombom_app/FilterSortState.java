@@ -15,6 +15,9 @@ public class FilterSortState implements Serializable {
     private Date availabilityStart;
     private Date availabilityEnd;
 
+    /**
+     * Creates an empty state with all filters disabled.
+     */
     public FilterSortState() {
         filterByInterests = false;
         selectedInterestCategory = null;
@@ -23,6 +26,9 @@ public class FilterSortState implements Serializable {
         availabilityEnd = null;
     }
 
+    /**
+     * @return a defensive copy of the supplied state (or a new default instance when null)
+     */
     public static FilterSortState copyOf(FilterSortState other) {
         FilterSortState state = new FilterSortState();
         if (other == null) {
@@ -40,6 +46,9 @@ public class FilterSortState implements Serializable {
         return filterByInterests;
     }
 
+    /**
+     * Enables/disables the interests filter and clears the category when disabled.
+     */
     public void setFilterByInterests(boolean filterByInterests) {
         this.filterByInterests = filterByInterests;
         if (!filterByInterests) {
@@ -51,6 +60,9 @@ public class FilterSortState implements Serializable {
         return selectedInterestCategory;
     }
 
+    /**
+     * @param selectedInterestCategory the chosen interest category, or null to clear it
+     */
     public void setSelectedInterestCategory(String selectedInterestCategory) {
         this.selectedInterestCategory = selectedInterestCategory;
     }
@@ -59,6 +71,9 @@ public class FilterSortState implements Serializable {
         return filterByAvailability;
     }
 
+    /**
+     * Enables/disables the availability window and clears dates when turned off.
+     */
     public void setFilterByAvailability(boolean filterByAvailability) {
         this.filterByAvailability = filterByAvailability;
         if (!filterByAvailability) {
@@ -71,6 +86,9 @@ public class FilterSortState implements Serializable {
         return availabilityStart == null ? null : new Date(availabilityStart.getTime());
     }
 
+    /**
+     * @param availabilityStart inclusive start of the availability window (null to clear)
+     */
     public void setAvailabilityStart(Date availabilityStart) {
         if (availabilityStart == null) {
             this.availabilityStart = null;
@@ -83,6 +101,9 @@ public class FilterSortState implements Serializable {
         return availabilityEnd == null ? null : new Date(availabilityEnd.getTime());
     }
 
+    /**
+     * @param availabilityEnd inclusive end of the availability window (null to clear)
+     */
     public void setAvailabilityEnd(Date availabilityEnd) {
         if (availabilityEnd == null) {
             this.availabilityEnd = null;

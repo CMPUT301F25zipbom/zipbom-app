@@ -76,6 +76,9 @@ public class EntrantEventListViewModel extends ViewModel {
         recomputeFilteredEvents();
     }
 
+    /**
+     * Replaces the active filter state with the provided values.
+     */
     public void setFilterSortState(FilterSortState state) {
         currentFilterSortState = FilterSortState.copyOf(state);
         recomputeFilteredEvents();
@@ -85,6 +88,9 @@ public class EntrantEventListViewModel extends ViewModel {
         return FilterSortState.copyOf(currentFilterSortState);
     }
 
+    /**
+     * Subscribes to Firestore updates and keeps the view model caches synchronized.
+     */
     private void observeEventsFromFirestore() {
         loading.setValue(true);
         listenerRegistration = firestore.collection("Events")
@@ -127,6 +133,9 @@ public class EntrantEventListViewModel extends ViewModel {
         filteredEvents.setValue(applyAllFilters(events));
     }
 
+    /**
+     * Applies interest, availability, and query filters to the supplied list.
+     */
     private List<Event> applyAllFilters(List<Event> sourceEvents) {
         if (sourceEvents == null) {
             return Collections.emptyList();
@@ -165,6 +174,9 @@ public class EntrantEventListViewModel extends ViewModel {
         return working;
     }
 
+    /**
+     * Checks whether the event overlaps the user-selected availability window.
+     */
     private boolean matchesAvailability(Event event) {
         if (!currentFilterSortState.isFilterByAvailability()) {
             return true;
@@ -205,6 +217,9 @@ public class EntrantEventListViewModel extends ViewModel {
         return !eventEnd.before(filterStart) && !eventStart.after(filterEnd);
     }
 
+    /**
+     * Converts a Firestore document to the domain {@link Event} instance.
+     */
     private Event mapDocumentToEvent(DocumentSnapshot snapshot) {
         String name = snapshot.getString("Name");
         if (name == null || name.trim().isEmpty()) {

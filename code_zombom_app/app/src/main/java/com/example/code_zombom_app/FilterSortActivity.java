@@ -55,6 +55,9 @@ public class FilterSortActivity extends AppCompatActivity {
         attachListeners();
     }
 
+    /**
+     * Restores the working state from a rotation or from the caller's extras.
+     */
     private void restoreState(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             workingState = FilterSortState.copyOf(
@@ -68,6 +71,9 @@ public class FilterSortActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Locates child views and attaches the primary button listeners.
+     */
     private void bindViews() {
         checkBoxInterests = findViewById(R.id.checkboxFilterInterests);
         containerInterests = findViewById(R.id.containerInterests);
@@ -85,6 +91,9 @@ public class FilterSortActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(v -> returnResetResult());
     }
 
+    /**
+     * Applies the current working state to the visible controls.
+     */
     private void initializeUi() {
         // Interest filters.
         checkBoxInterests.setChecked(workingState.isFilterByInterests());
@@ -97,6 +106,9 @@ public class FilterSortActivity extends AppCompatActivity {
         updateAvailabilitySummary();
     }
 
+    /**
+     * Configures listeners for toggles and radio groups driving the working state.
+     */
     private void attachListeners() {
         checkBoxInterests.setOnCheckedChangeListener((buttonView, isChecked) -> {
             workingState.setFilterByInterests(isChecked);
@@ -122,6 +134,9 @@ public class FilterSortActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Opens the start-date picker and chains to the end-date picker when a start is chosen.
+     */
     private void showDateRangePicker() {
         final Calendar startCalendar = Calendar.getInstance();
         Date existingStart = workingState.getAvailabilityStart();
@@ -146,6 +161,9 @@ public class FilterSortActivity extends AppCompatActivity {
         startPicker.show();
     }
 
+    /**
+     * Opens the end-date picker constrained to dates on/after the supplied start date.
+     */
     private void showEndDatePicker(Date startDate) {
         final Calendar endCalendar = Calendar.getInstance();
         Date existingEnd = workingState.getAvailabilityEnd();
@@ -180,6 +198,9 @@ public class FilterSortActivity extends AppCompatActivity {
         endPicker.show();
     }
 
+    /**
+     * Syncs the interest radio group to the current working state.
+     */
     private void updateInterestSelection() {
         String category = workingState.getSelectedInterestCategory();
         if (TextUtils.isEmpty(category)) {
@@ -194,6 +215,9 @@ public class FilterSortActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Updates the availability summary text to reflect the selected range.
+     */
     private void updateAvailabilitySummary() {
         Date start = workingState.getAvailabilityStart();
         Date end = workingState.getAvailabilityEnd();
@@ -232,6 +256,9 @@ public class FilterSortActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     * Maps a normalized category label back to its radio button id.
+     */
     private int mapCategoryToRadio(@Nullable String category) {
         if (category == null) {
             return RadioGroup.NO_ID;
@@ -252,6 +279,9 @@ public class FilterSortActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Clears the working state and returns a reset result to the caller.
+     */
     private void returnResetResult() {
         workingState = new FilterSortState();
         Intent result = new Intent();
@@ -261,6 +291,11 @@ public class FilterSortActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Returns the current working state to the caller.
+     *
+     * @param resetFlag whether the state was produced by an explicit reset action
+     */
     private void returnResult(boolean resetFlag) {
         Intent result = new Intent();
         result.putExtra(EXTRA_RESULT_STATE, FilterSortState.copyOf(workingState));
