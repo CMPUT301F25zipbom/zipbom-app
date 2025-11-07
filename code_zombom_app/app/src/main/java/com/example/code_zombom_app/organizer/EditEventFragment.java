@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -279,7 +280,8 @@ public class EditEventFragment extends Fragment {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     if (isAdded()) {
                         //sendeditedmessage("rwenstro@ualberta.ca");
-                        sendemailmessage("rwenstro@ualberta.ca");
+                        //sendemailmessage("rwenstro@ualberta.ca");
+                        sendsmsmessage("6398400233");
                         NavHostFragment.findNavController(this).navigateUp();
                     }
                 })
@@ -448,6 +450,11 @@ public class EditEventFragment extends Fragment {
      */
     void sendsmsmessage (String user){
         // Send sms message
+        String phone = user;
+        String message = "You be sigma";
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phone, null, message, null, null);
+        Toast.makeText(getContext(), "SMS sent succesfully", Toast.LENGTH_SHORT).show();
     }
     private void loadEventData() {
         db.collection("Events").document(originalEventId).get()
