@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,22 +31,32 @@ public class AdminFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // parent linearlayout
+        // Create the root layout (green background)
         LinearLayout rootLayout = new LinearLayout(getContext());
         rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50")); // green background
+        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50"));
         rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Container to hold events
+        // Create a ScrollView to make the event list scrollable
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // Create a container to hold event items
         eventsContainer = new LinearLayout(getContext());
         eventsContainer.setOrientation(LinearLayout.VERTICAL);
         eventsContainer.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        rootLayout.addView(eventsContainer);
+        // Add the container inside the scroll view
+        scrollView.addView(eventsContainer);
+
+        // Add the scroll view to the root layout
+        rootLayout.addView(scrollView);
 
         return rootLayout;
     }
