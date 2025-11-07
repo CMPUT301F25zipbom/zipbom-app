@@ -130,7 +130,6 @@ public class OrganizerMainFragment extends Fragment {
 
                         qrCodeImageView.setTag(eventId);
 
-                        String eventNameForQR = snapshot.getString("Name");
                         StringBuilder eventTextBuilder = new StringBuilder();
 
                         eventTextBuilder.append("Name: ").append(snapshot.getString("Name")).append("\n");
@@ -141,14 +140,24 @@ public class OrganizerMainFragment extends Fragment {
                         if (snapshot.getString("Location") != null) {
                             eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
                         }
+
                         String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
+
+                        StringBuilder qrDataBuilder = new StringBuilder();
+                        qrDataBuilder.append("Event: ").append(snapshot.getString("Name")).append("\n");
+                        qrDataBuilder.append("Location: ").append(snapshot.getString("Location")).append("\n");
+                        qrDataBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
+                        qrDataBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
+                        qrDataBuilder.append("Description: ").append(snapshot.getString("Description")).append("\n");
+
+                        String qrCodeData = qrDataBuilder.toString();
 
                         eventDetailsTextView.setText(eventText);
 
                         // Generate and set the QR code
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         // Use the eventName variable as the content for the QR code
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(eventNameForQR, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
+                        Bitmap bitmap = barcodeEncoder.encodeBitmap(qrCodeData, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
                         qrCodeImageView.setImageBitmap(bitmap);
 
                         // Set click listener for the whole item
