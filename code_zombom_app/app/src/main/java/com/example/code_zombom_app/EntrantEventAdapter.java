@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
     private final OnEventActionListener actionListener;
 
+    /**
+     * @param actionListener receiver for item tap events and join clicks
+     */
     public EntrantEventAdapter(OnEventActionListener actionListener) {
         super(DIFF_CALLBACK);
         this.actionListener = actionListener;
@@ -66,6 +70,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             joinButton = itemView.findViewById(R.id.item_event_join_button);
         }
 
+        /**
+         * Binds a single event row and wires the click handlers for the supplied listener.
+         */
         void bind(@NonNull Event event, OnEventActionListener actionListener) {
             nameTextView.setText(event.getName());
             categoriesTextView.setText(buildCategoryLabel(event.getCategories()));
@@ -81,6 +88,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             joinButton.setOnClickListener(v -> actionListener.onJoinWaitingList(event));
         }
 
+        /**
+         * Builds a human-readable category label for the card, falling back to a default when none.
+         */
         private String buildCategoryLabel(List<String> categories) {
             if (categories == null || categories.isEmpty()) {
                 return itemView.getContext().getString(R.string.no_categories_assigned);
@@ -104,9 +114,20 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
                     return oldItem.getEventId().equals(newItem.getEventId());
                 }
 
-                @Override
-                public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-                    return oldItem.equals(newItem);
-                }
-            };
+        @Override
+        public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
+            if (oldItem == newItem) {
+                return true;
+            }
+
+            return Objects.equals(oldItem.getName(), newItem.getName())
+                    && Objects.equals(oldItem.getLocation(), newItem.getLocation())
+                    && oldItem.getCapacity() == newItem.getCapacity()
+                    && Objects.equals(oldItem.getCategories(), newItem.getCategories())
+                    && Objects.equals(oldItem.getRestrictions(), newItem.getRestrictions())
+                    && Objects.equals(oldItem.getEventDateText(), newItem.getEventDateText())
+                    && Objects.equals(oldItem.getRegistrationClosesAtText(), newItem.getRegistrationClosesAtText())
+                    && oldItem.getNumberOfWaiting() == newItem.getNumberOfWaiting();
+        }
+    };
 }

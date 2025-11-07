@@ -1,6 +1,5 @@
 package com.example.code_zombom_app.Entrant;
 
-import android.content.Context;
 import android.view.View;
 import android.widget.ImageButton;
 

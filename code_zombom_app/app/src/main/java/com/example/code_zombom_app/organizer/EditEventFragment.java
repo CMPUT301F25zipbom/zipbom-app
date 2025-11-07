@@ -1,5 +1,6 @@
 package com.example.code_zombom_app.organizer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,8 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,6 +30,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import com.bumptech.glide.Glide;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -41,13 +48,19 @@ public class EditEventFragment extends Fragment {
     private CollectionReference eventref;
     private FirebaseFirestore db1;
     private CollectionReference events;
+    private Button buttonUploadPhoto;
+    private ImageView imagePreview;
+    private Uri imageUri;
+    private String existingPosterUrl;
 
-    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText, descriptionEditText;
 
     /**
      * This sets up the eventViewModel, database and catches the arguments.
      * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.
+     * a previous saved state, this is the state.  Also Initialize the
+     * image picker launcher to get a image for the poster.
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,6 +73,17 @@ public class EditEventFragment extends Fragment {
             originalEventId = getArguments().getString("eventId");
             originalEventText = getArguments().getString("eventText");
         }
+
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        imageUri = result.getData().getData();
+                        imagePreview.setImageURI(imageUri);
+                        imagePreview.setVisibility(View.VISIBLE);
+                    }
+                }
+        );
     }
 
     /**
@@ -98,6 +122,11 @@ public class EditEventFragment extends Fragment {
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
+        buttonUploadPhoto = view.findViewById(R.id.buttonUploadPhoto2);
+        imagePreview = view.findViewById(R.id.imagePreview);
+
+        buttonUploadPhoto.setOnClickListener(v -> openGallery());
+
         // Find all EditTexts
         eventNameEditText = view.findViewById(R.id.editTextName);
         maxPeopleEditText = view.findViewById(R.id.editTextMaxPeople);
@@ -106,8 +135,13 @@ public class EditEventFragment extends Fragment {
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
         maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
+        descriptionEditText = view.findViewById(R.id.editTextDescription);
+
 
         // Pre-fill the fields with existing data
+        if (originalEventId != null) {
+            loadEventData();
+        }
         populateFields();
 
         cancelButton.setOnClickListener(v -> {
@@ -130,6 +164,10 @@ public class EditEventFragment extends Fragment {
             db.collection("Events").document(originalEventId).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
+                            if (documentSnapshot.contains("Description")) {
+                                String description = documentSnapshot.getString("Description");
+                                descriptionEditText.setText(description);
+                            }
                             // Check if the field exists in the document
                             if (documentSnapshot.contains("Wait List Maximum")) {
                                 String waitListMax = documentSnapshot.getString("Wait List Maximum");
@@ -161,50 +199,84 @@ public class EditEventFragment extends Fragment {
      * Then it gets all of the stuff inside of the textboxes and updates the database.
      */
     private void updateEvent() {
-
-        // This will continue as long as we have valid dates and entrants.
-        if (maxentrantchecker(maxentrantEditText.getText().toString()) && validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
-            Map<String, Object> updatedEventData = new HashMap<>();
-
-            String Name = eventNameEditText.getText().toString();
-            String MaxPeople = maxPeopleEditText.getText().toString();
-            String Date = dateEditText.getText().toString();
-            String Deadline = deadlineEditText.getText().toString();
-            String Genre = genreEditText.getText().toString();
-            if (!locationEditText.getText().toString().isEmpty()) {
-                String Location = locationEditText.getText().toString();
-                updatedEventData.put("Location", Location);
-            }
-            if (maxentrantEditText.getText().toString().isEmpty() == false) {
-                String maxentrant = maxentrantEditText.getText().toString();
-                updatedEventData.put("Wait List Maximum", maxentrant);
-            }
-            // --- Update in Firebase ---
-            updatedEventData.put("Name", Name);
-            updatedEventData.put("Max People", MaxPeople);
-            updatedEventData.put("Date", Date);
-            updatedEventData.put("Deadline", Deadline);
-            updatedEventData.put("Genre", Genre);
-
-
-            db.collection("Events").document(originalEventId)
-                    .update(updatedEventData) // or .update()
-                    .addOnSuccessListener(aVoid -> {
-                        // Navigate back
-                        if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
-                                && !Genre.isEmpty()) {
-                            //sendeditedmessage("rwenstro@ualberta.ca"); // TODO: loop through the entire list of entrants
-                            NavHostFragment.findNavController(this).navigateUp();
-                            Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-                        }
-                    })
-                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
+        if (!maxentrantchecker(maxentrantEditText.getText().toString()) ||
+                !validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
+            // The helper methods already show a Toast message, so we just exit.
+            return;
         }
-        else{
-            // In case the Max Enterant amount is negetive :)
-            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+
+        // 2. Gather all data from the UI into a Map.
+        Map<String, Object> updatedEventData = new HashMap<>();
+        String name = eventNameEditText.getText().toString();
+        String maxPeople = maxPeopleEditText.getText().toString();
+        String date = dateEditText.getText().toString();
+        String deadline = deadlineEditText.getText().toString();
+        String genre = genreEditText.getText().toString();
+        String location = locationEditText.getText().toString();
+        String maxEntrant = maxentrantEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+
+        // Basic field validation
+        if (name.isEmpty() || maxPeople.isEmpty() || date.isEmpty() || deadline.isEmpty() || genre.isEmpty()) {
+            Toast.makeText(getContext(), "Please fill all required fields.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        updatedEventData.put("Name", name);
+        updatedEventData.put("Max People", maxPeople);
+        updatedEventData.put("Date", date);
+        updatedEventData.put("Deadline", deadline);
+        updatedEventData.put("Genre", genre);
+        updatedEventData.put("Location", location);
+        updatedEventData.put("Wait List Maximum", maxEntrant);
+        updatedEventData.put("Description", description);
+
+
+        // 3. Decide how to proceed based on whether a new image was selected.
+        if (imageUri != null) {
+            // --- CASE 1: A new poster was selected. Upload it first. ---
+            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("posters/" + originalEventId + ".jpg");
+            storageRef.putFile(imageUri)
+                    .addOnSuccessListener(taskSnapshot -> {
+                        // Image upload successful, now get the download URL.
+                        storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                            // Add the new image URL to our data map.
+                            updatedEventData.put("posterUrl", uri.toString());
+                            // Now, make ONE call to update Firestore with all data.
+                            updateFirestoreDocument(updatedEventData);
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "Poster upload failed. Saving other changes.", Toast.LENGTH_SHORT).show();
+                        // Still update the text fields even if image upload fails.
+                        updateFirestoreDocument(updatedEventData);
+                    });
+        } else {
+            // --- CASE 2: No new poster was selected. Just update the text fields. ---
+            updateFirestoreDocument(updatedEventData);
         }
     }
+
+    /**
+     * Helper method to perform the final Firestore update and navigate back.
+     * This avoids duplicating code.
+     */
+    private void updateFirestoreDocument(Map<String, Object> data) {
+        // Note: This does not include the array data (Entrants, etc.). You should add logic
+        // from the previous answer to preserve those arrays if needed.
+        db.collection("Events").document(originalEventId)
+                .update(data)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        NavHostFragment.findNavController(this).navigateUp();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
+                });
+    }
+
 
     /**
      * This is a copy paste of the code from AddEventFragment
@@ -346,4 +418,28 @@ public class EditEventFragment extends Fragment {
     void sendsmsmessage (String user){
         // Send sms message
     }
+    private void loadEventData() {
+        db.collection("Events").document(originalEventId).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        // ... (populate all your EditText fields from the document)
+
+                        // Check for an existing poster and display it
+                        existingPosterUrl = doc.getString("posterUrl");
+                        if (existingPosterUrl != null && !existingPosterUrl.isEmpty()) {
+                            imagePreview.setVisibility(View.VISIBLE);
+                            Glide.with(this)
+                                    .load(existingPosterUrl)
+                                    .into(imagePreview);
+                        }
+                    }
+                });
+    }
+    private void openGallery() {
+        // Same as in AddEventFragment
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
 }
