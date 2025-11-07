@@ -5,7 +5,6 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +30,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
-import android.text.TextUtils;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -106,6 +103,7 @@ public class OrganizerMainFragment extends Fragment {
             NavHostFragment.findNavController(OrganizerMainFragment.this)
                     .navigate(R.id.action_organizerMainFragment_to_addEventFragment);
         });
+        //setupFirestoreListener();
     }
 
 
@@ -140,12 +138,10 @@ public class OrganizerMainFragment extends Fragment {
                         eventTextBuilder.append("Date: ").append(snapshot.getString("Date")).append("\n");
                         eventTextBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
                         eventTextBuilder.append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                        String location = snapshot.getString("Location");
-                        if (!TextUtils.isEmpty(location)) {
-                            eventTextBuilder.append("Location: ").append(location).append("\n");
+                        if (snapshot.getString("Location") != null) {
+                            eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
                         }
-
-                        String eventText = eventTextBuilder.toString().trim();
+                        String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
 
                         eventDetailsTextView.setText(eventText);
 
@@ -167,8 +163,7 @@ public class OrganizerMainFragment extends Fragment {
                         Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
                     }
                 }
-            }
-            else {
+            }else {
                 // If there are no documents, show a "No events" message
                 TextView noEventsTextView = new TextView(getContext());
                 noEventsTextView.setText("No events yet.");

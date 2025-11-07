@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/purple_200">
+
+    <ImageButton
+        android:id="@+id/imageButtonFilter"
+        android:layout_width="65dp"
+        android:layout_height="49dp"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:contentDescription="@string/filter"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.112"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.055"
+        app:srcCompat="@drawable/filter" />
+
+    <ImageButton
+        android:id="@+id/imageButtonProfile"
+        android:layout_width="65dp"
+        android:layout_height="49dp"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:contentDescription="@string/edit_profile"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.276"
+        app:layout_constraintStart_toEndOf="@+id/imageButtonFilter"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.055"
+        app:srcCompat="@drawable/profile" />
+
+    <ImageButton
+        android:id="@+id/imageButtonCamera"
+        android:layout_width="65dp"
+        android:layout_height="49dp"
+        android:adjustViewBounds="true"
+        android:background="@null"
+        android:contentDescription="@string/scan_qr_code"
+        android:scaleType="fitCenter"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.563"
+        app:layout_constraintStart_toEndOf="@+id/imageButtonProfile"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.055"
+        app:srcCompat="@drawable/camera" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -3,4 +3,38 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="log_in">Log in</string>
+    <string name="enter_email">Enter email</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="log_in_with_device">"<u>Log in with device</u>"</string>
+    <string name="entrant_event_catalog_title">Browse Events</string>
+    <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
+    <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
+    <string name="entrant_event_join_button">Join Waiting List</string>
+    <string name="entrant_event_list_error">Unable to load events. Please try again.</string>
+    <string name="no_categories_assigned">General</string>
+    <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
+    <string name="home_welcome_message">Welcome back! Choose how you want to explore today.</string>
+    <string name="home_organizer_portal_label">Organizer Tools</string>
+    <string name="enter_phone_number">Enter Phone Number</string>
+    <string name="enter_your_name">Enter your name</string>
+    <string name="back">Back</string>
+    <string name="save">Save</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+    <string name="phone_optional">Phone (Optional)</string>
+    <string name="device_unlinked">Device Unlinked</string>
+    <string name="device_linked">Device Linked</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="filter">Filter</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="edit_name">Edit Name</string>
+    <string name="log_out">Log out</string>
+
+    <string-array name="user_types">
+        <item>Entrant</item>
+        <item>Organizer</item>
+        <item>Admin</item>
+    </string-array>
 </resources>

@@ -15,9 +15,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -104,27 +102,10 @@ public class EditEventFragment extends Fragment {
         locationEditText = view.findViewById(R.id.editTextLocation);
         maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
-        // Store original texts incase of a cancel
-        Map<String, Object> updatedEventDataIfCancel = new HashMap<>();
-        String ogName = eventNameEditText.getText().toString();
-        String ogMaxPeople = maxPeopleEditText.getText().toString();
-        String ogDate = dateEditText.getText().toString();
-        String ogDeadline = deadlineEditText.getText().toString();
-        String ogGenre = genreEditText.getText().toString();
-        String ogLocation = locationEditText.getText().toString();
-
         // Pre-fill the fields with existing data
         populateFields();
 
         cancelButton.setOnClickListener(v -> {
-            updatedEventDataIfCancel.put("Name", ogName);
-            updatedEventDataIfCancel.put("Max People", ogMaxPeople);
-            updatedEventDataIfCancel.put("Date", ogDate);
-            updatedEventDataIfCancel.put("Deadline", ogDeadline);
-            updatedEventDataIfCancel.put("Genre", ogGenre);
-            if (!ogLocation.isEmpty()){
-                updatedEventDataIfCancel.put("Location", ogLocation);
-            }
             NavHostFragment.findNavController(EditEventFragment.this).navigateUp();
         });
 
