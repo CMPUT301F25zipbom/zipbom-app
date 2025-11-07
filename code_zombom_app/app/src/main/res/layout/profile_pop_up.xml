@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#222222">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/profile_details_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Organizer Details:"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Actual details -->
+    <TextView
+        android:id="@+id/profile_details_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Name:\nEvent(s) ID: Random_ID_1111"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Bottom buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/button_notification_logs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Notification logs" />
+
+        <Button
+            android:id="@+id/button_cancel_profile_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:layout_marginStart="12dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

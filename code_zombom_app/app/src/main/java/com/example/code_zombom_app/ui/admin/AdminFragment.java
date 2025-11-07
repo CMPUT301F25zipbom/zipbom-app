@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -65,6 +66,21 @@ public class AdminFragment extends Fragment {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
+        Button goToProfilesBtn = new Button(requireContext());
+        goToProfilesBtn.setText("Go to Profiles");
+        goToProfilesBtn.setTextColor(Color.WHITE);
+        goToProfilesBtn.setBackgroundColor(Color.parseColor("#2E5F33"));
+        goToProfilesBtn.setPadding(24, 16, 24, 16);
+        rootLayout.addView(goToProfilesBtn);
+
+        goToProfilesBtn.setOnClickListener(v -> {
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.nav_host_fragment_activity_main, new ProfileAdminFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+
         // a ScrollView to make the event list scrollable
         ScrollView scrollView = new ScrollView(getContext());
         scrollView.setLayoutParams(new LinearLayout.LayoutParams(
@@ -84,6 +100,8 @@ public class AdminFragment extends Fragment {
 
         return rootLayout;
     }
+
+
 
     /**
      * Initializes Firestore and loads all event data from the database.
@@ -180,14 +198,50 @@ public class AdminFragment extends Fragment {
                 .setTitle("Delete Event")
                 .setMessage("Are you sure you want to delete this event?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // delete the event from Firestore
-                    eventsdb.document(snapshot.getId()).delete()
-                            .addOnSuccessListener(aVoid ->
-                                    Toast.makeText(getContext(), "Event deleted", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(getContext(), "Failed to delete event", Toast.LENGTH_SHORT).show());
+                    showReasonInputDialog(snapshot);
                 })
                 .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    /**
+     * Prompts the admin to enter a reason for deletion after confirming.
+     *
+     * @param snapshot The Firestore document representing the selected event
+     */
+    private void showReasonInputDialog(QueryDocumentSnapshot snapshot) {
+        // Create input field
+        final android.widget.EditText input = new android.widget.EditText(getContext());
+        input.setHint("Enter reason for deleting this event");
+
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Reason for Deletion")
+                .setMessage("Please specify why you are deleting this event:")
+                .setView(input)
+                .setPositiveButton("Confirm Delete", (dialog, which) -> {
+                    String reason = input.getText().toString().trim();
+
+                    if (reason.isEmpty()) {
+                        Toast.makeText(getContext(),
+                                "Deletion cancelled — reason required.",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // Log or store the reason
+                    Log.d("AdminDelete", "Deleting event " + snapshot.getId() + " for reason: " + reason);
+
+                    // Delete the event from Firestore
+                    eventsdb.document(snapshot.getId()).delete()
+                            .addOnSuccessListener(aVoid ->
+                                    Toast.makeText(getContext(),
+                                            "Event deleted. Reason: " + reason,
+                                            Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e ->
+                                    Toast.makeText(getContext(),
+                                            "Failed to delete event.", Toast.LENGTH_SHORT).show());
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
