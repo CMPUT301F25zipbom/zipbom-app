@@ -27,13 +27,16 @@ public abstract class GModel extends TModel<TView> {
         OPEN, // Use this state when you want to open an activity
         CLOSE, // Use this state when you want to go back from an activity
         REQUEST,
-        REQUEST_TOGGLE, // When you want to toggle something
+        REQUEST_TOGGLE_LINK_DEVICE_ID,
+        REQUEST_DELETE_PROFILE,
+        REQUEST_LOGIN_WITH_DEVICE_ID,
         EDIT_PROFILE_SUCCESS,
         EDIT_PROFILE_FAILURE,
         DELETE_PROFILE_SUCCESS,
         DELETE_PROFILE_FAILURE,
         NOTIFICATION_TOGGLE,
-        ADD_DEVICE_ID,
+        ADD_DEVICE_ID_SUCCESS,
+        ADD_DEVICE_ID_FAILURE,
         REMOVE_DEVICE_ID,
 
 

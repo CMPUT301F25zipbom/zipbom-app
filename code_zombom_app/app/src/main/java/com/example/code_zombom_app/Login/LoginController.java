@@ -63,6 +63,13 @@ public class LoginController extends GController<LoadUploadProfileModel> {
                 ((LoadUploadProfileModel) model).open();
             }
         });
+
+        buttonSignUpWithDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((LoadUploadProfileModel) model).requestLoginWithDeviceId();
+            }
+        });
     }
 
 }
