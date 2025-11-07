@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
 
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -49,9 +50,8 @@ public class OrganizerDialogTest {
         Thread.sleep(2000); // Wait 2 seconds
 
         // Click on the first item in the list
-        onData(anything()).inAdapterView(withId(R.id.events_container_linearlayout))
-                .atPosition(0)
-                .perform(click());
+        onView(withId(R.id.events_container_linearlayout))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
     }
     /**
      * Tests if clicking the "Edit" button launches the Android share intent.
