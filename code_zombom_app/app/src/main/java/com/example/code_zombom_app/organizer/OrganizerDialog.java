@@ -33,7 +33,8 @@ import java.util.Map;
 /**
  * @author Tejwinder Johal
  * @version 1.0
- * Briefly explain what this does Mr. Johal.
+ * This class is responsible for making the organizer dialog that
+ * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
     private final String eventId;

@@ -26,7 +26,6 @@ import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -192,7 +191,7 @@ public class AddEventFragment extends Fragment {
      * @param date2 Consists of a string MMM DD YYYY
      * @return returns the true if date1 is after date 2. Else, it returns false and a message why
      */
-    boolean validdate (String date1, String date2){
+    public boolean validdate (String date1, String date2){
         boolean isvalid = false;
         // Splitting up the different parts of the date.
         String[] eventdate = date1.split(" ");
@@ -254,11 +253,12 @@ public class AddEventFragment extends Fragment {
     }
 
     /**
-     *
+     * This method takes an input from the max entrant text box.
+     * It makes sure it can become an integer and then it makes sure that integer is positive.
      * @param listmax Contains a String that represents a positive number.
      * @return Will return True if the string is a positive number, else, it will give an error message and return false
      */
-    boolean maxentrantchecker (String listmax){
+    public boolean maxentrantchecker(String listmax){
         if (listmax.isEmpty()) {
             return true;
         }
@@ -278,7 +278,7 @@ public class AddEventFragment extends Fragment {
     }
 
     /**
-     *
+     * Opens the gallery to select a new poster from the users phone.
      */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -286,45 +286,8 @@ public class AddEventFragment extends Fragment {
         imagePickerLauncher.launch(intent);
     }
 
-    private void saveEvent() {
-        // ... (gather all your data from EditText fields into a Map<String, Object> eventData)
-        Map<String, Object> eventData = new HashMap<>();
-        String eventName = eventNameEditText.getText().toString();
-        // ... get all other fields ...
-
-        if (eventName.isEmpty()) {
-            Toast.makeText(getContext(), "Event Name is required", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        eventData.put("Name", eventName);
-        eventData.put("Entrants", new ArrayList<String>());
-        eventData.put("Accepted Entrants", new ArrayList<String>());
-        eventData.put("Cancelled Entrants", new ArrayList<String>());
-
-        // Create the event document in Firestore to get a unique ID
-        db.collection("Events").add(eventData)
-                .addOnSuccessListener(documentReference -> {
-                    String newEventId = documentReference.getId();
-                    Log.d("Firestore", "Event document created with ID: " + newEventId);
-
-                    // Check if an image was selected
-                    if (imageUri != null) {
-                        // If yes, upload the image using the new event ID
-                        uploadImageAndUpdateEvent(newEventId);
-                    } else {
-                        // If no image, we are done. Just navigate back.
-                        Toast.makeText(getContext(), "Event created successfully!", Toast.LENGTH_SHORT).show();
-                        NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.w("Firestore", "Error creating event", e);
-                    Toast.makeText(getContext(), "Failed to create event.", Toast.LENGTH_SHORT).show();
-                });
-    }
-
     /**
-     *
+     * Uploads the image to Firebase Storage and updates the event document with the poster URL.
      * @param eventId
      */
     private void uploadImageAndUpdateEvent(String eventId) {

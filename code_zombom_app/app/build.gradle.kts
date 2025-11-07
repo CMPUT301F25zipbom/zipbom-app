@@ -52,6 +52,8 @@ dependencies {
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.storage)
+    implementation(libs.fragment.testing)
+    implementation(libs.espresso.intents)
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)

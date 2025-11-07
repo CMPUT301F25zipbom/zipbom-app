@@ -138,7 +138,7 @@ public class EditEventFragment extends Fragment {
 
         // Pre-fill the fields with existing data
         if (originalEventId != null) {
-            loadEventData();
+            loadPhotoData();
         }
         populateFields();
 
@@ -197,14 +197,14 @@ public class EditEventFragment extends Fragment {
      * Then it gets all of the stuff inside of the textboxes and updates the database.
      */
     private void updateEvent() {
-        // 1. Perform validation first.
+        // Perform validation first.
         if (!maxentrantchecker(maxentrantEditText.getText().toString()) ||
                 !validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
             // The helper methods already show a Toast message, so we just exit.
             return;
         }
 
-        // 2. Gather all data from the UI into a Map.
+        // Gather all data from the UI into a Map.
         Map<String, Object> updatedEventData = new HashMap<>();
         String name = eventNameEditText.getText().toString();
         String maxPeople = maxPeopleEditText.getText().toString();
@@ -282,7 +282,7 @@ public class EditEventFragment extends Fragment {
      * @param listmax Contains a String that represents a positive number.
      * @return Will return True if the string is a positive number, else, it will give an error message and return false
      */
-    boolean maxentrantchecker (String listmax){
+    public boolean maxentrantchecker(String listmax){
         if (listmax.isEmpty()) {
             return true;
         }
@@ -307,7 +307,7 @@ public class EditEventFragment extends Fragment {
      * @param date2 Consists of a string MMM DD YYYY
      * @return returns the true if date1 is after date 2. Else, it returns false and a message why
      */
-    boolean validdatechecker (String date1, String date2) {
+    public boolean validdatechecker(String date1, String date2) {
         boolean isvalid = false;
         // Splitting up the different parts of the date.
         String[] eventdate = date1.split(" ");
@@ -379,7 +379,7 @@ public class EditEventFragment extends Fragment {
      * This function gets all of the event's info directly from Firestore
      * and populates ALL UI fields, including the description and poster.
      */
-    private void loadEventData() {
+    private void loadPhotoData() {
         db.collection("Events").document(originalEventId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -404,7 +404,7 @@ public class EditEventFragment extends Fragment {
     }
 
     /**
-     *
+     * Opens the gallery to select a new poster from the users phone.
      */
     private void openGallery() {
         // Same as in AddEventFragment
