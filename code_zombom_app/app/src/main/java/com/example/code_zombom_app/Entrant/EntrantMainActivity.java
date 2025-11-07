@@ -54,6 +54,16 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         if (filterButton != null) {
             filterButton.setOnClickListener(v -> showFilterActivity());
         }
+
+        ImageButton profileButton = findViewById(R.id.imageButtonProfile);
+        if (profileButton != null) {
+            // Hook up profile action so tapping the icon launches the editor with the current email
+            profileButton.setOnClickListener(v -> {
+                Intent editProfile = new Intent(this, EditProfileActivity.class);
+                editProfile.putExtra("Email", email);
+                startActivity(editProfile);
+            });
+        }
     }
 
     private void showFilterActivity() {
