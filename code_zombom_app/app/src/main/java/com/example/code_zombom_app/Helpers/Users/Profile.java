@@ -121,7 +121,7 @@ public class Profile {
      * @param deviceId The deviceId to add
      */
     public void addDeviceId(String deviceId) {
-        if (!this.deviceId.contains(deviceId))
+        if (!isDeviceIdLinked(deviceId))
             this.deviceId.add(deviceId);
     }
 
@@ -132,6 +132,16 @@ public class Profile {
      */
     public void removeDeviceId(String deviceId) {
         this.deviceId.remove(deviceId);
+    }
+
+    /**
+     * Finds out if a device Id is linked with a profile
+     *
+     * @param deviceId The device id to check
+     * @return true if the device Id is linked with this profile. false otherwise
+     */
+    public boolean isDeviceIdLinked(String deviceId) {
+        return this.deviceId.contains(deviceId);
     }
 
     /**

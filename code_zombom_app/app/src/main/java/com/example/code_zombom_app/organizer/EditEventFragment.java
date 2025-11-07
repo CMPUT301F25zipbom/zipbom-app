@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -138,7 +140,7 @@ public class EditEventFragment extends Fragment {
 
         // Pre-fill the fields with existing data
         if (originalEventId != null) {
-            loadPhotoData();
+            loadEventData();
         }
         populateFields();
 
@@ -197,14 +199,13 @@ public class EditEventFragment extends Fragment {
      * Then it gets all of the stuff inside of the textboxes and updates the database.
      */
     private void updateEvent() {
-        // Perform validation first.
         if (!maxentrantchecker(maxentrantEditText.getText().toString()) ||
                 !validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
             // The helper methods already show a Toast message, so we just exit.
             return;
         }
 
-        // Gather all data from the UI into a Map.
+        // 2. Gather all data from the UI into a Map.
         Map<String, Object> updatedEventData = new HashMap<>();
         String name = eventNameEditText.getText().toString();
         String maxPeople = maxPeopleEditText.getText().toString();
@@ -282,7 +283,7 @@ public class EditEventFragment extends Fragment {
      * @param listmax Contains a String that represents a positive number.
      * @return Will return True if the string is a positive number, else, it will give an error message and return false
      */
-    public boolean maxentrantchecker(String listmax){
+    boolean maxentrantchecker (String listmax){
         if (listmax.isEmpty()) {
             return true;
         }
@@ -307,7 +308,7 @@ public class EditEventFragment extends Fragment {
      * @param date2 Consists of a string MMM DD YYYY
      * @return returns the true if date1 is after date 2. Else, it returns false and a message why
      */
-    public boolean validdatechecker(String date1, String date2) {
+    boolean validdatechecker (String date1, String date2) {
         boolean isvalid = false;
         // Splitting up the different parts of the date.
         String[] eventdate = date1.split(" ");
@@ -373,13 +374,55 @@ public class EditEventFragment extends Fragment {
      * @param user Gives us the user we want to send a message to
      */
     void sendeditedmessage (String user){
+        if (originalEventId != null) {
+            db.collection("Profiles").document(user).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            if (documentSnapshot.contains("NotificationsPreferences")) {
+                                // Check if the field exists in the document
+                                String choice = documentSnapshot.getString("NotificationsPreferences");
+                                if (choice.isEmpty()) {
+                                    Toast.makeText(getContext(), "Entrant has no way to contact", Toast.LENGTH_SHORT).show();
+                                }
+                                if (choice.equals("email")) {
+                                    sendemailmessage(user);
+                                }
+                                if (choice.equals("sms")) {
+                                    sendsmsmessage(user);
+                                }
+                                if (choice.equals("both")) {
+                                    sendemailmessage(user);
+                                    sendsmsmessage(user);
+                                }
+                            }
+                            else{
+                                Toast.makeText(getContext(), "Entrant hasn't set up their preferences", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
 
+    /**
+     * Send email to a specific user
+     * @param user Contains the user id so we can retrieve from firebase
+     */
+    void sendemailmessage (String user){
+        // Send email
+    }
+
+    /**
+     * Send an sms message to a specific user
+     * @param user Contrains the user id so we can retrieve from firebase
+     */
+    void sendsmsmessage (String user){
+        // Send sms message
     }
     /**
      * This function gets all of the event's info directly from Firestore
      * and populates ALL UI fields, including the description and poster.
      */
-    private void loadPhotoData() {
+    private void loadEventData() {
         db.collection("Events").document(originalEventId).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists()) {
@@ -404,7 +447,7 @@ public class EditEventFragment extends Fragment {
     }
 
     /**
-     * Opens the gallery to select a new poster from the users phone.
+     *
      */
     private void openGallery() {
         // Same as in AddEventFragment
