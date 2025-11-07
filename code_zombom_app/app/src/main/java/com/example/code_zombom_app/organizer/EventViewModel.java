@@ -7,6 +7,11 @@ import androidx.lifecycle.ViewModel;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Tejwinder Johal
+ * @version 1.0
+ * Explain what this does please Mr Johal.
+ */
 public class EventViewModel extends ViewModel {
 
     // 1. Use a Map to store events: The key is the event ID (String), and the value is the event text (String).

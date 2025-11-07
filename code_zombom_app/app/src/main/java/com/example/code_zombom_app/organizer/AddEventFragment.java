@@ -21,9 +21,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Robert Enstrom, Tejwinder Johal
+ * @version 1.0
+ * This class is responsible for creating a new event, making sure the event is valid and saving it to firebase
+ */
 public class AddEventFragment extends Fragment {
 
     private EventViewModel eventViewModel;
@@ -38,9 +44,12 @@ public class AddEventFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference events;
     private Button saveEventButton;
-    // Create list of events
-    ArrayList<ArrayList<String>> listOfEvents = new ArrayList<ArrayList<String>>();
 
+    /**
+     * We get the new view model in this method
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,11 +58,29 @@ public class AddEventFragment extends Fragment {
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
     }
 
+    /**
+     * Inflates the layout.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_add_event, container, false);
     }
 
+    /**
+     * This method gets the data from the user and creates a new event if data is valid.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -82,9 +109,11 @@ public class AddEventFragment extends Fragment {
         //TODO: add poster
         saveEventButton.setOnClickListener(v -> {
             String eventName = eventNameEditText.getText().toString();
+
             if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
                     && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
-                    && !genreEditText.getText().toString().isEmpty()) {
+                    && !genreEditText.getText().toString().isEmpty()
+                    && maxentrantchecker(maxentrantEditText.getText().toString()) && validdate(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
                 //just for the UI visuals
                 String name = eventNameEditText.getText().toString();
                 String maxPeople = maxPeopleEditText.getText().toString();
@@ -100,32 +129,114 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                if(!location.isEmpty()){
+                if (!location.isEmpty()) {
                     eventData.put("Location", location);
                 }
-                if (listmax.isEmpty() == false){
+                if (listmax.isEmpty() == false) {
                     eventData.put("Wait List Maximum", listmax);
                 }
-                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Entrants", new ArrayList<String>()); // Change this type from String to Entrant once merge happens eventually
                 eventData.put("Cancelled Entrants", new ArrayList<String>());
                 eventData.put("Accepted Entrants", new ArrayList<String>());
-                db.collection("Events").add(eventData)
-                        .addOnSuccessListener(documentReference -> {
-                            // SUCCESS: The data was saved. Now it's safe to navigate away.
-                            Log.d("Firestore", "DocumentSnapshot written with ID: " + documentReference.getId());
-                            // Navigate back to the main fragment
-                            NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
-                        })
-                        .addOnFailureListener(e -> {
-                            // FAILURE: The data was not saved. Log the error and notify the user.
-                            Log.w("Firestore", "Error adding document", e);
-                            Toast.makeText(getContext(), "Failed to save event.", Toast.LENGTH_SHORT).show();
-                        });
-            } else {
-            Toast.makeText(getContext(), "Please fill all required fields.", Toast.LENGTH_SHORT).show();
+                eventData.put("Lottery Winners", new ArrayList<String>());
+                db.collection("Events").add(eventData);
+
+                // Navigate back to the main fragment
+                NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
             }
 
         });
     }
 
+    // This function is used so check if the dates are valid. If they are not, then we return false.
+
+    /**
+     * @param date1 Consists of a string MMM DD YYYY (example Jan 6 2025)
+     * @param date2 Consists of a string MMM DD YYYY
+     * @return returns the true if date1 is after date 2. Else, it returns false and a message why
+     */
+    boolean validdate (String date1, String date2){
+        boolean isvalid = false;
+        // Splitting up the different parts of the date.
+        String[] eventdate = date1.split(" ");
+        String[] deadlinedate = date2.split(" ");
+
+        if (eventdate.length < 3 || deadlinedate.length < 3) {
+            Toast.makeText(getContext(), "Please use a valid format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure years are valid
+        try {
+            Integer.parseInt(eventdate[2]);
+            Integer.parseInt(deadlinedate[2]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid year format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure days are valid
+        try {
+            Integer.parseInt(eventdate[1]);
+            Integer.parseInt(deadlinedate[1]);
+
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid day format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure months are valid
+        String[] validmonths = {"jan","feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+        if (!Arrays.asList(validmonths).contains(eventdate[0].toLowerCase()) || !Arrays.asList(validmonths).contains(deadlinedate[0].toLowerCase())){
+            Toast.makeText(getContext(), "Invalid Month format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        //Check to make sure the deadline is before the event.
+        // Start with the event year, then check the month, then finally check the date. If dates are equal then its invalid.
+        if (Integer.parseInt(eventdate[2]) < Integer.parseInt(deadlinedate[2])){
+            Toast.makeText(getContext(), "Invalid Years.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Testing the case in which years are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) < Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                Toast.makeText(getContext(), "Invalid Month.", Toast.LENGTH_SHORT).show();
+                return isvalid;
+            }
+        }
+        // Checking the case if years and months are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) == Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                if (Integer.parseInt(eventdate[1]) <= Integer.parseInt(deadlinedate[1])){
+                    Toast.makeText(getContext(), "Invalid Days.", Toast.LENGTH_SHORT).show();
+                    return isvalid;
+                }
+            }
+        }
+
+        isvalid = true;
+        return isvalid;
+    }
+
+    /**
+     *
+     * @param listmax Contains a String that represents a positive number.
+     * @return Will return True if the string is a positive number, else, it will give an error message and return false
+     */
+    boolean maxentrantchecker (String listmax){
+        if (listmax.isEmpty()) {
+            return true;
+        }
+        try {
+            Integer.parseInt(listmax);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (Integer.parseInt(listmax) < 0){
+            Toast.makeText(getContext(), "Enter in a positive Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 }

@@ -13,6 +13,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.code_zombom_app.R;
 
+/**
+ * @author Tejwinder Johal
+ * @version 1.0
+ * Explain what this does Mr Johal.
+ */
 public class EventAdapter extends ListAdapter<String, EventAdapter.EventViewHolder> {
 
     public EventAdapter() {
