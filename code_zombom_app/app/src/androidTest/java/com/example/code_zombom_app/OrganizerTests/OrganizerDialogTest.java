@@ -8,6 +8,10 @@ import android.view.View;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.espresso.intent.Intents;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+
+
 
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.organizer.OrganizerActivity;
@@ -15,6 +19,9 @@ import com.example.code_zombom_app.organizer.OrganizerActivity;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;import org.junit.Rule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -39,6 +46,14 @@ public class OrganizerDialogTest {
     @Rule
     public IntentsTestRule<OrganizerActivity> intentsTestRule = new IntentsTestRule<>(OrganizerActivity.class);
 
+    @Before
+    public void setUp() {
+        Intents.init();
+    }
+    @After
+    public void tearDown() {
+        Intents.release();
+    }
     /**
      * Helper method to navigate to the dialog. This makes tests cleaner.
      */
@@ -53,6 +68,8 @@ public class OrganizerDialogTest {
         // Click on the first item in the list
         onView(first(withParent(withId(R.id.events_container_linearlayout))))
                 .perform(click());
+
+        onView(withId(R.id.button_start_draw)).check(matches(isDisplayed()));
     }
     // Helper matcher to get the first view from multiple results
     public static <T> Matcher<T> first(final Matcher<T> matcher) {
@@ -83,15 +100,11 @@ public class OrganizerDialogTest {
         // Ensure the dialog is now visible.
         onView(withId(R.id.button_start_draw)).check(matches(isDisplayed()));
 
-        // Stub the intent. We don't want to actually open the share sheet.
-        intending(hasAction(Intent.ACTION_CHOOSER)).respondWith(
-                new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+        // Click the "Edit Event" button
+        onView(withId(R.id.button_edit_event)).perform(click());
 
-        // Click the "Share QR Code" button. You may need to replace the ID.
-        onView(ViewMatchers.withId(R.id.button_edit_event)).perform(click());
-
-        // Verify that a chooser intent (the share sheet) was launched.
-        intended(hasAction(Intent.ACTION_CHOOSER));
+        // Verify that we have navigated to the Edit screen by checking for a view that exists on it
+        onView(withId(R.id.editTextName)).check(matches(isDisplayed()));
     }
     @Test
     public void clickSeeDetailsButtonlaunchesShareIntent() throws InterruptedException {
@@ -99,15 +112,11 @@ public class OrganizerDialogTest {
         // Ensure the dialog is now visible.
         onView(withId(R.id.button_start_draw)).check(matches(isDisplayed()));
 
-        // Stub the intent. We don't want to actually open the share sheet.
-        intending(hasAction(Intent.ACTION_CHOOSER)).respondWith(
-                new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
+        // Click the "See Details" button
+        onView(withId(R.id.seeDetailsButton)).perform(click());
 
-        // Click the "Share QR Code" button. You may need to replace the ID.
-        onView(ViewMatchers.withId(R.id.seeDetailsButton)).perform(click());
-
-        // Verify that a chooser intent (the share sheet) was launched.
-        intended(hasAction(Intent.ACTION_CHOOSER));
+        // Verify that we have navigated to the Full Details screen by checking for a view on it
+        onView(withId(R.id.name_label)).check(matches(isDisplayed()));
     }
     /**
      * Tests if clicking the "Share QR Code" button launches the Android share intent.
@@ -118,14 +127,14 @@ public class OrganizerDialogTest {
         // Ensure the dialog is now visible.
         onView(withId(R.id.button_start_draw)).check(matches(isDisplayed()));
 
-        // Stub the intent. We don't want to actually open the share sheet.
+        // Stub the intent to prevent the actual share sheet from opening
         intending(hasAction(Intent.ACTION_CHOOSER)).respondWith(
                 new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
-        // Click the "Share QR Code" button. You may need to replace the ID.
-        onView(ViewMatchers.withId(R.id.genQRButton)).perform(click());
+        // Click the "Generate QR" button
+        onView(withId(R.id.genQRButton)).perform(click());
 
-        // Verify that a chooser intent (the share sheet) was launched.
+        // Verify that a chooser intent was launched
         intended(hasAction(Intent.ACTION_CHOOSER));
     }
 
@@ -138,10 +147,10 @@ public class OrganizerDialogTest {
         // Assuming the dialog is now visible.
         onView(withId(R.id.button_start_draw)).check(matches(isDisplayed()));
 
-        // Click the "Cancel" button.
-        onView(ViewMatchers.withId(R.id.cancelButton)).perform(click());
+        // Click the "Cancel" button
+        onView(withId(R.id.cancelButton)).perform(click());
 
-        // Verify the dialog is no longer displayed.
+        // Verify the dialog is gone by checking that a view from the previous screen is visible again
         onView(withId(R.id.add_event_button)).check(matches(isDisplayed()));
     }
 }
