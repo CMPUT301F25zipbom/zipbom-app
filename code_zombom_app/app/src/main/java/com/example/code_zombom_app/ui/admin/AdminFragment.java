@@ -25,6 +25,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 /**
  * This {@code AdminFragment} class gives an admin UI
  * that allows an app administrator to view and delete event data stored in Firestore.
+ * (will add more features once implemented later)
  * <p>
  * This fragment displays a scrollable list of all events fetched from the database
  * in Firestore. Each event displays its details, along with a trash button to delete it.
