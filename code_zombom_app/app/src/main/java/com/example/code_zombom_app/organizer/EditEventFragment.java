@@ -1,6 +1,9 @@
 package com.example.code_zombom_app.organizer;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +17,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -156,6 +161,7 @@ public class EditEventFragment extends Fragment {
      * Then it gets all of the stuff inside of the textboxes and updates the database.
      */
     private void updateEvent() {
+
         // This will continue as long as we have valid dates and entrants.
         if (maxentrantchecker(maxentrantEditText.getText().toString()) && validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
             Map<String, Object> updatedEventData = new HashMap<>();
@@ -187,6 +193,7 @@ public class EditEventFragment extends Fragment {
                         // Navigate back
                         if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
                                 && !Genre.isEmpty()) {
+                            //sendeditedmessage("rwenstro@ualberta.ca"); // TODO: loop through the entire list of entrants
                             NavHostFragment.findNavController(this).navigateUp();
                             Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                         }
@@ -295,6 +302,48 @@ public class EditEventFragment extends Fragment {
      * @param user Gives us the user we want to send a message to
      */
     void sendeditedmessage (String user){
+        if (originalEventId != null) {
+            db.collection("Profiles").document(user).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            if (documentSnapshot.contains("NotificationsPreferences")) {
+                                // Check if the field exists in the document
+                                String choice = documentSnapshot.getString("NotificationsPreferences");
+                                if (choice.isEmpty()) {
+                                    Toast.makeText(getContext(), "Entrant has no way to contact", Toast.LENGTH_SHORT).show();
+                                }
+                                if (choice.equals("email")) {
+                                    sendemailmessage(user);
+                                }
+                                if (choice.equals("sms")) {
+                                    sendsmsmessage(user);
+                                }
+                                if (choice.equals("both")) {
+                                    sendemailmessage(user);
+                                    sendsmsmessage(user);
+                                }
+                            }
+                            else{
+                                Toast.makeText(getContext(), "Entrant hasn't set up their preferences", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
 
+    /**
+     * Send email to a specific user
+     * @param user Contains the user id so we can retrieve from firebase
+     */
+    void sendemailmessage (String user){
+        // Send email
+    }
+
+    /**
+     * Send an sms message to a specific user
+     * @param user Contrains the user id so we can retrieve from firebase
+     */
+    void sendsmsmessage (String user){
+        // Send sms message
     }
 }
