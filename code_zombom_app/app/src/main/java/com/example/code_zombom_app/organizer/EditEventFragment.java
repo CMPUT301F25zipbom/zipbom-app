@@ -1,7 +1,6 @@
 package com.example.code_zombom_app.organizer;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,29 +15,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EditEventFragment extends Fragment {
 
-    private static final String TAG = "EditEventFragment";
-
     private EventViewModel eventViewModel;
     private FirebaseFirestore db;
     private String originalEventId;
     private String originalEventText; // The full text of the event
-    private CollectionReference eventref;
-    private FirebaseFirestore db1;
-    private CollectionReference events;
-    private ArrayList<String> entrantlist;
-    private ArrayList<String> acceptedentrantlist;
-    private ArrayList<String> cancelledentrantlist;
-    private String maxentrantstring;
 
     private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
@@ -65,28 +52,6 @@ public class EditEventFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        db1 = FirebaseFirestore.getInstance();
-        events = db1.collection("Events");
-
-        eventref = db1.collection("Events");
-        events.addSnapshotListener((valuedb, error) -> {
-            for (QueryDocumentSnapshot snapshot : valuedb) {
-                if ((ArrayList<String>) snapshot.get("Entrants") != null) {
-                    entrantlist = (ArrayList<String>) snapshot.get("Entrants");
-                }
-                if ((ArrayList<String>) snapshot.get("Accepted Entrants") != null) {
-                    acceptedentrantlist = (ArrayList<String>) snapshot.get("Accepted Entrants");
-                }
-                if ((ArrayList<String>) snapshot.get("Cancelled Entrants") != null) {
-                    cancelledentrantlist = (ArrayList<String>) snapshot.get("Cancelled Entrants");
-                }
-                if (snapshot.getString("Wait List Maximum") != null) {
-                    maxentrantstring = snapshot.getString("Wait List Maximum");
-                }
-            }
-        });
-
-
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
         // Find all EditTexts
@@ -98,34 +63,15 @@ public class EditEventFragment extends Fragment {
         locationEditText = view.findViewById(R.id.editTextLocation);
         maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
-        // Store original texts incase of a cancel
-        Map<String, Object> updatedEventDataIfCancel = new HashMap<>();
-        String ogName = eventNameEditText.getText().toString();
-        String ogMaxPeople = maxPeopleEditText.getText().toString();
-        String ogDate = dateEditText.getText().toString();
-        String ogDeadline = deadlineEditText.getText().toString();
-        String ogGenre = genreEditText.getText().toString();
-        String ogLocation = locationEditText.getText().toString();
-
         // Pre-fill the fields with existing data
         populateFields();
 
         cancelButton.setOnClickListener(v -> {
-            updatedEventDataIfCancel.put("Name", ogName);
-            updatedEventDataIfCancel.put("Max People", ogMaxPeople);
-            updatedEventDataIfCancel.put("Date", ogDate);
-            updatedEventDataIfCancel.put("Deadline", ogDeadline);
-            updatedEventDataIfCancel.put("Genre", ogGenre);
-            if (!ogLocation.isEmpty()){
-                updatedEventDataIfCancel.put("Location", ogLocation);
-            }
             NavHostFragment.findNavController(EditEventFragment.this).navigateUp();
         });
 
         Button updateButton = view.findViewById(R.id.saveEventButton);
-        updateButton.setOnClickListener(v -> {
-            updateEvent();
-        });
+        updateButton.setOnClickListener(v -> updateEvent());
     }
 
     private void populateFields() {
@@ -146,7 +92,7 @@ public class EditEventFragment extends Fragment {
             else if ("Deadline".equals(key)) deadlineEditText.setText(value);
             else if ("Genre".equals(key)) genreEditText.setText(value);
             else if ("Location".equals(key)) locationEditText.setText(value);
-            maxentrantEditText.setText(maxentrantstring);
+            else if ("Wait List Maximum".equals(key)) maxentrantEditText.setText(value);
         }
     }
 
@@ -162,7 +108,7 @@ public class EditEventFragment extends Fragment {
             String Location = locationEditText.getText().toString();
             updatedEventData.put("Location", Location);
         }
-        if (maxentrantEditText.getText().toString().isEmpty() == false) {
+        if(maxentrantEditText.getText().toString().isEmpty() == false){
             String maxentrant = maxentrantEditText.getText().toString();
             updatedEventData.put("Wait List Maximum", maxentrant);
         }
@@ -172,26 +118,19 @@ public class EditEventFragment extends Fragment {
         updatedEventData.put("Date", Date);
         updatedEventData.put("Deadline", Deadline);
         updatedEventData.put("Genre", Genre);
-        updatedEventData.put("Entrants", new ArrayList<String>());
-        updatedEventData.put("Accepted Entrants", new ArrayList<String>());
-        updatedEventData.put("Cancelled Entrants", new ArrayList<String>());
+
 
         db.collection("Events").document(originalEventId)
-                .update(updatedEventData) // or .update()
+                .set(updatedEventData) // or .update()
                 .addOnSuccessListener(aVoid -> {
 
                     // Navigate back
-                    Log.d(TAG, "Event successfully updated!");
-                    Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-                    // Navigate back ONLY on success
-                    navigateBack();
+                    if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
+                            && !Genre.isEmpty()) {
+
+                        Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+                    }
                 })
-                .addOnFailureListener(e -> {
-                    Log.w(TAG, "Error updating document", e);
-                    Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show();
-                });
-    }
-    private void navigateBack() {
-        NavHostFragment.findNavController(this).navigateUp();
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
     }
 }
