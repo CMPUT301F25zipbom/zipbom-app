@@ -76,6 +76,14 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Listen for transient success/error states emitted after join attempts
+        viewModel.getJoinStatusMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                viewModel.clearJoinStatusMessage();
+            }
+        });
     }
 
     /**
@@ -104,8 +112,6 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
 
     @Override
     public void onJoinWaitingList(@NonNull Event event) {
-        Toast.makeText(requireContext(),
-                getString(R.string.join_waiting_list_placeholder, event.getName()),
-                Toast.LENGTH_SHORT).show();
+        viewModel.joinEvent(event);
     }
 }
