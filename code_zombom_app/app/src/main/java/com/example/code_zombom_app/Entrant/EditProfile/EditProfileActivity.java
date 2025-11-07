@@ -51,7 +51,6 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
 
         EditProfileModel model = new EditProfileModel(FirebaseFirestore.getInstance(), email);
 
-        LoadUploadProfileModel model = new LoadUploadProfileModel(FirebaseFirestore.getInstance());
         EditProfileController controller = new EditProfileController(model,
                 findViewById(R.id.imageButtonEntrantProfileName),
                 findViewById(R.id.imageButtonEntrantProfileEmail),
@@ -62,12 +61,6 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantProfileDelete),
                 findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
-
-                findViewById(R.id.textViewEntrantProfileName),
-                findViewById(R.id.textViewEntrantProfileEmail),
-                findViewById(R.id.textViewEntrantProfilePhone),
-                findViewById(R.id.toggleButtonEntrantProfileNotification),
-                findViewById(R.id.toggleButtonEntrantProfileLinkUnlinkDevice));
         model.addView(this);
     }
 
@@ -193,8 +186,5 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 });
         builder.show();
 
-    public void update(LoadUploadProfileModel model) {
-        if (model.getState() == GModel.State.CLOSE)
-            finish();
     }
 }
