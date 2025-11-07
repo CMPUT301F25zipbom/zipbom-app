@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.Entrant;
 
+import static android.content.Intent.getIntent;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.ImageButton;
@@ -31,6 +33,8 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
 
         email = getIntent().getStringExtra("Email"); // Get the email address
         eventViewModel = new ViewModelProvider(this).get(EntrantEventListViewModel.class);
+        // Share the signed-in entrant address so the event list can perform join mutations
+        eventViewModel.setEntrantEmail(email);
 
         filterLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),

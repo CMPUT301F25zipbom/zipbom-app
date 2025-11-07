@@ -7,14 +7,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
 
-/**
- * An Event that can be created by Organizers and participated/interacted with by the entrants
- *
- * @author Dang Nguyen
- * @version 1.0.0, 11/3/2025
- * @see Entrant
- * @see Comparable
- */
+    /**
+     * An Event that can be created by Organizers and participated/interacted with by the entrants
+     *
+     * @author Dang Nguyen
+     * @version 1.0.0, 11/3/2025
+     * @see Entrant
+     * @see Comparable
+     */
 public class Event implements Comparable<Event> {
     // List of Entrants that joined the waiting list
     private final ArrayList<Entrant> waitingList;
@@ -63,6 +63,8 @@ public class Event implements Comparable<Event> {
 
     // An unique identifier of each event
     private final String eventId;
+    // Firestore document id to allow round-tripping between UI models and the backend
+    private String firestoreDocumentId;
 
     /**
      * Private constructor for class Event. This means an event cannot be created with new Event()
@@ -477,6 +479,22 @@ public class Event implements Comparable<Event> {
      */
     public String getEventId() {
         return this.eventId;
+    }
+
+    /**
+     * Stores the Firestore document id so UI gestures can reference the backing record.
+     *
+     * @param firestoreDocumentId document key from the "Events" collection
+     */
+    public void setFirestoreDocumentId(String firestoreDocumentId) {
+        this.firestoreDocumentId = firestoreDocumentId;
+    }
+
+    /**
+     * @return Firestore document key associated with this event instance.
+     */
+    public String getFirestoreDocumentId() {
+        return firestoreDocumentId;
     }
 
     /**
