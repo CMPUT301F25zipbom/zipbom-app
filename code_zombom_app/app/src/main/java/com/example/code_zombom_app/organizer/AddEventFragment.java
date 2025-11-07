@@ -1,11 +1,13 @@
 package com.example.code_zombom_app.organizer;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +19,7 @@ import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +33,7 @@ public class AddEventFragment extends Fragment {
     private EditText deadlineEditText;
     private EditText genreEditText;
     private EditText locationEditText;
+    private EditText maxentrantEditText;
     private CollectionReference eventref;
     private FirebaseFirestore db;
     private CollectionReference events;
@@ -67,7 +71,7 @@ public class AddEventFragment extends Fragment {
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
-
+        maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
         saveEventButton = view.findViewById(R.id.saveEventButton);
 
@@ -75,9 +79,8 @@ public class AddEventFragment extends Fragment {
             NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
         });
 
-        //TODO: add poster and QR code generation
+        //TODO: add poster
         saveEventButton.setOnClickListener(v -> {
-
             String eventName = eventNameEditText.getText().toString();
             if (!eventName.isEmpty() && !maxPeopleEditText.getText().toString().isEmpty()
                     && !dateEditText.getText().toString().isEmpty() && !deadlineEditText.getText().toString().isEmpty()
@@ -89,6 +92,7 @@ public class AddEventFragment extends Fragment {
                 String deadline = deadlineEditText.getText().toString();
                 String genre = genreEditText.getText().toString();
                 String location = locationEditText.getText().toString();
+                String listmax = maxentrantEditText.getText().toString();
 
                 Map<String, Object> eventData = new HashMap<>();
                 eventData.put("Name", name);
@@ -96,14 +100,31 @@ public class AddEventFragment extends Fragment {
                 eventData.put("Date", date);
                 eventData.put("Deadline", deadline);
                 eventData.put("Genre", genre);
-                if(location.isEmpty() == false){
+                if(!location.isEmpty()){
                     eventData.put("Location", location);
                 }
-                db.collection("Events").add(eventData);
-
-                // Navigate back to the main fragment
-                NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                if (listmax.isEmpty() == false){
+                    eventData.put("Wait List Maximum", listmax);
+                }
+                eventData.put("Entrants", new ArrayList<String>());
+                eventData.put("Cancelled Entrants", new ArrayList<String>());
+                eventData.put("Accepted Entrants", new ArrayList<String>());
+                db.collection("Events").add(eventData)
+                        .addOnSuccessListener(documentReference -> {
+                            // SUCCESS: The data was saved. Now it's safe to navigate away.
+                            Log.d("Firestore", "DocumentSnapshot written with ID: " + documentReference.getId());
+                            // Navigate back to the main fragment
+                            NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                        })
+                        .addOnFailureListener(e -> {
+                            // FAILURE: The data was not saved. Log the error and notify the user.
+                            Log.w("Firestore", "Error adding document", e);
+                            Toast.makeText(getContext(), "Failed to save event.", Toast.LENGTH_SHORT).show();
+                        });
+            } else {
+            Toast.makeText(getContext(), "Please fill all required fields.", Toast.LENGTH_SHORT).show();
             }
+
         });
     }
 

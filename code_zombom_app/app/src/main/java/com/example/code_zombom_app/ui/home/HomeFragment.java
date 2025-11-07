@@ -1,12 +1,10 @@
 package com.example.code_zombom_app.ui.home;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button; // <-- Import Button
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable; // <-- Import Nullable
@@ -18,10 +16,9 @@ import com.example.code_zombom_app.R; // <-- Make sure this import is correct
 import com.example.code_zombom_app.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
-    //private HomeViewModel homeViewModel;
+    private HomeViewModel homeViewModel;
 
     private FragmentHomeBinding binding;
-
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -31,7 +28,8 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final LinearLayout linearLayout = binding.homeContainer;
+        final TextView textView = binding.toAdminUI;
+        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
     @Override
@@ -45,16 +43,7 @@ public class HomeFragment extends Fragment {
             NavHostFragment.findNavController(HomeFragment.this)
                     .navigate(R.id.action_home_to_events_graph);
         });
-
-        binding.toAdminUI.setOnClickListener(v -> {
-            NavHostFragment.findNavController(HomeFragment.this)
-                    .navigate(R.id.action_home_to_admin);
-        });
-
-
     }
-
-
 
     @Override
     public void onDestroyView() {

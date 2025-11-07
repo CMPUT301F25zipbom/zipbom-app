@@ -36,6 +36,7 @@ public abstract class GModel extends TModel<TView> {
         ADD_DEVICE_ID,
         REMOVE_DEVICE_ID,
 
+
         INTERNAL_ERROR,
         NEUTRAL
         /* More to be implemented later */

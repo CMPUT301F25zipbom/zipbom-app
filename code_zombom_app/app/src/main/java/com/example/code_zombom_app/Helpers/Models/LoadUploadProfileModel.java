@@ -47,6 +47,7 @@ public class LoadUploadProfileModel extends GModel {
                             Entrant entrant = snapshot.toObject(Entrant.class);
                             setInterMsg("Profile", entrant);
                         }
+                        setInterMsg("Profile", (Profile) snapshot.toObject(Profile.class));
                         notifyViews();
                     } else {
                         state = State.LOGIN_FAILURE;

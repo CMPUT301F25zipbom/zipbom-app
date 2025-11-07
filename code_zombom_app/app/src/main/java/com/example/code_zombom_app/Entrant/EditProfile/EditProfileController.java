@@ -3,6 +3,7 @@ package com.example.code_zombom_app.Entrant.EditProfile;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -13,6 +14,7 @@ import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.Profile;
 
 public class EditProfileController extends GController<EditProfileModel> {
+
     private ImageButton imageButtonEditName;
     private ImageButton imageButtonEditEmail;
     private ImageButton imageButtonEditPhone;

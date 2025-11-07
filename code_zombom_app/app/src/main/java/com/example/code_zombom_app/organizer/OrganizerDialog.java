@@ -44,6 +44,7 @@ public class OrganizerDialog extends Dialog {
         Button messageButton = findViewById(R.id.button_message_participants);
         Button editEventButton = findViewById(R.id.button_edit_event);
         Button genQRButton = findViewById(R.id.genQRButton);
+        Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
         // Set click listeners for each button
@@ -76,6 +77,15 @@ public class OrganizerDialog extends Dialog {
                     qrToShow.setVisibility(View.VISIBLE);
                 }
             }
+        });
+
+        seeDetsButton.setOnClickListener(v -> {
+            dismiss();
+            Bundle bundle = new Bundle();
+            bundle.putString("eventId", eventId);
+
+            // Navigate to the full details fragment
+            navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
         });
 
         cancelButton.setOnClickListener(v -> dismiss());

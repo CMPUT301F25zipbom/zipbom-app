@@ -13,6 +13,8 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AlertDialog;
+
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.code_zombom_app.Helpers.MVC.GModel;
@@ -32,6 +34,7 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
     private ToggleButton toggleNotification;
     private ToggleButton toggleLinkDevice;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +50,8 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
         toggleLinkDevice = findViewById(R.id.toggleButtonEntrantProfileLinkUnlinkDevice);
 
         EditProfileModel model = new EditProfileModel(FirebaseFirestore.getInstance(), email);
+
+        LoadUploadProfileModel model = new LoadUploadProfileModel(FirebaseFirestore.getInstance());
         EditProfileController controller = new EditProfileController(model,
                 findViewById(R.id.imageButtonEntrantProfileName),
                 findViewById(R.id.imageButtonEntrantProfileEmail),
@@ -57,6 +62,12 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantProfileDelete),
                 findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
+
+                findViewById(R.id.textViewEntrantProfileName),
+                findViewById(R.id.textViewEntrantProfileEmail),
+                findViewById(R.id.textViewEntrantProfilePhone),
+                findViewById(R.id.toggleButtonEntrantProfileNotification),
+                findViewById(R.id.toggleButtonEntrantProfileLinkUnlinkDevice));
         model.addView(this);
     }
 
@@ -181,5 +192,9 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                     }
                 });
         builder.show();
+
+    public void update(LoadUploadProfileModel model) {
+        if (model.getState() == GModel.State.CLOSE)
+            finish();
     }
 }

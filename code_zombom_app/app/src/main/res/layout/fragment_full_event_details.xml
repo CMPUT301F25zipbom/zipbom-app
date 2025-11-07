@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context=".organizer.EventFullDetailsFragment">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/details_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Event Details"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/name_label"
+            style="@style/DetailsLabel"
+            android:text="Name:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/details_title" />
+
+        <TextView
+            android:id="@+id/name_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/name_label"
+            tools:text="Summer Festival" />
+
+        <TextView
+            android:id="@+id/date_label"
+            style="@style/DetailsLabel"
+            android:text="Date:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/name_value" />
+
+        <TextView
+            android:id="@+id/date_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/date_label"
+            tools:text="2024-08-15" />
+
+        <TextView
+            android:id="@+id/deadline_label"
+            style="@style/DetailsLabel"
+            android:text="Deadline:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/date_value" />
+
+        <TextView
+            android:id="@+id/deadline_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/deadline_label"
+            tools:text="2024-08-01" />
+
+        <TextView
+            android:id="@+id/location_label"
+            style="@style/DetailsLabel"
+            android:text="Location:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/deadline_value" />
+
+        <TextView
+            android:id="@+id/location_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/location_label"
+            tools:text="City Park" />
+
+        <TextView
+            android:id="@+id/genre_label"
+            style="@style/DetailsLabel"
+            android:text="Genre:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/location_value" />
+
+        <TextView
+            android:id="@+id/genre_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/genre_label"
+            tools:text="Music" />
+
+        <TextView
+            android:id="@+id/max_people_label"
+            style="@style/DetailsLabel"
+            android:text="Max People:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/genre_value" />
+
+        <TextView
+            android:id="@+id/max_people_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/max_people_label"
+            tools:text="500" />
+
+        <TextView
+            android:id="@+id/waitlist_max_label"
+            style="@style/DetailsLabel"
+            android:text="Waitlist Max:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/max_people_value" />
+
+        <TextView
+            android:id="@+id/waitlist_max_value"
+            style="@style/DetailsValue"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/waitlist_max_label"
+            tools:text="50" />
+
+        <TextView
+            android:id="@+id/entrants_label"
+            style="@style/DetailsLabel"
+            android:text="Entrants:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/waitlist_max_value" />
+
+        <TextView
+            android:id="@+id/entrants_value"
+            style="@style/DetailsValue"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/entrants_label"
+            tools:text="User1, User2, User3, User4, User5" />
+
+        <TextView
+            android:id="@+id/accepted_entrants_label"
+            style="@style/DetailsLabel"
+            android:text="Accepted:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/entrants_value" />
+
+        <TextView
+            android:id="@+id/accepted_entrants_value"
+            style="@style/DetailsValue"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/accepted_entrants_label"
+            tools:text="User1, User2" />
+
+        <TextView
+            android:id="@+id/cancelled_entrants_label"
+            style="@style/DetailsLabel"
+            android:text="Cancelled:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/accepted_entrants_value" />
+
+        <TextView
+            android:id="@+id/cancelled_entrants_value"
+            style="@style/DetailsValue"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@id/cancelled_entrants_label"
+            tools:text="User3" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.4" />
+
+        <Button
+            android:id="@+id/returnButton"
+            android:layout_width="218dp"
+            android:layout_height="46dp"
+            android:layout_marginTop="55dp"
+            android:backgroundTint="#A09D9D"
+            android:text="Return"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
