@@ -24,6 +24,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Robert Enstrom, Tejwinder Johal
+ * @version 1.0
+ * This class is used when the user wants to edit an event.
+ */
 public class EditEventFragment extends Fragment {
 
     private EventViewModel eventViewModel;
@@ -36,6 +41,11 @@ public class EditEventFragment extends Fragment {
 
     private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
+    /**
+     * This sets up the eventViewModel, database and catches the arguments.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,12 +59,30 @@ public class EditEventFragment extends Fragment {
         }
     }
 
+    /**
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return Returns the inflated edit fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_edit_event, container, false);
     }
 
+    /**
+     * This function sets the buttons and textviews to variables. It then calls populate fields to fill in the textboxes
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -104,6 +132,9 @@ public class EditEventFragment extends Fragment {
         updateButton.setOnClickListener(v -> updateEvent());
     }
 
+    /**
+     * This function gets all of the previous events info and autofills out the textboxes.
+     */
     private void populateFields() {
         // A more robust solution would be a proper data model.
         if (originalEventText == null) return;
@@ -139,7 +170,10 @@ public class EditEventFragment extends Fragment {
         }
     }
 
-
+    /**
+     * This function checks to make sure maxentrant is properly set up and that the dates are properly set up
+     * Then it gets all of the stuff inside of the textboxes and updates the database.
+     */
     private void updateEvent() {
         // This will continue as long as we have valid dates and entrants.
         if (maxentrantchecker(maxentrantEditText.getText().toString()) && validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
@@ -275,4 +309,11 @@ public class EditEventFragment extends Fragment {
         return isvalid;
     }
 
+    /**
+     * Sends a message to a user letting them know that we changed the event.
+     * @param user Gives us the user we want to send a message to
+     */
+    void sendeditedmessage (String user){
+
+    }
 }

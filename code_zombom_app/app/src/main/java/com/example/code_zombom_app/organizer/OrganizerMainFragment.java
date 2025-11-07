@@ -34,6 +34,11 @@ import com.google.zxing.WriterException;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 import android.text.TextUtils;
 
+/**
+ * @author Robert Enstrom, Tejwinder Johal
+ * @version 1.0
+ * This is the class that sets up the main organizer ui
+ */
 public class OrganizerMainFragment extends Fragment {
 
     private EventViewModel eventViewModel;
@@ -42,6 +47,11 @@ public class OrganizerMainFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventsdb;
 
+    /**
+     * This function gets the model and saves it to eventViewModel
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +59,18 @@ public class OrganizerMainFragment extends Fragment {
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
     }
 
+    /**
+     * Gets the inflated view of the main organizer and returns it.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return This function returns the inflated view of the 'main' ui page for the organizer
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the fragment layout
@@ -56,6 +78,13 @@ public class OrganizerMainFragment extends Fragment {
         return view;
     }
 
+    /**
+     * This function links the buttons to their respective variables. It also sets up firebase and calls setupFirestoreListener()
+     * to fill the organizer ui with wuth all of the events from the database.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         //eventDisplayTextView = view.findViewById(R.id.event_display_textview);
@@ -80,6 +109,9 @@ public class OrganizerMainFragment extends Fragment {
     }
 
 
+    /**
+     * This function is used to fill the main organizer ui with all of the events from the database.
+     */
     private void setupFirestoreListener() {
         eventsdb.addSnapshotListener((value, error) -> {
             if (error != null) {
@@ -147,6 +179,12 @@ public class OrganizerMainFragment extends Fragment {
             }
         });
     }
+
+    /**
+     * Teji please explain what this does. Thanks, ur favorite man <3
+     * @param eventId
+     * @param eventText
+     */
     private void showEventOptionsDialog(String eventId, String eventText) {
         NavController navController = NavHostFragment.findNavController(this);
         // We need to pass the fragment's root view so the dialog can find the ImageView tag

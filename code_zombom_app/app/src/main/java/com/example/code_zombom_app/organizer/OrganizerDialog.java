@@ -15,6 +15,11 @@ import androidx.navigation.NavController;
 
 import com.example.code_zombom_app.R;
 
+/**
+ * @author Tejwinder Johal
+ * @version 1.0
+ * Briefly explain what this does Mr. Johal.
+ */
 public class OrganizerDialog extends Dialog {
 
     private final String eventId;
@@ -22,6 +27,14 @@ public class OrganizerDialog extends Dialog {
     private final NavController navController;
     private final View fragmentView;
 
+    /**
+     * This method is used to make an organizerdialog object.
+     * @param context sets the context
+     * @param eventId sets the organizerdialog eventid
+     * @param eventText sets the organizerdialog eventtext
+     * @param navController sets the organizerdialog navController
+     * @param fragmentView sets the organizerdialog fragmentView
+     */
     public OrganizerDialog(@NonNull Context context, String eventId, String eventText, NavController navController, View fragmentView) {
         super(context);
         this.eventId = eventId;
@@ -30,6 +43,13 @@ public class OrganizerDialog extends Dialog {
         this.fragmentView = fragmentView;
     }
 
+    /**
+     * This sets up the different buttons and tells them what to do if they get clicked
+     * @param savedInstanceState If this dialog is being reinitialized after a
+     *     the hosting activity was previously shut down, holds the result from
+     *     the most recent call to {@link #onSaveInstanceState}, or null if this
+     *     is the first time.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,17 +66,17 @@ public class OrganizerDialog extends Dialog {
         Button genQRButton = findViewById(R.id.genQRButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
-        // Set click listeners for each button
+        // This button starts a draw for who will win the lottery
         viewStartButton.setOnClickListener(v -> {
             // TODO: Implement Draw
             dismiss(); // Close the dialog
         });
-
+        // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
         messageButton.setOnClickListener(v -> {
             // TODO: Implement Message Entrants
             dismiss();
         });
-
+        //This will send the user to EditEventFragment along with the event's id and the events text.
         editEventButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
@@ -66,7 +86,7 @@ public class OrganizerDialog extends Dialog {
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
-
+        //This makes the QR code visible when the user clicks generate QR code
         genQRButton.setOnClickListener(v -> {
             dismiss();
             // We need the fragment's root view to find the tag
@@ -77,7 +97,7 @@ public class OrganizerDialog extends Dialog {
                 }
             }
         });
-
+        //This gets rid of the popup.
         cancelButton.setOnClickListener(v -> dismiss());
 
         // Make the dialog's background transparent
