@@ -27,6 +27,12 @@
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 
+    <fragment
+        android:id="@+id/adminFragment"
+        android:name="com.example.code_zombom_app.ui.admin.AdminFragment"
+        android:label="@string/title_dashboard"
+        tools:layout="@layout/fragment_admin" />
+
     <!-- Nest Nav_graph into mobile_navigation -->
     <include app:graph="@navigation/organizer_graph" />
 </navigation>

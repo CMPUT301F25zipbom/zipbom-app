@@ -1,18 +1,19 @@
 package com.example.code_zombom_app.ui.home;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button; // <-- Import Button
-import android.widget.TextView;
+import android.widget.Button;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable; // <-- Import Nullable
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.navigation.fragment.NavHostFragment; // <-- Import NavHostFragment
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.code_zombom_app.R; // <-- Make sure this import is correct
+import com.example.code_zombom_app.Login.LoginActivity;
+import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
@@ -28,8 +29,6 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        final TextView textView = binding.textHome;
-        homeViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
     @Override
@@ -38,10 +37,22 @@ public class HomeFragment extends Fragment {
 
         // All Code in onViewCreated() is temporary
         Button organizerButton = view.findViewById(R.id.toOrganizerUIForNow);
+        Button adminButton = view.findViewById(R.id.toAdminUI);
+        Button entrantLoginButton = view.findViewById(R.id.buttonEntrantLogin);
 
         organizerButton.setOnClickListener(v -> {
             NavHostFragment.findNavController(HomeFragment.this)
                     .navigate(R.id.action_home_to_events_graph);
+        });
+
+        adminButton.setOnClickListener(v -> {
+            NavHostFragment.findNavController(HomeFragment.this)
+                    .navigate(R.id.adminFragment);
+        });
+
+        entrantLoginButton.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), LoginActivity.class);
+            startActivity(intent);
         });
     }
 
