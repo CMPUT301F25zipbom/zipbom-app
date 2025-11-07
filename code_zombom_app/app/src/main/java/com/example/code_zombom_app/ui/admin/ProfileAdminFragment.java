@@ -69,6 +69,12 @@ public class ProfileAdminFragment extends Fragment {
         loadProfilesFromDatabase();
     }
 
+    public void setMockDatabase(FirebaseFirestore mockDb, CollectionReference mockProfilesCollection) {
+        this.db = mockDb;
+        this.profilesDb = mockProfilesCollection;
+    }
+
+
     private void loadProfilesFromDatabase() {
         profilesDb.addSnapshotListener((value, error) -> {
             if (error != null) {
