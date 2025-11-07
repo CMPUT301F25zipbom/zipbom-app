@@ -18,7 +18,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
-            android:text="Image:"
+            android:text="Poster:"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/description_value" />
 
@@ -212,7 +212,7 @@
         <TextView
             android:id="@+id/description_label"
             style="@style/DetailsLabel"
-            android:text="Description"
+            android:text="Description:"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
 

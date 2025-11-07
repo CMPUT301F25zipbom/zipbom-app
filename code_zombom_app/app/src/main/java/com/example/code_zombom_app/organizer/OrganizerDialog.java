@@ -1,5 +1,9 @@
 package com.example.code_zombom_app.organizer;
 
+import android.graphics.Bitmap;
+import android.util.Log;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -13,7 +17,18 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 
+import com.bumptech.glide.Glide;
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import java.io.ByteArrayOutputStream;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+import java.util.Map;
 
 /**
  * @author Tejwinder Johal
@@ -21,11 +36,11 @@ import com.example.code_zombom_app.R;
  * Briefly explain what this does Mr. Johal.
  */
 public class OrganizerDialog extends Dialog {
-
     private final String eventId;
     private final String eventText;
     private final NavController navController;
     private final View fragmentView;
+    private final Map<String, Bitmap> qrCodeBitmaps;
 
     /**
      * This method is used to make an organizerdialog object.
@@ -35,12 +50,13 @@ public class OrganizerDialog extends Dialog {
      * @param navController sets the organizerdialog navController
      * @param fragmentView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, String eventId, String eventText, NavController navController, View fragmentView) {
+    public OrganizerDialog(@NonNull Context context, String eventId, String eventText, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
         super(context);
         this.eventId = eventId;
         this.eventText = eventText;
         this.navController = navController;
         this.fragmentView = fragmentView;
+        this.qrCodeBitmaps = qrCodeBitmaps;
     }
 
     /**
@@ -90,11 +106,16 @@ public class OrganizerDialog extends Dialog {
         //This makes the QR code visible when the user clicks generate QR code
         genQRButton.setOnClickListener(v -> {
             dismiss();
+            Bitmap qrBitmap = qrCodeBitmaps.get(eventId);
             // We need the fragment's root view to find the tag
             ImageView qrToShow = fragmentView.findViewWithTag(eventId);
             if (qrToShow != null) {
+                uploadQrCodeToFirebase(qrBitmap);
                 if (qrToShow.getVisibility() == View.GONE) {
                     qrToShow.setVisibility(View.VISIBLE);
+                } else {
+                    // If for some reason it's not found, show an error
+                    Toast.makeText(getContext(), "Error: QR Code image not found.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -115,5 +136,51 @@ public class OrganizerDialog extends Dialog {
         if (getWindow() != null) {
             getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
+    }
+    /**
+     * Uploads the provided QR code Bitmap to Firebase Storage and saves the URL to Firestore.
+     * @param bitmap The QR code bitmap to upload.
+     */
+    private void uploadQrCodeToFirebase(Bitmap bitmap) {
+        Toast.makeText(getContext(), "Saving QR Code...", Toast.LENGTH_SHORT).show();
+
+        // 1. Convert Bitmap to byte array for upload
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        // 2. Define the path in Firebase Storage
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventId + ".png");
+
+        // 3. Upload the byte array
+        storageRef.putBytes(data)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // 4. Get the public download URL
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        // 5. Save the URL to the event's document in Firestore
+                        saveQrUrlToFirestore(uri.toString());
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Upload to firebase failed. Please try again.", Toast.LENGTH_SHORT).show();
+                    Log.e("FirebaseStorage", "QR code upload to firebase failed", e);
+                });
+    }
+    /**
+     * Saves the QR code's download URL to a 'qrCodeUrl' field in the event's document.
+     * @param url The public URL of the uploaded image.
+     */
+    private void saveQrUrlToFirestore(String url) {
+        FirebaseFirestore.getInstance().collection("Events").document(eventId)
+                .update("qrCodeUrl", url)
+                .addOnSuccessListener(aVoid -> {
+                    Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
+                    Log.d("Firestore", "QR Code URL updated for event: " + eventId);
+                    dismiss(); // Close the dialog on success
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to save QR code URL.", Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Error updating event with QR URL", e);
+                });
     }
 }

@@ -418,6 +418,10 @@ public class EditEventFragment extends Fragment {
     void sendsmsmessage (String user){
         // Send sms message
     }
+    /**
+     * This function gets all of the event's info directly from Firestore
+     * and populates ALL UI fields, including the description and poster.
+     */
     private void loadEventData() {
         db.collection("Events").document(originalEventId).get()
                 .addOnSuccessListener(doc -> {
@@ -432,9 +436,19 @@ public class EditEventFragment extends Fragment {
                                     .load(existingPosterUrl)
                                     .into(imagePreview);
                         }
+                        buttonUploadPhoto.setText("Change Photo");
                     }
+
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to load event data.", Toast.LENGTH_SHORT).show();
                 });
+
     }
+
+    /**
+     *
+     */
     private void openGallery() {
         // Same as in AddEventFragment
         Intent intent = new Intent(Intent.ACTION_PICK);

@@ -49,7 +49,6 @@ public class AddEventFragment extends Fragment {
     private EditText locationEditText;
     private EditText maxentrantEditText;
     private EditText descriptionEditText;
-    private CollectionReference eventref;
     private FirebaseFirestore db;
     private CollectionReference events;
     private Button saveEventButton;
@@ -117,8 +116,6 @@ public class AddEventFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         events = db.collection("Events");
 
-        eventref = db.collection("Events");
-
         cancelButton = view.findViewById(R.id.cancelButton);
         buttonUploadPhoto = view.findViewById(R.id.buttonUploadPhoto);
 
@@ -178,6 +175,9 @@ public class AddEventFragment extends Fragment {
                     eventData.put("Description", description);
                 }
                 db.collection("Events").add(eventData);
+
+                String newEventId = events.getId();
+                uploadImageAndUpdateEvent(newEventId);
 
                 // Navigate back to the main fragment
                 NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
@@ -277,6 +277,10 @@ public class AddEventFragment extends Fragment {
             return true;
         }
     }
+
+    /**
+     *
+     */
     private void openGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -294,18 +298,17 @@ public class AddEventFragment extends Fragment {
             return;
         }
         eventData.put("Name", eventName);
-        // ... put all other fields into eventData ...
         eventData.put("Entrants", new ArrayList<String>());
         eventData.put("Accepted Entrants", new ArrayList<String>());
         eventData.put("Cancelled Entrants", new ArrayList<String>());
 
-        // 1. Create the event document in Firestore first to get a unique ID
+        // Create the event document in Firestore to get a unique ID
         db.collection("Events").add(eventData)
                 .addOnSuccessListener(documentReference -> {
                     String newEventId = documentReference.getId();
                     Log.d("Firestore", "Event document created with ID: " + newEventId);
 
-                    // 2. Check if an image was selected
+                    // Check if an image was selected
                     if (imageUri != null) {
                         // If yes, upload the image using the new event ID
                         uploadImageAndUpdateEvent(newEventId);
@@ -320,18 +323,23 @@ public class AddEventFragment extends Fragment {
                     Toast.makeText(getContext(), "Failed to create event.", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    /**
+     *
+     * @param eventId
+     */
     private void uploadImageAndUpdateEvent(String eventId) {
         // Create a path in Firebase Storage: "posters/event_id.jpg"
         com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReference().child("posters/" + eventId + ".jpg");
 
-        // 3. Upload the file
+        // Upload the file
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> {
-                    // 4. Get the public download URL for the uploaded image
+                    // Get the public download URL for the uploaded image
                     storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
                         String imageUrl = uri.toString();
 
-                        // 5. Update the event document with the poster URL
+                        // Update the event document with the poster URL
                         db.collection("Events").document(eventId)
                                 .update("posterUrl", imageUrl)
                                 .addOnSuccessListener(aVoid -> {
