@@ -1,19 +1,18 @@
 package com.example.code_zombom_app.organizer;
 
-import android.app.Dialog;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import java.util.HashMap;
+import java.util.Map;
+import android.graphics.drawable.BitmapDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,6 +42,10 @@ public class OrganizerMainFragment extends Fragment {
     //private EventAdapter eventAdapter;
     private FirebaseFirestore db;
     private CollectionReference eventsdb;
+
+    // This map will store the generated QR code bitmaps with the eventId as the key.
+    private Map<String, Bitmap> qrCodeBitmaps = new HashMap<>();
+
 
     /**
      * This function gets the model and saves it to eventViewModel
@@ -103,7 +106,6 @@ public class OrganizerMainFragment extends Fragment {
             NavHostFragment.findNavController(OrganizerMainFragment.this)
                     .navigate(R.id.action_organizerMainFragment_to_addEventFragment);
         });
-        //setupFirestoreListener();
     }
 
 
@@ -118,6 +120,7 @@ public class OrganizerMainFragment extends Fragment {
             }
             // Always clear the container before adding new views
             eventsContainer.removeAllViews();
+            qrCodeBitmaps.clear();
 
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
@@ -140,8 +143,8 @@ public class OrganizerMainFragment extends Fragment {
                         if (snapshot.getString("Location") != null) {
                             eventTextBuilder.append("Location: ").append(snapshot.getString("Location"));
                         }
-
                         String eventText = eventTextBuilder.toString(); // <<< THIS IS THE FULL TEXT
+                        eventDetailsTextView.setText(eventText);
 
                         StringBuilder qrDataBuilder = new StringBuilder();
                         qrDataBuilder.append("Event: ").append(snapshot.getString("Name")).append("\n");
@@ -150,15 +153,24 @@ public class OrganizerMainFragment extends Fragment {
                         qrDataBuilder.append("Deadline: ").append(snapshot.getString("Deadline")).append("\n");
                         qrDataBuilder.append("Description: ").append(snapshot.getString("Description")).append("\n");
 
+                        // Add the poster URL if it exists
+                        String posterUrl = snapshot.getString("posterUrl");
+                        if (posterUrl != null && !posterUrl.isEmpty()) {
+                            qrDataBuilder.append("Poster: ").append(posterUrl);
+                        }
+
+                        // This is the new, detailed string for the QR code
                         String qrCodeData = qrDataBuilder.toString();
 
-                        eventDetailsTextView.setText(eventText);
 
                         // Generate and set the QR code
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
                         // Use the eventName variable as the content for the QR code
                         Bitmap bitmap = barcodeEncoder.encodeBitmap(qrCodeData, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
                         qrCodeImageView.setImageBitmap(bitmap);
+
+                        // Store the generated bitmap in our map
+                        qrCodeBitmaps.put(eventId, bitmap);
 
                         // Set click listener for the whole item
                         eventItemView.setOnClickListener(v -> showEventOptionsDialog(eventId, eventText));
@@ -167,6 +179,7 @@ public class OrganizerMainFragment extends Fragment {
 
                     } catch (WriterException e) {
                         Log.e("QRCode", "Error generating QR code", e);
+
                     } catch (Exception e) {
                         // This will catch NullPointerExceptions if a view ID is wrong
                         Log.e("UI_ERROR", "Error processing event item. Check your XML IDs.", e);
@@ -185,16 +198,16 @@ public class OrganizerMainFragment extends Fragment {
     }
 
     /**
-     * Teji please explain what this does. Thanks, ur favorite man <3
+     * Makes the Organizer Dialog pop-up.
      * @param eventId
      * @param eventText
      */
     private void showEventOptionsDialog(String eventId, String eventText) {
         NavController navController = NavHostFragment.findNavController(this);
-        // We need to pass the fragment's root view so the dialog can find the ImageView tag
+        // pass the fragment's root view so the dialog can find the ImageView tag
         View fragmentView = getView();
 
-        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventId, eventText, navController, fragmentView);
+        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventId, eventText, navController, fragmentView, qrCodeBitmaps);
         dialog.show();
     }
 }

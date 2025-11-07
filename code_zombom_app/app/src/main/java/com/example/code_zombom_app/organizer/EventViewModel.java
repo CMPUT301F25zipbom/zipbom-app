@@ -10,19 +10,23 @@ import java.util.Map;
 /**
  * @author Tejwinder Johal
  * @version 1.0
- * Explain what this does please Mr Johal.
+ * Not fully implemented yet. Currently just uses setEvents to put the events in a hashmap
  */
 public class EventViewModel extends ViewModel {
 
-    // 1. Use a Map to store events: The key is the event ID (String), and the value is the event text (String).
+    // Use a Map to store events: The key is the event ID (String), and the value is the event text (String).
     private final MutableLiveData<Map<String, String>> eventsMap = new MutableLiveData<>(new HashMap<>());
 
-    // 2. Expose the LiveData of the Map to the UI.
+    // Expose the LiveData of the Map to the UI.
     public LiveData<Map<String, String>> getEventsMap() {
         return eventsMap;
     }
 
-    // 3. Method to add a new event to the map.
+    /**
+     * Method to add a new event to the map.
+     * @param eventId
+     * @param eventText
+     */
     public void addEvent(String eventId, String eventText) {
         Map<String, String> currentMap = eventsMap.getValue();
         if (currentMap != null) {
@@ -33,7 +37,11 @@ public class EventViewModel extends ViewModel {
         }
     }
 
-    // 4. Method to update an existing event in the map.
+    /**
+     * Method to update an existing event in the map.
+     * @param eventId
+     * @param newEventText
+     */
     public void updateEvent(String eventId, String newEventText) {
         Map<String, String> currentMap = eventsMap.getValue();
         // Check if the map is not null and contains the event to be updated.
@@ -44,7 +52,10 @@ public class EventViewModel extends ViewModel {
         }
     }
 
-    // 5. Method to remove an event from the map using its ID.
+    /**
+     * Method to remove an event from the map.
+     * @param eventId
+     */
     public void removeEvent(String eventId) {
         Map<String, String> currentMap = eventsMap.getValue();
         if (currentMap != null && currentMap.containsKey(eventId)) {
@@ -54,7 +65,10 @@ public class EventViewModel extends ViewModel {
         }
     }
 
-    // 6. Helper method to replace the entire map at once (useful for initial load from Firestore).
+    /**
+     * Method to set a new map of events.
+     * @param newEvents
+     */
     public void setEvents(Map<String, String> newEvents) {
         eventsMap.setValue(newEvents);
     }
