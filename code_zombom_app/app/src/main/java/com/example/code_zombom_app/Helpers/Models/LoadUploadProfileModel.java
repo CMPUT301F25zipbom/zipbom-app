@@ -41,13 +41,19 @@ public class LoadUploadProfileModel extends GModel {
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.exists()) {
                         state = State.LOGIN_SUCCESS;
-//                        Profile profile = (Profile) snapshot.toObject(Profile.class);
-                        //assert profile != null;
-                        if (snapshot.getString("type").equals("Entrant")) {
-                            Entrant entrant = snapshot.toObject(Entrant.class);
-                            setInterMsg("Profile", entrant);
+
+                        Profile profile;
+                        String type = snapshot.getString("type");
+                        if ("Entrant".equals(type)) {
+                            // Keep entrant-specific fields intact by deserializing into Entrant
+                            profile = snapshot.toObject(Entrant.class);
+                        } else {
+                            profile = snapshot.toObject(Profile.class);
                         }
-                        setInterMsg("Profile", (Profile) snapshot.toObject(Profile.class));
+
+                        if (profile != null) {
+                            setInterMsg("Profile", profile);
+                        }
                         notifyViews();
                     } else {
                         state = State.LOGIN_FAILURE;
