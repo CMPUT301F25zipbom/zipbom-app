@@ -17,18 +17,33 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @author Robert Enstrom, Tejwinder Johal
+ * @version 1.0
+ * This class is used when the user wants to edit an event.
+ */
 public class EditEventFragment extends Fragment {
 
     private EventViewModel eventViewModel;
     private FirebaseFirestore db;
     private String originalEventId;
     private String originalEventText; // The full text of the event
+    private CollectionReference eventref;
+    private FirebaseFirestore db1;
+    private CollectionReference events;
 
-    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText;
+    private EditText eventNameEditText, maxPeopleEditText, dateEditText, deadlineEditText, genreEditText, locationEditText, maxentrantEditText;
 
+    /**
+     * This sets up the eventViewModel, database and catches the arguments.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,15 +57,39 @@ public class EditEventFragment extends Fragment {
         }
     }
 
+    /**
+     *
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return Returns the inflated edit fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_edit_event, container, false);
     }
 
+    /**
+     * This function sets the buttons and textviews to variables. It then calls populate fields to fill in the textboxes
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        db1 = FirebaseFirestore.getInstance();
+        events = db1.collection("Events");
+
+        eventref = db1.collection("Events");
+
 
         Button cancelButton = view.findViewById(R.id.cancelButton);
 
@@ -61,6 +100,7 @@ public class EditEventFragment extends Fragment {
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
+        maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
 
         // Pre-fill the fields with existing data
         populateFields();
@@ -73,9 +113,26 @@ public class EditEventFragment extends Fragment {
         updateButton.setOnClickListener(v -> updateEvent());
     }
 
+    /**
+     * This function gets all of the previous events info and autofills out the textboxes.
+     */
     private void populateFields() {
         // A more robust solution would be a proper data model.
         if (originalEventText == null) return;
+
+        // Setting Wait List Maximum text
+        if (originalEventId != null) {
+            db.collection("Events").document(originalEventId).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            // Check if the field exists in the document
+                            if (documentSnapshot.contains("Wait List Maximum")) {
+                                String waitListMax = documentSnapshot.getString("Wait List Maximum");
+                                maxentrantEditText.setText(waitListMax);
+                            }
+                        }
+                    });
+        }
 
         String[] lines = originalEventText.split("\n");
         for (String line : lines) {
@@ -94,49 +151,150 @@ public class EditEventFragment extends Fragment {
         }
     }
 
+    /**
+     * This function checks to make sure maxentrant is properly set up and that the dates are properly set up
+     * Then it gets all of the stuff inside of the textboxes and updates the database.
+     */
     private void updateEvent() {
-        Map<String, Object> updatedEventData = new HashMap<>();
+        // This will continue as long as we have valid dates and entrants.
+        if (maxentrantchecker(maxentrantEditText.getText().toString()) && validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
+            Map<String, Object> updatedEventData = new HashMap<>();
 
-        String Name = eventNameEditText.getText().toString();
-        String MaxPeople = maxPeopleEditText.getText().toString();
-        String Date = dateEditText.getText().toString();
-        String Deadline = deadlineEditText.getText().toString();
-        String Genre = genreEditText.getText().toString();
-        if(locationEditText.getText().toString().isEmpty() == false){
-            String Location = locationEditText.getText().toString();
-            updatedEventData.put("Location", Location);
+            String Name = eventNameEditText.getText().toString();
+            String MaxPeople = maxPeopleEditText.getText().toString();
+            String Date = dateEditText.getText().toString();
+            String Deadline = deadlineEditText.getText().toString();
+            String Genre = genreEditText.getText().toString();
+            if (!locationEditText.getText().toString().isEmpty()) {
+                String Location = locationEditText.getText().toString();
+                updatedEventData.put("Location", Location);
+            }
+            if (maxentrantEditText.getText().toString().isEmpty() == false) {
+                String maxentrant = maxentrantEditText.getText().toString();
+                updatedEventData.put("Wait List Maximum", maxentrant);
+            }
+            // --- Update in Firebase ---
+            updatedEventData.put("Name", Name);
+            updatedEventData.put("Max People", MaxPeople);
+            updatedEventData.put("Date", Date);
+            updatedEventData.put("Deadline", Deadline);
+            updatedEventData.put("Genre", Genre);
+
+
+            db.collection("Events").document(originalEventId)
+                    .update(updatedEventData) // or .update()
+                    .addOnSuccessListener(aVoid -> {
+                        // Navigate back
+                        if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
+                                && !Genre.isEmpty()) {
+                            NavHostFragment.findNavController(this).navigateUp();
+                            Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
         }
-        // --- Update in Firebase ---
-        updatedEventData.put("Name", Name);
-        updatedEventData.put("Max People", MaxPeople);
-        updatedEventData.put("Date", Date);
-        updatedEventData.put("Deadline", Deadline);
-        updatedEventData.put("Genre", Genre);
+        else{
+            // In case the Max Enterant amount is negetive :)
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    /**
+     * This is a copy paste of the code from AddEventFragment
+     * @param listmax Contains a String that represents a positive number.
+     * @return Will return True if the string is a positive number, else, it will give an error message and return false
+     */
+    boolean maxentrantchecker (String listmax){
+        if (listmax.isEmpty()) {
+            return true;
+        }
+        try {
+            Integer.parseInt(listmax);
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Enter in a proper Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        if (Integer.parseInt(listmax) < 0){
+            Toast.makeText(getContext(), "Enter in a positive Max Enterant Amount", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
 
+    /**
+     * This is the same code from AddEventFragment. Serves same purpose.
+     * @param date1 Consists of a string MMM DD YYYY (example Jan 6 2025)
+     * @param date2 Consists of a string MMM DD YYYY
+     * @return returns the true if date1 is after date 2. Else, it returns false and a message why
+     */
+    boolean validdatechecker (String date1, String date2) {
+        boolean isvalid = false;
+        // Splitting up the different parts of the date.
+        String[] eventdate = date1.split(" ");
+        String[] deadlinedate = date2.split(" ");
 
-        db.collection("Events").document(originalEventId)
-                .set(updatedEventData) // or .update()
-                .addOnSuccessListener(aVoid -> {
+        if (eventdate.length < 3 || deadlinedate.length < 3) {
+            Toast.makeText(getContext(), "Please use a valid format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure years are valid
+        try {
+            Integer.parseInt(eventdate[2]);
+            Integer.parseInt(deadlinedate[2]);
 
-                    // --- Update in local ViewModel ---
-                    if(locationEditText.getText().toString().isEmpty() == false){
-                        String Location = locationEditText.getText().toString();
-                        String newFormattedString = "Name: " + Name + "\nMax People: " + MaxPeople + "\nDate: " + Date + "\nDeadline: " + Deadline + "\nGenre: " + Genre + "\nLocation: " + Location;
-                        eventViewModel.updateEvent(originalEventId, newFormattedString);
-                    }
-                    else {
-                        String newFormattedString = "Name: " + Name + "\nMax People: " + MaxPeople + "\nDate: " + Date + "\nDeadline: " + Deadline + "\nGenre: " + Genre;
-                        eventViewModel.updateEvent(originalEventId, newFormattedString);
-                    }
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid year format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure days are valid
+        try {
+            Integer.parseInt(eventdate[1]);
+            Integer.parseInt(deadlinedate[1]);
 
-                    // Navigate back
-                    if (!Name.isEmpty() && !MaxPeople.isEmpty() && !Date.isEmpty() && !Deadline.isEmpty()
-                            && !Genre.isEmpty()) {
-                        NavHostFragment.findNavController(this).navigateUp();
-                        Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error updating event", Toast.LENGTH_SHORT).show());
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Invalid day format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Making sure months are valid
+        String[] validmonths = {"jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"};
+        if (!Arrays.asList(validmonths).contains(eventdate[0].toLowerCase()) || !Arrays.asList(validmonths).contains(deadlinedate[0].toLowerCase())) {
+            Toast.makeText(getContext(), "Invalid Month format.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        //Check to make sure the deadline is before the event.
+        // Start with the event year, then check the month, then finally check the date. If dates are equal then its invalid.
+        if (Integer.parseInt(eventdate[2]) < Integer.parseInt(deadlinedate[2])) {
+            Toast.makeText(getContext(), "Invalid Years.", Toast.LENGTH_SHORT).show();
+            return isvalid;
+        }
+        // Testing the case in which years are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) < Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                Toast.makeText(getContext(), "Invalid Month.", Toast.LENGTH_SHORT).show();
+                return isvalid;
+            }
+        }
+        // Checking the case if years and months are equal
+        if (Integer.parseInt(eventdate[2]) == Integer.parseInt(deadlinedate[2])) {
+            if (Arrays.asList(validmonths).indexOf(eventdate[0].toLowerCase()) == Arrays.asList(validmonths).indexOf(deadlinedate[0].toLowerCase())) {
+                if (Integer.parseInt(eventdate[1]) <= Integer.parseInt(deadlinedate[1])){
+                    Toast.makeText(getContext(), "Invalid Days.", Toast.LENGTH_SHORT).show();
+                    return isvalid;
+                }
+            }
+        }
+
+        isvalid = true;
+        return isvalid;
+    }
+
+    /**
+     * Sends a message to a user letting them know that we changed the event.
+     * @param user Gives us the user we want to send a message to
+     */
+    void sendeditedmessage (String user){
+
     }
 }

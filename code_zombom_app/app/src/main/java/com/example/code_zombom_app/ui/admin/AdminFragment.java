@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,45 +22,91 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
+/**
+ * This {@code AdminFragment} class gives an admin UI
+ * that allows an app administrator to view and delete event data stored in Firestore.
+ * (will add more features once implemented later)
+ * <p>
+ * This fragment displays a scrollable list of all events fetched from the database
+ * in Firestore. Each event displays its details, along with a trash button to delete it.
+ * Admin users can tap an event to view detailed information or press the delete icon
+ * to remove it after confirmation.
+ * </p>
+ */
 public class AdminFragment extends Fragment {
 
+    /** container that holds all event views */
     private LinearLayout eventsContainer;
+
+    /** reference to the firestore database */
     private FirebaseFirestore db;
+
+    /** reference to the firestore collection that stores events */
     private CollectionReference eventsdb;
 
+    /**
+     * called when the fragment's UI is being created.
+     * Background that wraps the event list in a scrollable view,
+     *
+     * @param inflater  LayoutInflater object for inflating views
+     * @param container Parent view that the fragment UI will be attached to
+     * @param savedInstanceState Previous saved state if any
+     * @return The root view containing the admin layout
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // parent linearlayout
+
+        // the root layout
         LinearLayout rootLayout = new LinearLayout(getContext());
         rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50")); // green background
+        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50"));
         rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
 
-        // Container to hold events
+        // a ScrollView to make the event list scrollable
+        ScrollView scrollView = new ScrollView(getContext());
+        scrollView.setLayoutParams(new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        // container to hold individual event items
         eventsContainer = new LinearLayout(getContext());
         eventsContainer.setOrientation(LinearLayout.VERTICAL);
         eventsContainer.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT));
 
-        rootLayout.addView(eventsContainer);
+        scrollView.addView(eventsContainer);
+
+        rootLayout.addView(scrollView);
 
         return rootLayout;
     }
 
+    /**
+     * Initializes Firestore and loads all event data from the database.
+     *
+     * @param view               The fragment view
+     * @param savedInstanceState Saved state if the fragment is being re-created
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // initialize Firestore
         db = FirebaseFirestore.getInstance();
         eventsdb = db.collection("Events");
 
+        // display all events
         loadEventsFromDatabase();
     }
 
+    /**
+     * Fetches event data from Firestore and populates the UI and
+     * adds a listener to update the event list in real time whenever changes occur
+     */
     private void loadEventsFromDatabase() {
         eventsdb.addSnapshotListener((value, error) -> {
             if (error != null) {
@@ -69,8 +116,11 @@ public class AdminFragment extends Fragment {
 
             eventsContainer.removeAllViews();
 
+            // check if Firestore returned any data
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
+
+                    // event description text
                     StringBuilder eventText = new StringBuilder();
                     eventText.append("Name: ").append(snapshot.getString("Name")).append("\n")
                             .append("Max People: ").append(snapshot.getString("Max People")).append("\n")
@@ -81,40 +131,49 @@ public class AdminFragment extends Fragment {
                         eventText.append("Location: ").append(snapshot.getString("Location"));
                     }
 
-                    // Inflate admin event item layout
                     View eventView = LayoutInflater.from(getContext())
                             .inflate(R.layout.event_admin_list_item, eventsContainer, false);
 
+                    // get text and delete button views
                     TextView eventTextView = eventView.findViewById(R.id.event_item_textview);
                     ImageButton deleteButton = eventView.findViewById(R.id.button_delete_event);
 
+                    // display event information
                     eventTextView.setText(eventText.toString());
 
-                    // Click to view event details
+                    // tap event to view details
                     eventTextView.setOnClickListener(v -> showEventDetailsDialog(snapshot));
 
-                    // Click trash button to delete
+                    // tap trash button to confirm and delete event
                     deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(snapshot));
 
+                    // add event view to the container
                     eventsContainer.addView(eventView);
                 }
             } else {
+                // give message if there are no events in Firestore
                 TextView noEvents = new TextView(getContext());
                 noEvents.setText("No events yet.");
                 noEvents.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
                 noEvents.setTextSize(18);
-                noEvents.setPadding(16,16,16,16);
+                noEvents.setPadding(16, 16, 16, 16);
                 eventsContainer.addView(noEvents);
             }
         });
     }
 
+    /**
+     * Displays a confirmation dialog before deleting the selected event.
+     * If confirmed, deletes the event document from Firestore.
+     *
+     * @param snapshot The Firestore document representing the selected event
+     */
     private void showDeleteConfirmationDialog(QueryDocumentSnapshot snapshot) {
         new android.app.AlertDialog.Builder(getContext())
                 .setTitle("Delete Event")
                 .setMessage("Are you sure you want to delete this event?")
                 .setPositiveButton("Yes", (dialog, which) -> {
-                    // Delete from Firestore
+                    // delete the event from Firestore
                     eventsdb.document(snapshot.getId()).delete()
                             .addOnSuccessListener(aVoid ->
                                     Toast.makeText(getContext(), "Event deleted", Toast.LENGTH_SHORT).show())
@@ -125,6 +184,11 @@ public class AdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Displays a dialog showing the information about a selected event
+     *
+     * @param snapshot The Firestore document representing the event
+     */
     private void showEventDetailsDialog(QueryDocumentSnapshot snapshot) {
         StringBuilder details = new StringBuilder();
         details.append("Name: ").append(snapshot.getString("Name")).append("\n")
@@ -136,6 +200,7 @@ public class AdminFragment extends Fragment {
             details.append("Location: ").append(snapshot.getString("Location"));
         }
 
+        // display the dialog
         new android.app.AlertDialog.Builder(getContext())
                 .setTitle("Event Details")
                 .setMessage(details.toString())

@@ -62,7 +62,6 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    Name = editTextName.getText().toString().trim();
                     /* Collapse the keyboard after done */
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -76,7 +75,6 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    Email = editTextEmail.getText().toString().trim();
                     /* Collapse the keyboard after done */
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -90,7 +88,6 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    Phone = editTextPhone.getText().toString().trim();
                     /* Collapse the keyboard after done */
                     InputMethodManager imm = (InputMethodManager) v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
@@ -103,6 +100,9 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
         buttonSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Name = editTextName.getText().toString().trim();
+                Email = editTextEmail.getText().toString().trim();
+                Phone = editTextPhone.getText().toString().trim();
                 ((LoadUploadProfileModel) model).setProfile(Name, Email, Phone, selectedType);
             }
         });
