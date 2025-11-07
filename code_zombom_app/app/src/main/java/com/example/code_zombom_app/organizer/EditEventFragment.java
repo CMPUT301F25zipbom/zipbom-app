@@ -149,7 +149,7 @@ public class EditEventFragment extends Fragment {
         });
 
         Button updateButton = view.findViewById(R.id.saveEventButton);
-        updateButton.setOnClickListener(v -> updateEvent());
+        updateButton.setOnClickListener(v -> uploadImageAndUpdateEvent());
     }
 
     /**
@@ -198,7 +198,7 @@ public class EditEventFragment extends Fragment {
      * This function checks to make sure maxentrant is properly set up and that the dates are properly set up
      * Then it gets all of the stuff inside of the textboxes and updates the database.
      */
-    private void updateEvent() {
+    private void uploadImageAndUpdateEvent() {
         if (!maxentrantchecker(maxentrantEditText.getText().toString()) ||
                 !validdatechecker(dateEditText.getText().toString(), deadlineEditText.getText().toString())) {
             // The helper methods already show a Toast message, so we just exit.

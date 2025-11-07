@@ -106,6 +106,11 @@ public class OrganizerDialogTest {
         // Verify that we have navigated to the Edit screen by checking for a view that exists on it
         onView(withId(R.id.editTextName)).check(matches(isDisplayed()));
     }
+
+    /**
+     * This function tests to make sure the QR code button does its job correctly.
+     * @throws InterruptedException Will happen if we incorrectly navigate to dialogue or if we don't end up navigating there.
+     */
     @Test
     public void clickSeeDetailsButtonlaunchesShareIntent() throws InterruptedException {
         navigateToDialog();
