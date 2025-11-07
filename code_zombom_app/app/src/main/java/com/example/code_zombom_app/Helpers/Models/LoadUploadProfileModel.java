@@ -3,11 +3,10 @@ package com.example.code_zombom_app.Helpers.Models;
 import android.content.Context;
 import android.provider.Settings;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.Profile;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoadUploadProfileModel extends GModel {
@@ -41,13 +40,19 @@ public class LoadUploadProfileModel extends GModel {
                 .addOnSuccessListener(snapshot -> {
                     if (snapshot.exists()) {
                         state = State.LOGIN_SUCCESS;
-//                        Profile profile = (Profile) snapshot.toObject(Profile.class);
-                        //assert profile != null;
-                        if (snapshot.getString("type").equals("Entrant")) {
-                            Entrant entrant = snapshot.toObject(Entrant.class);
-                            setInterMsg("Profile", entrant);
+
+                        Profile profile;
+                        String type = snapshot.getString("type");
+                        if ("Entrant".equals(type)) {
+                            // Keep entrant-specific fields intact by deserializing into Entrant
+                            profile = snapshot.toObject(Entrant.class);
+                        } else {
+                            profile = snapshot.toObject(Profile.class);
                         }
-                        setInterMsg("Profile", (Profile) snapshot.toObject(Profile.class));
+
+                        if (profile != null) {
+                            setInterMsg("Profile", profile);
+                        }
                         notifyViews();
                     } else {
                         state = State.LOGIN_FAILURE;
@@ -242,8 +247,18 @@ public class LoadUploadProfileModel extends GModel {
     }
 
     /**
-     * Get the unique device Id of an android device and put it in a profile. Set the state to
-     * ADD_DEVICE_ID upon success
+     * @param context The context to get the device id
+     * @return The device Id that this profile is using
+     */
+    public String getDeviceId(Context context) {
+        return Settings.Secure.getString(
+                context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    /**
+     * Get the unique device Id of an android device and put it in a profile if the deviceId
+     * is not associated with other account. Set the state to ADD_DEVICE_ID_SUCCESS upon success,
+     * ADD_DEVICE_ID_FAILURE otherwise
      *
      * @param context The activity context which to get the device Id from
      * @param profile The profile to put the device Id in
@@ -251,12 +266,34 @@ public class LoadUploadProfileModel extends GModel {
      */
     public void addDeviceId(Context context, Profile profile) {
         resetState();
-        String id = Settings.Secure.getString(
-                context.getContentResolver(), Settings.Secure.ANDROID_ID);
-        profile.addDeviceId(id);
-        state = State.ADD_DEVICE_ID;
-        setInterMsg("Message", id);
-        notifyViews();
+        String id = getDeviceId(context);
+
+        /* Checked if the device id is already linked with another profile */
+        db.collection("Profiles")
+                .whereArrayContains("deviceId", id)
+                        .get()
+                                .addOnCompleteListener(task -> {
+                                    if (task.isSuccessful() &&
+                                    task.getResult() != null &&
+                                    !task.getResult().isEmpty()) {
+                                        state = State.ADD_DEVICE_ID_FAILURE;
+                                        errorMsg = "The device Id " + id + " is already linked with" +
+                                                "another profile!";
+                                        notifyViews();
+                                    }
+                                    else {
+                                        profile.addDeviceId(id);
+                                        state = State.ADD_DEVICE_ID_SUCCESS;
+                                        setInterMsg("Message", id);
+                                        notifyViews();
+                                    }
+                                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    state = State.ADD_DEVICE_ID_FAILURE;
+                    errorMsg = "Cannot query the database for the device id " + id + "!";
+                    notifyViews();
+                });
     }
 
     /**
@@ -269,6 +306,60 @@ public class LoadUploadProfileModel extends GModel {
         resetState();
         profile.removeDeviceId(id);
         state = State.REMOVE_DEVICE_ID;
+        notifyViews();
+    }
+
+    /**
+     * Provide an additional method of logging in with a device Id. Set the state to LOGIN_SUCCESS or
+     * LOGIN_FAILURE
+     *
+     * @param context The context to get the device Id
+     */
+    public void loadProfileWithDeviceId(Context context) {
+        String deviceId = getDeviceId(context);
+
+        db.collection("Profiles")
+                .whereArrayContains("deviceId", deviceId)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    if (!querySnapshot.isEmpty()) {
+                        DocumentSnapshot doc = querySnapshot.getDocuments().get(0);
+                        String type = doc.getString("type");
+
+                        Profile profile = null;
+                        if ("Entrant".equals(type))
+                            profile = doc.toObject(Entrant.class);
+
+                        if (profile != null) {
+                            state = State.LOGIN_SUCCESS;
+                            setInterMsg("Profile", profile);
+                            notifyViews();
+                        }
+                        else {
+                            state = State.LOGIN_FAILURE;
+                            errorMsg = "Cannot find any non-empty profile!";
+                            notifyViews();
+                        }
+                    }
+                    else {
+                        state = State.LOGIN_FAILURE;
+                        errorMsg = "Cannot find any profile associated with this device!";
+                        notifyViews();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    e.printStackTrace();
+                    state = State.LOGIN_FAILURE;
+                    errorMsg = "Error in querying the database";
+                    notifyViews();
+                });
+    }
+
+    /**
+     * Send a request to login with the device Id
+     */
+    public void requestLoginWithDeviceId() {
+        state = State.REQUEST_LOGIN_WITH_DEVICE_ID;
         notifyViews();
     }
 }

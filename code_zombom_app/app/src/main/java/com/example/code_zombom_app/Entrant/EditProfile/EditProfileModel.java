@@ -5,7 +5,6 @@ import android.content.Context;
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Helpers.Users.MockUpEntrant;
-import com.example.code_zombom_app.Helpers.Users.Profile;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditProfileModel extends LoadUploadProfileModel {
@@ -54,7 +53,7 @@ public class EditProfileModel extends LoadUploadProfileModel {
         loadProfile(email);
     }
 
-    public void SyncronizeData() {
+    public void SynchronizeData() {
         currentEntrant = (Entrant) getInterMsg("Profile");
         newEntrant = new MockUpEntrant(currentEntrant);
     }
@@ -132,7 +131,8 @@ public class EditProfileModel extends LoadUploadProfileModel {
      * Delete the entrant from the database
      */
     public void deleteEntrant() {
-        deleteProfile(email);
+        state = State.REQUEST_DELETE_PROFILE;
+        notifyViews();
     }
 
     /**
@@ -140,6 +140,27 @@ public class EditProfileModel extends LoadUploadProfileModel {
      */
     public String getEmail() {
         return email;
+    }
+
+    /**
+     * @return The entrant's current email address
+     */
+    public String getCurrentEmail() {
+        return currentEntrant.getEmail();
+    }
+
+    /**
+     * @return The entrant's current name
+     */
+    public String getName() {
+        return currentEntrant.getName();
+    }
+
+    /**
+     * @return The entrant's current phone number
+     */
+    public String getPhone() {
+        return currentEntrant.getPhone();
     }
 
     /**
@@ -155,14 +176,24 @@ public class EditProfileModel extends LoadUploadProfileModel {
     }
 
     /**
+     * Get the current notification status of the current entrant
+     *
+     * @return The notification status of the current entrant
+     */
+    public boolean getNotification() {
+        return currentEntrant.isNotificationEnabled();
+    }
+
+    /**
      * Request to link/unlink an Android device
      *
      * @param save To add or remove the device Id to the profile
      */
     public void toggleLinkDeviceId(Boolean save) {
         resetState();
-        state = State.REQUEST_TOGGLE;
+        state = State.REQUEST_TOGGLE_LINK_DEVICE_ID;
         setInterMsg("Request", save);
+        notifyViews();
     }
 
     /**
@@ -183,5 +214,15 @@ public class EditProfileModel extends LoadUploadProfileModel {
     public void removeId(String id) {
         resetState();
         removeDeviceId(id, newEntrant);
+    }
+
+    /**
+     * Find out if this device is linked with the current entrant's profile
+     *
+     * @param id The device id to check
+     * @return true if this device is linked with the current entrant's profile. False otherwise
+     */
+    public boolean isLinked(String id) {
+        return currentEntrant.isDeviceIdLinked(id);
     }
 }

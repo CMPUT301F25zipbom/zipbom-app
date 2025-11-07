@@ -13,6 +13,7 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -25,12 +26,10 @@ android {
             )
         }
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-
     buildFeatures {
         viewBinding = true
     }
@@ -40,8 +39,9 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
-    implementation(libs.appcompat)
+    implementation("com.github.bumptech.glide:glide:4.12.0")
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.lifecycle.livedata.ktx)
@@ -51,10 +51,9 @@ dependencies {
     implementation(libs.rendering)
     implementation(libs.lifecycle.viewmodel)
     implementation(libs.firebase.firestore)
-
-    // Android UI tests
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    debugImplementation("androidx.fragment:fragment-testing:1.6.2")
-    androidTestImplementation("org.mockito:mockito-android:5.12.0")
+    implementation(libs.firebase.storage)
+    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

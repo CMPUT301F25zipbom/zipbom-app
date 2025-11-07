@@ -24,11 +24,14 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditProfileActivity extends AppCompatActivity implements TView<EditProfileModel> {
     private String email;
+    private String id;
     private TextView editName;
     private TextView editEmail;
     private TextView editPhone;
     private ToggleButton toggleNotification;
     private ToggleButton toggleLinkDevice;
+
+    private EditProfileController controller;
 
 
     @Override
@@ -47,7 +50,7 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
 
         EditProfileModel model = new EditProfileModel(FirebaseFirestore.getInstance(), email);
 
-        EditProfileController controller = new EditProfileController(model,
+         controller = new EditProfileController(model, model.getDeviceId(this),
                 findViewById(R.id.imageButtonEntrantProfileName),
                 findViewById(R.id.imageButtonEntrantProfileEmail),
                 findViewById(R.id.imageButtonEntrantProfilePhone),
@@ -58,14 +61,15 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
         model.addView(this);
+        id = model.getDeviceId(this);
     }
 
     @Override
     public void update(EditProfileModel model) {
-        String id = "";
 
         if (model.getState() == GModel.State.LOGIN_SUCCESS) { // Synchronize the initialization
-            model.SyncronizeData();
+            model.SynchronizeData();
+            controller.setView();
         }
         else if (model.getState() == GModel.State.CLOSE)
             finish(); // Close the activity
@@ -74,6 +78,21 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 showInputDialog((EditProfileModel.PopUpEdit) model.getInterMsg("Request"),
                         model);
             }
+        }
+        else if (model.getState() == GModel.State.REQUEST_DELETE_PROFILE) {
+            /* Ask the users if they really want to delete their profile */
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete Profile")
+                    .setMessage("Are you sure you want to delete your profile? " +
+                            "This action cannot be undone.")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setPositiveButton("Delete", (dialog, which) -> {
+                        // Perform delete action here
+                        model.deleteProfile(model.getCurrentEmail());
+                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .show();
+
         }
         else if (model.getState() == GModel.State.EDIT_PROFILE_SUCCESS) {
             Entrant newEntrant = (Entrant) model.getInterMsg("Profile");
@@ -109,22 +128,25 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 toggleNotification.setBackgroundResource(R.drawable.belloff);
             }
         }
-        else if (model.getState() == GModel.State.REQUEST_TOGGLE) {
+        else if (model.getState() == GModel.State.REQUEST_TOGGLE_LINK_DEVICE_ID) {
             boolean isLink = (Boolean) model.getInterMsg("Request");
             if (isLink)
                 model.addId(this);
             else
                 model.removeId(id);
         }
-        else if (model.getState() == GModel.State.ADD_DEVICE_ID) {
+        else if (model.getState() == GModel.State.ADD_DEVICE_ID_SUCCESS) {
             id = (String) model.getInterMsg("Message");
             Toast.makeText(this, "Add the device Id " + id + " to the profile",
             Toast.LENGTH_SHORT).show();
         }
+        else if (model.getState() == GModel.State.ADD_DEVICE_ID_FAILURE) {
+            Toast.makeText(this, model.getErrorMsg(), Toast.LENGTH_SHORT).show();
+            toggleLinkDevice.setChecked(false);
+        }
         else if (model.getState() == GModel.State.REMOVE_DEVICE_ID) {
             Toast.makeText(this, "Remove the device Id " + id + " to the profile",
                     Toast.LENGTH_SHORT).show();
-            id = "";
         }
         else if (model.getState() == GModel.State.LOG_OUT) {
             Intent LogIn = new Intent(this, LoginActivity.class);

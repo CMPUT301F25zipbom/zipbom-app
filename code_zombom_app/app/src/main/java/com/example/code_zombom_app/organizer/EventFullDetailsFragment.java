@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,19 +21,31 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.bumptech.glide.Glide;
 
+/**
+ * @author Tejwinder Johal
+ * @version 1.0
+ * This Class is used to display the full details of an event.
+ */
 public class EventFullDetailsFragment extends Fragment {
 
     private static final String TAG = "EventFullDetails";
     private String eventId;
+    private ImageView posterImageView;
 
     // UI Elements
     private TextView nameValue, dateValue, deadlineValue, locationValue, genreValue,
             maxPeopleValue, waitlistMaxValue, entrantsValue,
-            acceptedEntrantsValue, cancelledEntrantsValue;
+            acceptedEntrantsValue, cancelledEntrantsValue, descriptionValue;
 
     private FirebaseFirestore db;
 
+    /**
+     * This sets up the eventViewModel, database and catches the arguments.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +56,30 @@ public class EventFullDetailsFragment extends Fragment {
         }
     }
 
+    /**
+     * Inflates the layout.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_full_event_details, container, false);
     }
 
+    /**
+     * This function sets the buttons and textviews to variables.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -70,6 +101,10 @@ public class EventFullDetailsFragment extends Fragment {
         });
     }
 
+    /**
+     * Initializes the UI elements.
+     * @param view
+     */
     private void initializeViews(View view) {
         nameValue = view.findViewById(R.id.name_value);
         dateValue = view.findViewById(R.id.date_value);
@@ -81,8 +116,13 @@ public class EventFullDetailsFragment extends Fragment {
         entrantsValue = view.findViewById(R.id.entrants_value);
         acceptedEntrantsValue = view.findViewById(R.id.accepted_entrants_value);
         cancelledEntrantsValue = view.findViewById(R.id.cancelled_entrants_value);
+        posterImageView = view.findViewById(R.id.poster_image_view);
+        descriptionValue = view.findViewById(R.id.description_value);
     }
 
+    /**
+     * Fetches the event details from Firestore and populates the UI.
+     */
     private void loadEventDetails() {
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -95,6 +135,10 @@ public class EventFullDetailsFragment extends Fragment {
                 .addOnFailureListener(e -> Log.e(TAG, "Error fetching document", e));
     }
 
+    /**
+     * Populates the UI elements with data from the document.
+     * @param doc
+     */
     private void populateUi(DocumentSnapshot doc) {
         // Set simple string values
         nameValue.setText(doc.getString("Name"));
@@ -104,11 +148,22 @@ public class EventFullDetailsFragment extends Fragment {
         genreValue.setText(doc.getString("Genre"));
         maxPeopleValue.setText(doc.getString("Max People"));
         waitlistMaxValue.setText(doc.getString("Wait List Maximum"));
+        descriptionValue.setText(doc.getString("Description"));
+
 
         // Set array values
         entrantsValue.setText(formatListToString((List<String>) doc.get("Entrants")));
         acceptedEntrantsValue.setText(formatListToString((List<String>) doc.get("Accepted Entrants")));
         cancelledEntrantsValue.setText(formatListToString((List<String>) doc.get("Cancelled Entrants")));
+
+        String posterUrl = doc.getString("posterUrl");
+        if (posterUrl != null && !posterUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(posterUrl)
+//                    .placeholder(R.drawable.your_placeholder) // Optional: show while loading
+//                    .error(R.drawable.your_placeholder)       // Optional: show on error
+                    .into(posterImageView);
+        }
     }
 
     /**

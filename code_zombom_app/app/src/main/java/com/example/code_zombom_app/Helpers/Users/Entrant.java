@@ -5,6 +5,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
+import com.google.firebase.firestore.PropertyName;
 
 import java.util.ArrayList;
 
@@ -12,16 +13,16 @@ import java.util.ArrayList;
  * Represents an entrant using the application. Stores notification preferences,
  * and the events this entrant has interacted with.
  *
- * @author Dang Nguyen, Deng
+ * @author Dang Nguyen, Deng Ngut
  * @version 1.0.0, 11/3/2025
  * @see Event
  * @see Parcelable
  */
 public class Entrant extends Profile {
-    private boolean notificationsEnabled = true;
+    private boolean notificationsEnabled;
     private boolean lastNotificationReceived;
 
-    /* Note that we keep the event's ID instead of the actual
+    /* we keep the event's ID instead of the actual
      * Event object to avoid overhead
      */
     private ArrayList<String> waitingEvents;
@@ -81,20 +82,23 @@ public class Entrant extends Profile {
         super((Profile) other);
         this.waitingEvents = other.getWaitingEvents();
         this.eventHistory = other.getEventHistory();
-        this.notificationsEnabled = other.areNotificationsEnabled();
-        this.lastNotificationReceived = other.hasReceivedLastNotification();
+        this.notificationsEnabled = other.isNotificationEnabled();
+        this.lastNotificationReceived = other.isLastNotificationReceived();
+        this.type = "Entrant";
     }
 
     /**
      * @return whether this entrant opted in to organiser/admin notifications
      */
-    public boolean areNotificationsEnabled() {
+    @PropertyName("notificationEnabled")
+    public boolean isNotificationEnabled() {
         return notificationsEnabled;
     }
 
     /**
      * Enables or disables organiser/admin notifications for this entrant.
      */
+    @PropertyName("notificationEnabled")
     public void setNotificationsEnabled(boolean notificationsEnabled) {
         this.notificationsEnabled = notificationsEnabled;
     }
@@ -102,18 +106,17 @@ public class Entrant extends Profile {
     /**
      * @return true if the last push/in-app notification reached this entrant
      */
-    public boolean hasReceivedLastNotification() {
+    public boolean isLastNotificationReceived() {
         return lastNotificationReceived;
     }
 
     /**
      * Marks that a notification for the current event context was received.
      */
-    public void markNotificationReceived(boolean received) {
+    public void setLastNotificationReceived(boolean received) {
         this.lastNotificationReceived = received;
     }
 
-    // endregion
 
     // region Waiting list management
 
@@ -212,7 +215,7 @@ public class Entrant extends Profile {
     }
 
     /**
-     * @return immutable view of historic participation outcomes
+     * @return immutable or unmodifiable view of historic participation outcomes
      */
     public ArrayList<String> getEventHistory() {
         return new ArrayList<String>(eventHistory);
