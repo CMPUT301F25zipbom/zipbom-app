@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,16 +21,18 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import com.bumptech.glide.Glide;
 
 public class EventFullDetailsFragment extends Fragment {
 
     private static final String TAG = "EventFullDetails";
     private String eventId;
+    private ImageView posterImageView;
 
     // UI Elements
     private TextView nameValue, dateValue, deadlineValue, locationValue, genreValue,
             maxPeopleValue, waitlistMaxValue, entrantsValue,
-            acceptedEntrantsValue, cancelledEntrantsValue;
+            acceptedEntrantsValue, cancelledEntrantsValue, descriptionValue;
 
     private FirebaseFirestore db;
 
@@ -81,6 +84,8 @@ public class EventFullDetailsFragment extends Fragment {
         entrantsValue = view.findViewById(R.id.entrants_value);
         acceptedEntrantsValue = view.findViewById(R.id.accepted_entrants_value);
         cancelledEntrantsValue = view.findViewById(R.id.cancelled_entrants_value);
+        posterImageView = view.findViewById(R.id.poster_image_view);
+        descriptionValue = view.findViewById(R.id.description_value);
     }
 
     private void loadEventDetails() {
@@ -104,11 +109,22 @@ public class EventFullDetailsFragment extends Fragment {
         genreValue.setText(doc.getString("Genre"));
         maxPeopleValue.setText(doc.getString("Max People"));
         waitlistMaxValue.setText(doc.getString("Wait List Maximum"));
+        descriptionValue.setText(doc.getString("Description"));
+
 
         // Set array values
         entrantsValue.setText(formatListToString((List<String>) doc.get("Entrants")));
         acceptedEntrantsValue.setText(formatListToString((List<String>) doc.get("Accepted Entrants")));
         cancelledEntrantsValue.setText(formatListToString((List<String>) doc.get("Cancelled Entrants")));
+
+        String posterUrl = doc.getString("posterUrl");
+        if (posterUrl != null && !posterUrl.isEmpty()) {
+            Glide.with(this)
+                    .load(posterUrl)
+//                    .placeholder(R.drawable.your_placeholder) // Optional: show while loading
+//                    .error(R.drawable.your_placeholder)       // Optional: show on error
+                    .into(posterImageView);
+        }
     }
 
     /**

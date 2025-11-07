@@ -8,6 +8,29 @@
     tools:context=".organizer.AddEventFragment"> <!-- can change context to .EditEventFragment -->
 
     <Button
+        android:id="@+id/buttonUploadPhoto2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#2E2E2E"
+        android:text="Add Poster"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/imagePreview2"
+        app:layout_constraintEnd_toEndOf="@+id/editTextDescription"
+        app:layout_constraintStart_toStartOf="@+id/editTextDescription" />
+
+    <ImageView
+        android:id="@+id/imagePreview2"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/saveEventButton"
+        app:layout_constraintEnd_toEndOf="@+id/buttonUploadPhoto2"
+        app:layout_constraintStart_toStartOf="@+id/buttonUploadPhoto2"
+        tools:src="@tools:sample/backgrounds/scenic"
+        tools:visibility="visible" />
+
+    <Button
         android:id="@+id/cancelButton"
         android:layout_width="186dp"
         android:layout_height="55dp"
@@ -36,7 +59,7 @@
         android:id="@+id/editTextName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Event Name"
         android:inputType="text"
@@ -51,7 +74,7 @@
         android:id="@+id/editTextMaxPeople"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Max Amount Of People"
         android:inputType="text"
@@ -66,7 +89,7 @@
         android:id="@+id/editTextDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Date MMM DD YYYY"
         android:inputType="text"
@@ -81,7 +104,7 @@
         android:id="@+id/editTextDeadline"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Deadline MMM DD YYYY"
         android:inputType="text"
@@ -96,7 +119,7 @@
         android:id="@+id/editTextGenre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Genre"
         android:inputType="text"
@@ -111,7 +134,7 @@
         android:id="@+id/editTextLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Location (optional)"
         android:inputType="text"
@@ -123,32 +146,30 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editTextPhoto"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:ems="10"
-        android:hint="TODO: add photo"
-        android:inputType="text"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#BCBCBC"
-        app:layout_constraintBottom_toTopOf="@+id/saveEventButton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <EditText
         android:id="@+id/maxamountofentrants"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
+        android:layout_marginBottom="8dp"
         android:ems="10"
         android:hint="Max Entrants (optional)"
         android:inputType="text"
         android:textColor="#FFFFFF"
         android:textColorHint="#BCBCBC"
-        app:layout_constraintBottom_toTopOf="@+id/editTextPhoto"
+        app:layout_constraintBottom_toTopOf="@+id/editTextDescription"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text"
+        android:hint="Description(optional)"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#BCBCBC"
+        app:layout_constraintBottom_toTopOf="@+id/buttonUploadPhoto2"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
