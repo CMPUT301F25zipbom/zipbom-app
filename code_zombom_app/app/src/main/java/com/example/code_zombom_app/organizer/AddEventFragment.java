@@ -22,6 +22,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -169,13 +170,13 @@ public class AddEventFragment extends Fragment {
                 if (listmax.isEmpty() == false) {
                     eventData.put("Wait List Maximum", listmax);
                 }
+                eventData.put("Entrants", new ArrayList<Entrant>());
+                eventData.put("Cancelled Entrants", new ArrayList<Entrant>());
+                eventData.put("Accepted Entrants", new ArrayList<Entrant>());
+                eventData.put("Lottery Winners", new ArrayList<Entrant>());
                 if (description.isEmpty() == false) {
                     eventData.put("Description", description);
                 }
-                eventData.put("Entrants", new ArrayList<String>()); // Change this type from String to Entrant once merge happens eventually
-                eventData.put("Cancelled Entrants", new ArrayList<String>());
-                eventData.put("Accepted Entrants", new ArrayList<String>());
-                eventData.put("Lottery Winners", new ArrayList<String>());
                 db.collection("Events").add(eventData);
 
                 // Navigate back to the main fragment
