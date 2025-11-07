@@ -3,8 +3,10 @@ package com.example.code_zombom_app.organizer;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +23,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
@@ -33,6 +39,9 @@ import java.util.Map;
 import com.bumptech.glide.Glide;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -269,6 +278,8 @@ public class EditEventFragment extends Fragment {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     if (isAdded()) {
+                        //sendeditedmessage("rwenstro@ualberta.ca");
+                        sendemailmessage("rwenstro@ualberta.ca");
                         NavHostFragment.findNavController(this).navigateUp();
                     }
                 })
@@ -378,22 +389,23 @@ public class EditEventFragment extends Fragment {
             db.collection("Profiles").document(user).get()
                     .addOnSuccessListener(documentSnapshot -> {
                         if (documentSnapshot.exists()) {
-                            if (documentSnapshot.contains("NotificationsPreferences")) {
+                            if (documentSnapshot.contains("phone")) {
                                 // Check if the field exists in the document
-                                String choice = documentSnapshot.getString("NotificationsPreferences");
+                                String choice = documentSnapshot.getString("phone");
                                 if (choice.isEmpty()) {
                                     Toast.makeText(getContext(), "Entrant has no way to contact", Toast.LENGTH_SHORT).show();
                                 }
                                 if (choice.equals("email")) {
-                                    sendemailmessage(user);
+                                    String email = documentSnapshot.getString("email"); // Assuming you store it
+                                    if(email != null) sendemailmessage(email);
                                 }
-                                if (choice.equals("sms")) {
-                                    sendsmsmessage(user);
-                                }
-                                if (choice.equals("both")) {
-                                    sendemailmessage(user);
-                                    sendsmsmessage(user);
-                                }
+                                //if (choice.equals("sms")) {
+                                //    sendsmsmessage(user);
+                                //}
+                                //if (choice.equals("both")) {
+                                //    sendemailmessage(user);
+                                //    sendsmsmessage(user);
+                                //}
                             }
                             else{
                                 Toast.makeText(getContext(), "Entrant hasn't set up their preferences", Toast.LENGTH_SHORT).show();
@@ -405,10 +417,29 @@ public class EditEventFragment extends Fragment {
 
     /**
      * Send email to a specific user
-     * @param user Contains the user id so we can retrieve from firebase
+     * @param user Contains the user email so we can send email easily
      */
     void sendemailmessage (String user){
-        // Send email
+        String url = "https://api.emailjs.com/api/v1.0/email/send";
+        JSONObject jsonBody = new JSONObject();
+        JSONObject params = new JSONObject();
+        try {
+            jsonBody.put("service_id", "service_3puq4xk");
+            jsonBody.put("template_id", "template_beit51m");
+            jsonBody.put("user_id", "dIS3nhWdTFuqBxYTX");
+            params.put("to_name", "Bobby the genius");
+            params.put("to_message", "Your event had details changed");
+            params.put("to_email", user);
+            jsonBody.put("template_params", params);
+        } catch (JSONException e) {
+            Log.e("Email sender", "Something went wrong sending an email");
+        }
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, url, jsonBody,
+                response -> Log.d("Email", "sent" + response.toString()),
+                error -> Log.e("Email", "Error" + error.getMessage())
+                );
+        RequestQueue queue = Volley.newRequestQueue(requireContext());
+        queue.add(request);
     }
 
     /**
