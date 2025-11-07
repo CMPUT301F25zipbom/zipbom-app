@@ -2,6 +2,7 @@ package com.example.code_zombom_app;
 
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,12 +10,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -48,12 +51,17 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<List<Event>> filteredEvents = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
+    /** Indicates when a join Firestore transaction is running so the UI can disable controls. */
+    private final MutableLiveData<Boolean> joinInProgress = new MutableLiveData<>(false);
+    /** One-off success/error message that the fragment shows via a toast/snackbar. */
+    private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
 
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private ListenerRegistration listenerRegistration;
 
     private String currentQuery = "";
     private FilterSortState currentFilterSortState = new FilterSortState();
+    private String entrantEmail;
 
     public EntrantEventListViewModel() {
         observeEventsFromFirestore();
@@ -71,6 +79,25 @@ public class EntrantEventListViewModel extends ViewModel {
         return errorMessage;
     }
 
+    /**
+     * @return live updates describing whether a join attempt is currently executing.
+     */
+    public LiveData<Boolean> isJoinInProgress() {
+        return joinInProgress;
+    }
+
+    /**
+     * @return single-fire payload describing the latest join success/error outcome.
+     */
+    public LiveData<String> getJoinStatusMessage() {
+        return joinStatusMessage;
+    }
+
+    /** Clears the most recent join status so it will not be re-delivered to observers. */
+    public void clearJoinStatusMessage() {
+        joinStatusMessage.setValue(null);
+    }
+
     public void filterEvents(String query) {
         currentQuery = query != null ? query : "";
         recomputeFilteredEvents();
@@ -86,6 +113,74 @@ public class EntrantEventListViewModel extends ViewModel {
 
     public FilterSortState getFilterSortState() {
         return FilterSortState.copyOf(currentFilterSortState);
+    }
+
+    /**
+     * Shares the signed-in entrant identifier with the ViewModel so join operations know
+     * which email address to persist in Firestore.
+     *
+     * @param email address supplied by {@link com.example.code_zombom_app.Entrant.EntrantMainActivity}
+     */
+    public void setEntrantEmail(@Nullable String email) {
+        entrantEmail = email;
+    }
+
+    /**
+     * Attempts to add the current entrant to the supplied event waitlist. Capacity is enforced by:
+     * <ol>
+     *     <li>Ensuring the entrant email is not already listed.</li>
+     *     <li>Checking the "Max People" field before persisting the update.</li>
+     * </ol>
+     * If those constraints pass a transaction updates the event document's "Entrants" array.
+     */
+    public void joinEvent(@NonNull Event event) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before joining an event.");
+            return;
+        }
+
+        String documentId = event.getFirestoreDocumentId();
+        if (documentId == null || documentId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot join this event right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        DocumentReference docRef = firestore.collection("Events").document(documentId);
+        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+                    // Read the freshest snapshot inside the transaction so the limit check is accurate
+                    DocumentSnapshot snapshot = transaction.get(docRef);
+
+                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
+                    if (entrants.contains(normalizedEmail)) {
+                        throw new JoinException("You have already joined this waiting list.");
+                    }
+
+                    int waitlistMaximum = extractMaxPeopleLimit(snapshot.get("Max People"));
+                    if (waitlistMaximum > 0 && entrants.size() >= waitlistMaximum) {
+                        throw new JoinException("This waiting list is full.");
+                    }
+
+                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
+                    updatedEntrants.add(normalizedEmail);
+                    transaction.update(docRef, "Entrants", updatedEntrants);
+                    return null;
+                })
+                .addOnSuccessListener(ignored -> {
+                    String eventName = event.getName() == null ? "event" : event.getName();
+                    joinStatusMessage.setValue("Joined " + eventName + " waiting list.");
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof JoinException) {
+                        joinStatusMessage.setValue(e.getMessage());
+                    } else {
+                        joinStatusMessage.setValue("Couldn't join the waiting list. Please try again.");
+                        Log.e(TAG, "Failed to join event " + documentId, e);
+                    }
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
     }
 
     /**
@@ -233,6 +328,8 @@ public class EntrantEventListViewModel extends ViewModel {
             Log.w(TAG, "Skipping event with invalid name: " + name, ex);
             return null;
         }
+        // Keep track of the originating Firestore key so we can write back when joining
+        event.setFirestoreDocumentId(snapshot.getId());
 
         Object rawGenre = snapshot.get("Genre");
         List<String> categories = extractCategories(rawGenre);
@@ -377,6 +474,58 @@ public class EntrantEventListViewModel extends ViewModel {
             return "Engineering";
         }
         return null;
+    }
+
+    /**
+     * Safely parses the Firestore "Entrants" field into a mutable list of email strings.
+     */
+    private List<String> extractEntrantEmails(@Nullable Object rawValue) {
+        if (rawValue == null) {
+            return new ArrayList<>();
+        }
+
+        if (!(rawValue instanceof List<?>)) {
+            return new ArrayList<>();
+        }
+
+        List<String> entrants = new ArrayList<>();
+        for (Object entry : (List<?>) rawValue) {
+            if (entry instanceof String) {
+                entrants.add((String) entry);
+            }
+        }
+        return entrants;
+    }
+
+    /**
+     * Parses the "Max People" field while tolerating missing/malformed entries.
+     *
+     * @param rawValue Firestore field that may be null, String, or Number
+     * @return waitlist capacity or -1 when unlimited/unknown
+     */
+    private int extractMaxPeopleLimit(@Nullable Object rawValue) {
+        if (rawValue instanceof Number) {
+            return ((Number) rawValue).intValue();
+        }
+
+        if (rawValue instanceof String) {
+            try {
+                return Integer.parseInt(((String) rawValue).trim());
+            } catch (NumberFormatException ignored) {
+                return -1;
+            }
+        }
+
+        return -1;
+    }
+
+    /**
+     * Lightweight wrapper so user-facing join errors can be surfaced without logging stack traces.
+     */
+    private static class JoinException extends RuntimeException {
+        JoinException(String message) {
+            super(message);
+        }
     }
 
     @Nullable

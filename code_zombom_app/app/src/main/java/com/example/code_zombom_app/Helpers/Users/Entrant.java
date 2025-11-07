@@ -21,7 +21,7 @@ public class Entrant extends Profile {
     private boolean notificationsEnabled = true;
     private boolean lastNotificationReceived;
 
-    /* Note that we keep the event's ID instead of the actual
+    /* we keep the event's ID instead of the actual
      * Event object to avoid overhead
      */
     private ArrayList<String> waitingEvents;
@@ -113,7 +113,6 @@ public class Entrant extends Profile {
         this.lastNotificationReceived = received;
     }
 
-    // endregion
 
     // region Waiting list management
 
