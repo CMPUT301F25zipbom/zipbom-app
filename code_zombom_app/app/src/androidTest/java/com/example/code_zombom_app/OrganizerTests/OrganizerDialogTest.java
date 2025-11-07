@@ -3,22 +3,21 @@ package com.example.code_zombom_app.OrganizerTests;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
+import android.view.View;
 
-import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.intent.rule.IntentsTestRule;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.code_zombom_app.R;
-import com.example.code_zombom_app.organizer.EditEventFragment;
 import com.example.code_zombom_app.organizer.OrganizerActivity;
 
-import org.junit.Before;
-import org.junit.Rule;
+import org.hamcrest.BaseMatcher;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -27,7 +26,9 @@ import static androidx.test.espresso.intent.Intents.intending;
 import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.Matchers.anything;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
+import static org.hamcrest.CoreMatchers.allOf;
+
 
 /**
  * Because of the nature of this class this test is an
@@ -47,11 +48,31 @@ public class OrganizerDialogTest {
 
         // Wait for Firestore to load the list data.
         // In a production test suite, use Idling Resources. For this, sleep is reliable.
-        Thread.sleep(2000); // Wait 2 seconds
+        Thread.sleep(2500); // Wait 2.5 seconds
 
         // Click on the first item in the list
-        onView(withId(R.id.events_container_linearlayout))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        onView(first(withParent(withId(R.id.events_container_linearlayout))))
+                .perform(click());
+    }
+    // Helper matcher to get the first view from multiple results
+    public static <T> Matcher<T> first(final Matcher<T> matcher) {
+        return new BaseMatcher<T>() {
+            boolean isFirst = true;
+
+            @Override
+            public boolean matches(final Object item) {
+                if (isFirst && matcher.matches(item)) {
+                    isFirst = false;
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("should return first matching item");
+            }
+        };
     }
     /**
      * Tests if clicking the "Edit" button launches the Android share intent.
