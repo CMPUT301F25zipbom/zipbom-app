@@ -23,15 +23,28 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 /**
- * Admin UI for managing PROFILES.
- * Displays all profiles stored in Firestore.
- * Allows admin to view details and delete profiles with reason input.
+ * {@code ProfileAdminFragment} provides the administrator interface
+ * for viewing and managing user profiles stored in Firestore.
+ *
+ * <p>This fragment dynamically displays a scrollable list of all profiles.
+ * Each profile entry includes its details and a delete button that allows
+ * the admin to remove that profile after confirming and providing a reason.</p>
+ *
+ * <p>Admin users can also tap a profile item to open a pop-up dialog
+ * containing detailed profile information and further actions
+ * (e.g., view notification logs, cancel).</p>
  */
+
 public class ProfileAdminFragment extends Fragment {
 
+    /** container that holds all profile views */
     private LinearLayout profilesContainer;
+    /** reference to the firestore database */
     private FirebaseFirestore db;
+    /** reference to the firestore collection that stores profiles */
     private CollectionReference profilesDb;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -61,6 +74,14 @@ public class ProfileAdminFragment extends Fragment {
         return rootLayout;
     }
 
+    /**
+     * Called to have the fragment instantiate its user interface view.
+     *
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -68,6 +89,7 @@ public class ProfileAdminFragment extends Fragment {
         profilesDb = db.collection("Profiles"); // your Firestore collection name
         loadProfilesFromDatabase();
     }
+
 
     private void loadProfilesFromDatabase() {
         profilesDb.addSnapshotListener((value, error) -> {
@@ -171,7 +193,7 @@ public class ProfileAdminFragment extends Fragment {
                 .create();
 
         notifBtn.setOnClickListener(v -> {
-            // TODO: open notification logs screen
+            Toast.makeText(requireContext(), "Notification logs not implemented", Toast.LENGTH_SHORT).show();
         });
 
         cancelBtn.setOnClickListener(v -> dialog.dismiss());
