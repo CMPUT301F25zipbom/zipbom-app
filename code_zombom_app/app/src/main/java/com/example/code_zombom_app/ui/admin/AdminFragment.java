@@ -36,7 +36,7 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 public class AdminFragment extends Fragment {
 
     /** container that holds all event views */
-    private LinearLayout eventsContainer;
+    public LinearLayout eventsContainer;
 
     /** reference to the firestore database */
     private FirebaseFirestore db;
@@ -102,6 +102,13 @@ public class AdminFragment extends Fragment {
         // display all events
         loadEventsFromDatabase();
     }
+
+    // Allows tests to provide a fake Firestore instance
+    public void setMockDatabase(FirebaseFirestore mockDb, CollectionReference mockEventsCollection) {
+        this.db = mockDb;
+        this.eventsdb = mockEventsCollection;
+    }
+
 
     /**
      * Fetches event data from Firestore and populates the UI and
