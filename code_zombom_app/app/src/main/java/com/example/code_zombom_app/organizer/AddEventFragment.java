@@ -1,7 +1,11 @@
 package com.example.code_zombom_app.organizer;
 
-import android.os.Bundle;
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
+import android.widget.ImageView;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +13,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -40,15 +47,23 @@ public class AddEventFragment extends Fragment {
     private EditText genreEditText;
     private EditText locationEditText;
     private EditText maxentrantEditText;
+    private EditText descriptionEditText;
     private CollectionReference eventref;
     private FirebaseFirestore db;
     private CollectionReference events;
     private Button saveEventButton;
+    private Button cancelButton;
+    private Button buttonUploadPhoto;
+    private ImageView imagePreview;
+    private Uri imageUri; // To hold the URI of the selected image
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
+
 
     /**
      * We get the new view model in this method
      * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.
+     * a previous saved state, this is the state. Also Initialize the
+     * image picker launcher to get a image for the poster.
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,6 +71,19 @@ public class AddEventFragment extends Fragment {
 
         // Scoped to the Activity, so it's shared between fragments.
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
+
+        // Initialize the launcher to get the result from the gallery
+        imagePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                        // Image was selected successfully
+                        imageUri = result.getData().getData();
+                        imagePreview.setImageURI(imageUri);
+                        imagePreview.setVisibility(View.VISIBLE); // Show the preview
+                    }
+                }
+        );
     }
 
     /**
@@ -90,7 +118,10 @@ public class AddEventFragment extends Fragment {
 
         eventref = db.collection("Events");
 
-        Button cancelButton = view.findViewById(R.id.cancelButton);
+        cancelButton = view.findViewById(R.id.cancelButton);
+        buttonUploadPhoto = view.findViewById(R.id.buttonUploadPhoto);
+
+        imagePreview = view.findViewById(R.id.imagePreview);
 
         eventNameEditText = view.findViewById(R.id.editTextName);
         maxPeopleEditText = view.findViewById(R.id.editTextMaxPeople);
@@ -99,6 +130,7 @@ public class AddEventFragment extends Fragment {
         genreEditText = view.findViewById(R.id.editTextGenre);
         locationEditText = view.findViewById(R.id.editTextLocation);
         maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
+        descriptionEditText = view.findViewById(R.id.description);
 
         saveEventButton = view.findViewById(R.id.saveEventButton);
 
@@ -106,7 +138,8 @@ public class AddEventFragment extends Fragment {
             NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
         });
 
-        //TODO: add poster
+        buttonUploadPhoto.setOnClickListener(v -> openGallery());
+
         saveEventButton.setOnClickListener(v -> {
             String eventName = eventNameEditText.getText().toString();
 
@@ -122,6 +155,7 @@ public class AddEventFragment extends Fragment {
                 String genre = genreEditText.getText().toString();
                 String location = locationEditText.getText().toString();
                 String listmax = maxentrantEditText.getText().toString();
+                String description = descriptionEditText.getText().toString();
 
                 Map<String, Object> eventData = new HashMap<>();
                 eventData.put("Name", name);
@@ -134,6 +168,9 @@ public class AddEventFragment extends Fragment {
                 }
                 if (listmax.isEmpty() == false) {
                     eventData.put("Wait List Maximum", listmax);
+                }
+                if (description.isEmpty() == false) {
+                    eventData.put("Description", description);
                 }
                 eventData.put("Entrants", new ArrayList<String>()); // Change this type from String to Entrant once merge happens eventually
                 eventData.put("Cancelled Entrants", new ArrayList<String>());
@@ -239,4 +276,81 @@ public class AddEventFragment extends Fragment {
             return true;
         }
     }
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        imagePickerLauncher.launch(intent);
+    }
+
+    private void saveEvent() {
+        // ... (gather all your data from EditText fields into a Map<String, Object> eventData)
+        Map<String, Object> eventData = new HashMap<>();
+        String eventName = eventNameEditText.getText().toString();
+        // ... get all other fields ...
+
+        if (eventName.isEmpty()) {
+            Toast.makeText(getContext(), "Event Name is required", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        eventData.put("Name", eventName);
+        // ... put all other fields into eventData ...
+        eventData.put("Entrants", new ArrayList<String>());
+        eventData.put("Accepted Entrants", new ArrayList<String>());
+        eventData.put("Cancelled Entrants", new ArrayList<String>());
+
+        // 1. Create the event document in Firestore first to get a unique ID
+        db.collection("Events").add(eventData)
+                .addOnSuccessListener(documentReference -> {
+                    String newEventId = documentReference.getId();
+                    Log.d("Firestore", "Event document created with ID: " + newEventId);
+
+                    // 2. Check if an image was selected
+                    if (imageUri != null) {
+                        // If yes, upload the image using the new event ID
+                        uploadImageAndUpdateEvent(newEventId);
+                    } else {
+                        // If no image, we are done. Just navigate back.
+                        Toast.makeText(getContext(), "Event created successfully!", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error creating event", e);
+                    Toast.makeText(getContext(), "Failed to create event.", Toast.LENGTH_SHORT).show();
+                });
+    }
+    private void uploadImageAndUpdateEvent(String eventId) {
+        // Create a path in Firebase Storage: "posters/event_id.jpg"
+        com.google.firebase.storage.StorageReference storageRef = com.google.firebase.storage.FirebaseStorage.getInstance().getReference().child("posters/" + eventId + ".jpg");
+
+        // 3. Upload the file
+        storageRef.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    // 4. Get the public download URL for the uploaded image
+                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                        String imageUrl = uri.toString();
+
+                        // 5. Update the event document with the poster URL
+                        db.collection("Events").document(eventId)
+                                .update("posterUrl", imageUrl)
+                                .addOnSuccessListener(aVoid -> {
+                                    Log.d("Firestore", "Event updated with poster URL.");
+                                    Toast.makeText(getContext(), "Event and poster saved!", Toast.LENGTH_SHORT).show();
+                                    NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                                })
+                                .addOnFailureListener(e -> {
+                                    Log.w("Firestore", "Failed to update event with poster URL", e);
+                                    // Even if this fails, the event is created, so navigate back
+                                    NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                                });
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.w("Storage", "Image upload failed", e);
+                    Toast.makeText(getContext(), "Event saved, but poster upload failed.", Toast.LENGTH_SHORT).show();
+                    // Navigate back anyway, as the main data was saved
+                    NavHostFragment.findNavController(AddEventFragment.this).navigateUp();
+                });
+    }
+
 }
