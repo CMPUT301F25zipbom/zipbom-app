@@ -29,6 +29,8 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+        Button adminButtonBinding = binding.toAdminUI;
+        homeViewModel.getText().observe(getViewLifecycleOwner(), adminButtonBinding::setText);
         return root;
     }
     @Override
