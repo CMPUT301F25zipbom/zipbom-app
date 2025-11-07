@@ -24,8 +24,10 @@ public class Entrant extends Profile {
     /* Note that we keep the event's ID instead of the actual
      * Event object to avoid overhead
      */
-    private final ArrayList<String> waitingEvents;
-    private final ArrayList<String> eventHistory;
+    private ArrayList<String> waitingEvents;
+    private ArrayList<String> eventHistory;
+
+    public Entrant() {}
 
     /**
      * MUST always call this constructor. Initialises the collections so model methods remain safe
@@ -68,6 +70,19 @@ public class Entrant extends Profile {
         this.waitingEvents = new ArrayList<>(waitingEvents); // Deep-copy
         this.eventHistory = new ArrayList<>(eventHistory);
         this.type = "Entrant";
+    }
+
+    /**
+     * Copy constructor for this entrant
+     *
+     * @param other The other entrant to copy into this entrant
+     */
+    public Entrant(Entrant other) {
+        super((Profile) other);
+        this.waitingEvents = other.getWaitingEvents();
+        this.eventHistory = other.getEventHistory();
+        this.notificationsEnabled = other.areNotificationsEnabled();
+        this.lastNotificationReceived = other.hasReceivedLastNotification();
     }
 
     /**

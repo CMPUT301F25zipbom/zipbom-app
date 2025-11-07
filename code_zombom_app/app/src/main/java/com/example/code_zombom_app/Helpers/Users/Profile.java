@@ -50,6 +50,19 @@ public class Profile {
     }
 
     /**
+     * Copy constructor for this profile
+     *
+     * @param other The other profile to copy into this profile
+     */
+    public Profile(Profile other) {
+        this.name = other.getName();
+        this.email = other.getEmail();
+        this.phone = other.getPhone();
+        this.deviceId = other.getDeviceId();
+        this.type = other.type;
+    }
+
+    /**
      * @return profile's display name
      */
     public String getName() {
@@ -99,13 +112,13 @@ public class Profile {
      * @return device fingerprint used for passwordless identification
      */
     public ArrayList<String> getDeviceId() {
-        return new ArrayList<String>(deviceId);
+        return (deviceId != null) ? new ArrayList<String>(deviceId) : new ArrayList<String>();
     }
 
     /**
      * Add the device fingerprint for this entrant if it has not yet existed
      *
-     * @param deviceId
+     * @param deviceId The deviceId to add
      */
     public void addDeviceId(String deviceId) {
         if (!this.deviceId.contains(deviceId))

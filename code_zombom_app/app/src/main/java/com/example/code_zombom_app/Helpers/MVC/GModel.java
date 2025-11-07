@@ -16,15 +16,26 @@ public abstract class GModel extends TModel<TView> {
     protected String errorMsg; // Used to display the error message
     private final HashMap<String, Object> interMsg; // Used to store the intermediate message (information)
     private final String[] allowedKeys = {
-            "Profile", "Extra"
+            "Profile", "Request", "Message", "Extra"
     };
     public enum State {
         LOGIN_SUCCESS,
         LOGIN_FAILURE,
+        LOG_OUT,
         SIGNUP_SUCCESS,
         SIGNUP_FAILURE,
         OPEN, // Use this state when you want to open an activity
         CLOSE, // Use this state when you want to go back from an activity
+        REQUEST,
+        REQUEST_TOGGLE, // When you want to toggle something
+        EDIT_PROFILE_SUCCESS,
+        EDIT_PROFILE_FAILURE,
+        DELETE_PROFILE_SUCCESS,
+        DELETE_PROFILE_FAILURE,
+        NOTIFICATION_TOGGLE,
+        ADD_DEVICE_ID,
+        REMOVE_DEVICE_ID,
+
 
         INTERNAL_ERROR,
         NEUTRAL
@@ -126,5 +137,13 @@ public abstract class GModel extends TModel<TView> {
     public void open(Object msg) {
         setInterMsg("Extra", msg);
         open();
+    }
+
+    /**
+     * Declare that you want to log out
+     */
+    public void logout() {
+        state = State.LOG_OUT;
+        notifyViews();
     }
 }
