@@ -72,6 +72,11 @@ public class OrganizerDialogTest {
         // Verify that a chooser intent (the share sheet) was launched.
         intended(hasAction(Intent.ACTION_CHOOSER));
     }
+
+    /**
+     * This function tests to make sure the QR code button does its job correctly.
+     * @throws InterruptedException Will happen if we incorrectly navigate to dialogue or if we don't end up navigating there.
+     */
     @Test
     public void clickSeeDetailsButtonlaunchesShareIntent() throws InterruptedException {
         navigateToDialog();

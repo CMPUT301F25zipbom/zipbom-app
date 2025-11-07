@@ -31,7 +31,7 @@ public class AddEventFragmentTest {
     }
 
     /**
-     * Tests the `validdate method.
+     * Tests the validdate method.
      */
     @Test
     public void validdate_EventAfterDeadline_ReturnsTrue() {
@@ -43,6 +43,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_EventBeforeDeadline_ReturnsFalse() {
         scenario.onFragment(fragment -> {
@@ -53,6 +56,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_EventSameAsDeadline_ReturnsFalse() {
         scenario.onFragment(fragment -> {
@@ -61,6 +67,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method
+     */
     @Test
     public void validdate_MalformedInput_ReturnsFalse() {
         scenario.onFragment(fragment -> {
@@ -74,6 +83,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method
+     */
     @Test
     public void validdate_CaseInsensitiveMonth_ReturnsTrue() {
         scenario.onFragment(fragment -> {
@@ -93,6 +105,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_EmptyString_ReturnsTrue() {
         scenario.onFragment(fragment -> {
@@ -101,6 +116,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_NegativeNumber_ReturnsFalse() {
         scenario.onFragment(fragment -> {
@@ -109,6 +127,9 @@ public class AddEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_NonNumericString_ReturnsFalse() {
         scenario.onFragment(fragment -> {
