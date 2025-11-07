@@ -2,19 +2,17 @@ package com.example.code_zombom_app.Entrant.EditProfile;
 
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.code_zombom_app.Helpers.MVC.GController;
-import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
-import com.example.code_zombom_app.Helpers.Users.Entrant;
-import com.example.code_zombom_app.Helpers.Users.Profile;
+import com.example.code_zombom_app.R;
 
 public class EditProfileController extends GController<EditProfileModel> {
 
+    private String deviceId;
     private ImageButton imageButtonEditName;
     private ImageButton imageButtonEditEmail;
     private ImageButton imageButtonEditPhone;
@@ -28,12 +26,13 @@ public class EditProfileController extends GController<EditProfileModel> {
     private ToggleButton toggleButtonNotification;
     private ToggleButton toggleButtonLinkDevice;
 
-    public EditProfileController(EditProfileModel model,
+    public EditProfileController(EditProfileModel model, String id,
                                  ImageButton editName, ImageButton editEmail, ImageButton editPhone,
                                  TextView Name, TextView Email, TextView Phone,
                                  Button back, Button save, Button delete, Button logout,
                                  ToggleButton notification, ToggleButton link) {
         super(model);
+        this.deviceId = id;
 
         this.imageButtonEditName = editName;
         this.imageButtonEditEmail = editEmail;
@@ -62,7 +61,6 @@ public class EditProfileController extends GController<EditProfileModel> {
             }
         });
 
-        //TODO: Create a popup window to ask if they are sure to delete the account
         this.buttonDeleteProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -108,5 +106,41 @@ public class EditProfileController extends GController<EditProfileModel> {
         this.toggleButtonLinkDevice.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
         }));
+    }
+
+    /**
+     * Set the View values
+     */
+    public void setView() {
+        if (((EditProfileModel) model).getName() != null &&
+                !((EditProfileModel) model).getName().trim().isEmpty()) {
+            textViewName.setText(((EditProfileModel) model).getName());
+        }
+
+        if (((EditProfileModel) model).getEmail() != null &&
+                !((EditProfileModel) model).getEmail().trim().isEmpty()) {
+            textViewEmail.setText(((EditProfileModel) model).getEmail());
+        }
+
+        if (((EditProfileModel) model).getPhone() != null &&
+                !((EditProfileModel) model).getPhone().trim().isEmpty()) {
+            textViewPhone.setText(((EditProfileModel) model).getPhone());
+        }
+
+        if (((EditProfileModel) model).getNotification())
+            toggleButtonNotification.setBackgroundResource(R.drawable.bellon);
+        else
+            toggleButtonNotification.setBackgroundResource(R.drawable.belloff);
+
+        // Temporarily remove listener before changing checked state
+        toggleButtonLinkDevice.setOnCheckedChangeListener(null);
+
+        // Programmatically set the toggle state
+        toggleButtonLinkDevice.setChecked(((EditProfileModel) model).isLinked(deviceId));
+
+        // Reattach the listener
+        toggleButtonLinkDevice.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
+        });
     }
 }

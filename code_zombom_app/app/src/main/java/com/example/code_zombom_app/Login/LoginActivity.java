@@ -66,5 +66,8 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
             Intent signUp = new Intent(this, SignUpActivity.class);
             startActivity(signUp);
         }
+        else if (model.getState() == GModel.State.REQUEST_LOGIN_WITH_DEVICE_ID) {
+            model.loadProfileWithDeviceId(this);
+        }
     }
 }
