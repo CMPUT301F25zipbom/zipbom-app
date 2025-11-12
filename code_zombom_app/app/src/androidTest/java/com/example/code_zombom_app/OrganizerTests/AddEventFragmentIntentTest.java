@@ -34,11 +34,17 @@ import java.util.concurrent.CompletableFuture;
 @RunWith(AndroidJUnit4.class)
 public class AddEventFragmentIntentTest {
 
-    // JUnit rule that initializes Espresso-Intents before each test
-    // and releases it after. It also launches the specified activity.
+    /**
+     * JUnit rule that initializes Espresso-Intents before each test
+     *  and releases it after. It also launches the specified activity.
+     */
     @Rule
     public IntentsTestRule<OrganizerActivity> intentsTestRule = new IntentsTestRule<>(OrganizerActivity.class);
 
+    /**
+     * Sets up the AddEeventFragment
+     * @throws Exception gets thrown when something goes wrong
+     */
     @Before
     public void setUp() throws Exception {
         // Navigate to the AddEventFragment before each test.
@@ -50,6 +56,9 @@ public class AddEventFragmentIntentTest {
         onView(withId(R.id.add_event_button)).perform(click());
     }
 
+    /**
+     * This tests our add photo button. Makes sure it works as intended
+     */
     @Test
     public void clickAddPhotoButton_launchesImagePickerIntent() {
         // We assume the setup has already navigated us to the AddEventFragment.

@@ -31,7 +31,7 @@ public class EditEventFragmentTest {
     }
 
     /**
-     * Tests the `validdate method.
+     * Tests the validdate method.
      */
     @Test
     public void validdate_EventAfterDeadline_ReturnsTrue() {
@@ -44,6 +44,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_EventBeforeDeadline_ReturnsFalse() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -55,6 +58,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_EventSameAsDeadline_ReturnsFalse() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -64,6 +70,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_MalformedInput_ReturnsFalse() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -78,6 +87,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the validdate method.
+     */
     @Test
     public void validdate_CaseInsensitiveMonth_ReturnsTrue() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -99,6 +111,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_EmptyString_ReturnsTrue() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -108,6 +123,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_NegativeNumber_ReturnsFalse() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -117,6 +135,9 @@ public class EditEventFragmentTest {
         });
     }
 
+    /**
+     * Tests the maxentrantchecker method.
+     */
     @Test
     public void maxentrantchecker_NonNumericString_ReturnsFalse() {
         FragmentScenario<EditEventFragment> scenario = FragmentScenario.launchInContainer(EditEventFragment.class);
@@ -127,6 +148,11 @@ public class EditEventFragmentTest {
             assertFalse("A decimal number string should be invalid", fragment.maxentrantchecker("10.5"));
         });
     }
+
+    /**
+     * Tests The populate fields method.
+     * @throws InterruptedException Has to be here because it won't run if we try to use Thread.sleep(2000);
+     */
     @Test
     public void populateFields_fillsUIFromBundleAndFirestore() throws InterruptedException {
 

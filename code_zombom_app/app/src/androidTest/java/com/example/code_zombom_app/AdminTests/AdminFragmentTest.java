@@ -1,4 +1,4 @@
-package com.example.code_zombom_app;
+package com.example.code_zombom_app.AdminTests;
 
 import static org.mockito.Mockito.*;
 
@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.ui.admin.AdminFragment;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
