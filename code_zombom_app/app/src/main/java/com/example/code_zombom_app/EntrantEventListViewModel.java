@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 /**
  * ViewModel backing the entrant event catalog screen.
  * Applies interest and availability filters on top of the Firestore event stream.
+ * @author Deng Ngut
+ * Date 11/04/2025
  */
 public class EntrantEventListViewModel extends ViewModel {
 
@@ -51,7 +53,7 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<List<Event>> filteredEvents = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>(null);
-    /** Indicates when a join Firestore transaction is running so the UI can disable controls. */
+    /** Indicates when a waitlist Firestore transaction is running so the UI can disable controls. */
     private final MutableLiveData<Boolean> joinInProgress = new MutableLiveData<>(false);
     /** One-off success/error message that the fragment shows via a toast/snackbar. */
     private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
@@ -178,6 +180,53 @@ public class EntrantEventListViewModel extends ViewModel {
                     } else {
                         joinStatusMessage.setValue("Couldn't join the waiting list. Please try again.");
                         Log.e(TAG, "Failed to join event " + documentId, e);
+                    }
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
+    }
+
+    /**
+     * Removes the signed-in entrant from the selected event waitlist if present.
+     */
+    public void leaveEvent(@NonNull Event event) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before leaving an event.");
+            return;
+        }
+
+        String documentId = event.getFirestoreDocumentId();
+        if (documentId == null || documentId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot leave this event right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        DocumentReference docRef = firestore.collection("Events").document(documentId);
+        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(docRef);
+
+                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
+                    if (!entrants.contains(normalizedEmail)) {
+                        throw new LeaveException("You are not on this waiting list.");
+                    }
+
+                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
+                    updatedEntrants.remove(normalizedEmail);
+                    transaction.update(docRef, "Entrants", updatedEntrants);
+                    return null;
+                })
+                .addOnSuccessListener(ignored -> {
+                    String eventName = event.getName() == null ? "event" : event.getName();
+                    joinStatusMessage.setValue("Left " + eventName + " waiting list.");
+                })
+                .addOnFailureListener(e -> {
+                    if (e instanceof LeaveException) {
+                        joinStatusMessage.setValue(e.getMessage());
+                    } else {
+                        joinStatusMessage.setValue("Couldn't leave the waiting list. Please try again.");
+                        Log.e(TAG, "Failed to leave event " + documentId, e);
                     }
                 })
                 .addOnCompleteListener(task -> joinInProgress.setValue(false));
@@ -524,6 +573,15 @@ public class EntrantEventListViewModel extends ViewModel {
      */
     private static class JoinException extends RuntimeException {
         JoinException(String message) {
+            super(message);
+        }
+    }
+
+    /**
+     * Lightweight wrapper for leave failures so user-facing errors don't spam stack traces.
+     */
+    private static class LeaveException extends RuntimeException {
+        LeaveException(String message) {
             super(message);
         }
     }

@@ -7,7 +7,7 @@
     <string name="enter_email">Enter email</string>
     <string name="sign_up">Sign Up</string>
     <string name="log_in_with_device">"<u>Log in with device</u>"</string>
-    <string name="entrant_event_catalog_title">Browse Events</string>
+    <string name="entrant_event_catalog_title">Events</string>
     <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
     <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
     <string name="entrant_event_join_button">Join Waiting List</string>
@@ -47,6 +47,7 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="edit_name">Edit Name</string>
     <string name="log_out">Log out</string>
+    <string name="leave">Leave</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
