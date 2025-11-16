@@ -114,4 +114,9 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
     public void onJoinWaitingList(@NonNull Event event) {
         viewModel.joinEvent(event);
     }
+
+    @Override
+    public void onLeaveWaitingList(@NonNull Event event) {
+        viewModel.leaveEvent(event);
+    }
 }
