@@ -37,24 +37,28 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final String eventId;
-    private final String eventText;
+    private final Event event; // <<< Use the Event object
     private final NavController navController;
     private final View fragmentView;
     private final Map<String, Bitmap> qrCodeBitmaps;
 
+
+//    private final String eventId;
+//    private final String eventText;
+//    private final NavController navController;
+//    private final View fragmentView;
+//    private final Map<String, Bitmap> qrCodeBitmaps;
+
     /**
      * This method is used to make an organizerdialog object.
      * @param context sets the context
-     * @param eventId sets the organizerdialog eventid
-     * @param eventText sets the organizerdialog eventtext
+     * @param event sets the organizerdialog eventid
      * @param navController sets the organizerdialog navController
      * @param fragmentView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, String eventId, String eventText, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
+    public OrganizerDialog(@NonNull Context context, Event event, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
         super(context);
-        this.eventId = eventId;
-        this.eventText = eventText;
+        this.event = event; // <<< Store the whole object
         this.navController = navController;
         this.fragmentView = fragmentView;
         this.qrCodeBitmaps = qrCodeBitmaps;
@@ -87,6 +91,8 @@ public class OrganizerDialog extends Dialog {
         // This button starts a draw for who will win the lottery
         viewStartButton.setOnClickListener(v -> {
             dismiss(); // Close the dialog
+            event.doDraw(); // Do the draw
+
 
         });
         // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
@@ -98,8 +104,7 @@ public class OrganizerDialog extends Dialog {
         editEventButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", eventId);
-            bundle.putString("eventText", eventText);
+            bundle.putString("eventId", event.getEventId()); // Get ID from the object
 
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
@@ -107,9 +112,10 @@ public class OrganizerDialog extends Dialog {
         //This makes the QR code visible when the user clicks generate QR code
         genQRButton.setOnClickListener(v -> {
             dismiss();
-            Bitmap qrBitmap = qrCodeBitmaps.get(eventId);
+            Bitmap qrBitmap = qrCodeBitmaps.get(event.getEventId());
             // We need the fragment's root view to find the tag
-            ImageView qrToShow = fragmentView.findViewWithTag(eventId);
+            ImageView qrToShow = fragmentView.findViewWithTag(event.getEventId());
+
             if (qrToShow != null) {
                 uploadQrCodeToFirebase(qrBitmap);
                 if (qrToShow.getVisibility() == View.GONE) {
@@ -121,11 +127,10 @@ public class OrganizerDialog extends Dialog {
             }
         });
         //This gets rid of the popup.
-
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", eventId);
+            bundle.putString("eventId", event.getEventId()); // Get ID from the object    // Navigate to the full details fragment
 
             // Navigate to the full details fragment
             navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
@@ -145,20 +150,20 @@ public class OrganizerDialog extends Dialog {
     private void uploadQrCodeToFirebase(Bitmap bitmap) {
         Toast.makeText(getContext(), "Saving QR Code...", Toast.LENGTH_SHORT).show();
 
-        // 1. Convert Bitmap to byte array for upload
+        // Convert Bitmap to byte array for upload
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         byte[] data = baos.toByteArray();
 
-        // 2. Define the path in Firebase Storage
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventId + ".png");
+        // Define the path in Firebase Storage
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + event.getEventId() + ".png");
 
-        // 3. Upload the byte array
+        // Upload the byte array
         storageRef.putBytes(data)
                 .addOnSuccessListener(taskSnapshot -> {
-                    // 4. Get the public download URL
+                    // Get the public download URL
                     storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        // 5. Save the URL to the event's document in Firestore
+                        // Save the URL to the event's document in Firestore
                         saveQrUrlToFirestore(uri.toString());
                     });
                 })
@@ -172,11 +177,11 @@ public class OrganizerDialog extends Dialog {
      * @param url The public URL of the uploaded image.
      */
     private void saveQrUrlToFirestore(String url) {
-        FirebaseFirestore.getInstance().collection("Events").document(eventId)
+        FirebaseFirestore.getInstance().collection("Events").document(event.getEventId())
                 .update("qrCodeUrl", url)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "QR Code URL updated for event: " + eventId);
+                    Log.d("Firestore", "QR Code URL updated for event: " + event.getEventId());
                     dismiss(); // Close the dialog on success
                 })
                 .addOnFailureListener(e -> {
