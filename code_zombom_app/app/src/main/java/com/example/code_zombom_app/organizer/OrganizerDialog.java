@@ -32,7 +32,7 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final Event event; // <<< Use the Event object
+    private final com.example.code_zombom_app.organizer.Event event; // <<< Use the Event object
     private final NavController navController;
     private final View fragmentView;
     private final Map<String, Bitmap> qrCodeBitmaps;
@@ -51,7 +51,7 @@ public class OrganizerDialog extends Dialog {
      * @param navController sets the organizerdialog navController
      * @param fragmentView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, Event event, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
+    public OrganizerDialog(@NonNull Context context, com.example.code_zombom_app.organizer.Event event, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
         super(context);
         this.event = event; // <<< Store the whole object
         this.navController = navController;

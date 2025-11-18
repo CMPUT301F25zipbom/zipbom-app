@@ -131,7 +131,7 @@ public class EventFullDetailsFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (isAdded() && documentSnapshot.exists()) {
                         // --- REFACTORED: Convert the document directly to an Event object ---
-                        Event event = documentSnapshot.toObject(Event.class);
+                        com.example.code_zombom_app.organizer.Event event = documentSnapshot.toObject(Event.class);
                         if (event != null) {
                             populateUi(event);
                         } else {
@@ -153,7 +153,7 @@ public class EventFullDetailsFragment extends Fragment {
      * Populates the UI elements with data from the document.
      * @param event
      */
-    private void populateUi(Event event) {
+    private void populateUi(com.example.code_zombom_app.organizer.Event event) {
         // Set simple string values
         nameValue.setText(event.getName());
         dateValue.setText(event.getDate());

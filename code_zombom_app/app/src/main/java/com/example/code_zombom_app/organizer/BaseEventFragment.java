@@ -47,8 +47,7 @@ public abstract class BaseEventFragment extends Fragment {
      * Abstract method that subclasses must implement to define what happens when the "Save" or "Update" button is clicked.
      * @param event The ID of the event (can be new or existing).
      */
-    protected abstract void processEvent(Event event);
-
+    protected abstract void processEvent(com.example.code_zombom_app.organizer.Event event);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,7 +123,7 @@ public abstract class BaseEventFragment extends Fragment {
         }
 
         // --- REFACTORED: Create an Event object instead of a Map ---
-        Event event = gatherEventData();
+        com.example.code_zombom_app.organizer.Event event = gatherEventData();
         event.setEventId(eventId); // Set the ID for the new or existing event
 
         if (imageUri != null) {
@@ -135,7 +134,7 @@ public abstract class BaseEventFragment extends Fragment {
         }
     }
 
-    private void uploadImageAndProcessEvent(Event event) {
+    private void uploadImageAndProcessEvent(com.example.code_zombom_app.organizer.Event event) {
         StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
@@ -159,8 +158,8 @@ public abstract class BaseEventFragment extends Fragment {
      * REFACTORED: Gathers all data from the EditText fields into an Event object.
      * @return A new Event object populated with UI data.
      */
-    private Event gatherEventData() {
-        Event event = new Event();
+    private com.example.code_zombom_app.organizer.Event gatherEventData() {
+        com.example.code_zombom_app.organizer.Event event = new Event();
         event.setName(eventNameEditText.getText().toString());
         event.setMax_People(maxPeopleEditText.getText().toString()); // Use the new field name
         event.setDate(dateEditText.getText().toString());

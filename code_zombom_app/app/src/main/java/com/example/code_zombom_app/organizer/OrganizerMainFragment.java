@@ -125,7 +125,7 @@ public class OrganizerMainFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
                         // --- NEW: Automatically convert the document to an Event object ---
-                        Event event = snapshot.toObject(Event.class);
+                        com.example.code_zombom_app.organizer.Event event = snapshot.toObject(Event.class);
                         event.setEventId(snapshot.getId()); // Manually set the document ID
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
@@ -190,7 +190,7 @@ public class OrganizerMainFragment extends Fragment {
      * Makes the Organizer Dialog pop-up.
      * @param event The event that the user clicked on
      */
-    private void showEventOptionsDialog(Event event) {
+    private void showEventOptionsDialog(com.example.code_zombom_app.organizer.Event event) {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 

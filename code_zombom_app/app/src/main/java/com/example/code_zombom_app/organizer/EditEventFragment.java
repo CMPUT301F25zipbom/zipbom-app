@@ -20,7 +20,7 @@ import com.bumptech.glide.Glide;
  */
 public class EditEventFragment extends BaseEventFragment {
     private String originalEventId;
-    private Event eventToEdit;
+    private com.example.code_zombom_app.organizer.Event eventToEdit;
     private Button updateButton;
 
     /**
@@ -65,7 +65,7 @@ public class EditEventFragment extends BaseEventFragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && isAdded()) {
                         // --- REFACTORED: Convert document to Event object ---
-                        eventToEdit = documentSnapshot.toObject(Event.class);
+                        eventToEdit = documentSnapshot.toObject(com.example.code_zombom_app.organizer.Event.class);
                         if (eventToEdit == null) return;
 
 
@@ -104,8 +104,7 @@ public class EditEventFragment extends BaseEventFragment {
      * @param eventFromUI The complete Event object with updated data.
      */
     @Override
-    protected void processEvent(Event eventFromUI) {
-        // Merge UI changes into the full event object ---
+    protected void processEvent(com.example.code_zombom_app.organizer.Event eventFromUI) {        // Merge UI changes into the full event object ---
         // If the original event failed to load, we can't safely proceed.
         if (eventToEdit == null) {
             Toast.makeText(getContext(), "Error: Original event not loaded. Cannot save.", Toast.LENGTH_LONG).show();
