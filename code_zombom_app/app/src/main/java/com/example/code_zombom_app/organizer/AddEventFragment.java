@@ -11,13 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.code_zombom_app.organizer.Event; // Import Event class
 import java.util.ArrayList;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.DocumentReference;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal

@@ -2,7 +2,6 @@ package com.example.code_zombom_app.organizer;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.app.Dialog;
 import android.content.Context;
@@ -17,17 +16,13 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 
-import com.bumptech.glide.Glide;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.ByteArrayOutputStream;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
+
 import java.util.Map;
 
 /**

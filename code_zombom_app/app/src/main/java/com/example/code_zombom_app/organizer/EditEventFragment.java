@@ -11,18 +11,17 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.example.code_zombom_app.R;
-import java.util.Map;
 import com.bumptech.glide.Glide;
-import com.example.code_zombom_app.organizer.Event;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
- * @version 1.0
+ * @version 2.0
  * This class is used when the user wants to edit an event.
  */
 public class EditEventFragment extends BaseEventFragment {
     private String originalEventId;
-//    private String originalEventText;
+    private Event eventToEdit;
+    private Button updateButton;
 
     /**
      * This sets up the eventViewModel, database and catches the arguments.
@@ -47,11 +46,12 @@ public class EditEventFragment extends BaseEventFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        populateFields();
-
-        Button updateButton = view.findViewById(R.id.saveEventButton);
+        updateButton = view.findViewById(R.id.saveEventButton);
         updateButton.setText("Update Event");
+        updateButton.setEnabled(false); // Disable the button by default
         updateButton.setOnClickListener(v -> onSaveOrUpdateButtonClicked(originalEventId));
+
+        populateFields();
     }
 
     /**
@@ -65,23 +65,31 @@ public class EditEventFragment extends BaseEventFragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && isAdded()) {
                         // --- REFACTORED: Convert document to Event object ---
-                        Event event = documentSnapshot.toObject(Event.class);
-                        if (event == null) return;
+                        eventToEdit = documentSnapshot.toObject(Event.class);
+                        if (eventToEdit == null) return;
+
+
+                        // Set the ID on the object after loading it
+                        eventToEdit.setEventId(documentSnapshot.getId());
 
                         // --- Populate all fields from the object ---
-                        eventNameEditText.setText(event.getName());
-                        maxPeopleEditText.setText(event.getMax_People());
-                        dateEditText.setText(event.getDate());
-                        deadlineEditText.setText(event.getDeadline());
-                        genreEditText.setText(event.getGenre());
-                        locationEditText.setText(event.getLocation());
-                        descriptionEditText.setText(event.getDescription());
-                        maxentrantEditText.setText(event.getWait_List_Maximum());
+                        eventNameEditText.setText(eventToEdit.getName());
+                        maxPeopleEditText.setText(eventToEdit.getMax_People());
+                        dateEditText.setText(eventToEdit.getDate());
+                        deadlineEditText.setText(eventToEdit.getDeadline());
+                        genreEditText.setText(eventToEdit.getGenre());
+                        locationEditText.setText(eventToEdit.getLocation());
+                        descriptionEditText.setText(eventToEdit.getDescription());
+                        maxentrantEditText.setText(eventToEdit.getWait_List_Maximum());
 
-                        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-                            Glide.with(getContext()).load(event.getPosterUrl()).into(imagePreview);
+                        if (eventToEdit.getPosterUrl() != null && !eventToEdit.getPosterUrl().isEmpty()) {
+                            Glide.with(getContext()).load(eventToEdit.getPosterUrl()).into(imagePreview);
                             imagePreview.setVisibility(View.VISIBLE);
                         }
+                        updateButton.setEnabled(true);
+                    }else {
+                        // Handle cases where the document might not exist
+                        Toast.makeText(getContext(), "Event not found.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
@@ -93,21 +101,50 @@ public class EditEventFragment extends BaseEventFragment {
     /**
      * REFACTORED: Implements the abstract method to update an existing Firestore document
      * directly from the Event object.
-     * @param event The complete Event object with updated data.
+     * @param eventFromUI The complete Event object with updated data.
      */
     @Override
-    protected void processEvent(Event event) {
-        // --- REFACTORED: Pass the entire Event object to .set() or .update() ---
+    protected void processEvent(Event eventFromUI) {
+        // Merge UI changes into the full event object ---
+        // If the original event failed to load, we can't safely proceed.
+        if (eventToEdit == null) {
+            Toast.makeText(getContext(), "Error: Original event not loaded. Cannot save.", Toast.LENGTH_LONG).show();
+            if(updateButton != null) {
+                updateButton.setEnabled(true);
+            }
+            return;
+        }
+        // Copy the editable fields from the UI object to our full object
+        eventToEdit.setName(eventFromUI.getName());
+        eventToEdit.setMax_People(eventFromUI.getMax_People());
+        eventToEdit.setDate(eventFromUI.getDate());
+        eventToEdit.setDeadline(eventFromUI.getDeadline());
+        eventToEdit.setGenre(eventFromUI.getGenre());
+        eventToEdit.setLocation(eventFromUI.getLocation());
+        eventToEdit.setDescription(eventFromUI.getDescription());
+        eventToEdit.setWait_List_Maximum(eventFromUI.getWait_List_Maximum());
+
         // Using .set() with an object is often easier than .update() with a map
-        db.collection("Events").document(event.getEventId())
-                .set(event) // .set() will overwrite the document with the object's state
+        if (eventFromUI.getPosterUrl() != null && !eventFromUI.getPosterUrl().isEmpty()) {
+            eventToEdit.setPosterUrl(eventFromUI.getPosterUrl());
+        }
+        // Disable button immediately on click to prevent double-taps
+        updateButton.setEnabled(false);
+
+        // Now, save the *merged* object, which contains the old lists and new text fields
+        db.collection("Events").document(originalEventId)
+                .set(eventToEdit) // Save the complete, updated object
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-                    navigateBack();
+                    navigateBack(); // This should now be called correctly
                 })
                 .addOnFailureListener(e -> {
                     Log.e("FIRESTORE_ERROR", "Error updating event", e);
                     Toast.makeText(getContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
+                    // Re-enable button on failure to allow user to try again
+                    if(updateButton != null) {
+                        updateButton.setEnabled(true);
+                    }
                 });
     }
 }
