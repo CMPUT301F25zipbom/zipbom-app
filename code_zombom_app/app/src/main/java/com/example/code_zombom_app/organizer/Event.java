@@ -35,7 +35,20 @@ public class Event implements Serializable { // Serializable is good practice fo
     // --- Constructors ---
 
     // IMPORTANT: A public no-argument constructor is required for Firestore's automatic data mapping.
-    public Event() {}
+    public Event() {
+        Name = "";
+        Date = "";
+        Deadline = "";
+        Genre = "";
+        Location = "";
+        Description = "";
+        Max_People = "0";
+        Wait_List_Maximum = "0";
+        Entrants = new ArrayList<>();
+        Cancelled_Entrants = new ArrayList<>();
+        Accepted_Entrants = new ArrayList<>();
+        Lottery_Winners = new ArrayList<>();
+    }
 
 
     // --- Getters and Setters ---
@@ -105,6 +118,30 @@ public class Event implements Serializable { // Serializable is good practice fo
             sb.append("Location: ").append(Location);
         }
         return sb.toString();
+    }
+    public void doDraw() {
+        // If there's no one to draw from, or the capacity is invalid, do nothing.
+        if (Entrants == null || Entrants.isEmpty() || Max_People == null) {
+            return;
+        }
+        int maxWinners;
+        try {
+            maxWinners = Integer.parseInt(Max_People);
+        } catch (NumberFormatException e) {
+            // If Max_People is not a valid number (e.g., "abc"), do nothing.
+            return;
+        }
+        for (int i = 0; i < Integer.parseInt(Max_People); i++) {
+            if (Entrants.isEmpty()) {
+                break;
+            }
+            int randomIndex = (int) (Math.random() * Entrants.size());
+            String winner = Entrants.get(randomIndex);
+
+            // Add the winner to the lottery list and remove them from the entrants list.
+            Lottery_Winners.add(winner);
+            Entrants.remove(randomIndex);
+        }
     }
 }
 

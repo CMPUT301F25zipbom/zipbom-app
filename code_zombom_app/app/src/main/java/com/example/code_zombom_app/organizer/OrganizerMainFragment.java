@@ -196,10 +196,8 @@ public class OrganizerMainFragment extends Fragment {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 
-        // Pass the eventId and the display text to the dialog as before.
-        // Or, we could make the Event class Parcelable and pass the whole object.
-        // For now, we keep the dialog's constructor the same.
-        OrganizerDialog dialog = new OrganizerDialog(requireContext(), event.getEventId(), event.getEventListDisplayText(), navController, fragmentView, qrCodeBitmaps);
+        // Create the dialog by passing the entire Event object.
+        OrganizerDialog dialog = new OrganizerDialog(requireContext(), event, navController, fragmentView, qrCodeBitmaps);
         dialog.show();
     }
 }
