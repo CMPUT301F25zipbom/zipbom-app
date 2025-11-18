@@ -86,8 +86,8 @@ public class OrganizerDialog extends Dialog {
 
         // This button starts a draw for who will win the lottery
         viewStartButton.setOnClickListener(v -> {
-            // TODO: Implement Draw
             dismiss(); // Close the dialog
+
         });
         // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
         messageButton.setOnClickListener(v -> {

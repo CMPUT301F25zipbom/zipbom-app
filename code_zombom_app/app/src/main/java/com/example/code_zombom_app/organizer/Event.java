@@ -1,139 +1,110 @@
 package com.example.code_zombom_app.organizer;
 
-import com.google.firebase.firestore.PropertyName;
-
-import java.util.List;
+import com.google.firebase.firestore.Exclude;
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
- * A Plain Old Java Object (POJO) to represent a complete event document from Firestore.
- * This class includes all details for an event, including entrant lists.
- * The @PropertyName annotation is used to map Firestore field names with spaces
- * to Java variable names.
- *
- * NOT IMPLEMENTED YET JUST FOR FUTURE CLEANING UP OF OUR CODE
+ * A model class representing an event. This Plain Old Java Object (POJO)
+ * is used for direct mapping with Firestore documents.
  */
-public class Event {
+public class Event implements Serializable { // Serializable is good practice for passing objects in Bundles
 
-    // It's good practice to keep field names consistent with your database.
-    // However, Java naming conventions prefer camelCase. @PropertyName solves this.
+    // --- Properties that map directly to Firestore fields ---
     private String Name;
     private String Date;
     private String Deadline;
     private String Genre;
     private String Location;
+    private String Description;
+    private String posterUrl;
+    private String Max_People;
+    private String Wait_List_Maximum;
 
-    // Use @PropertyName to map Firestore fields with spaces or different capitalization
-    // to your Java variables.
-    @PropertyName("Max People")
-    private String maxPeople;
+    private ArrayList<String> Entrants;
+    private ArrayList<String> Cancelled_Entrants;
+    private ArrayList<String> Accepted_Entrants;
+    private ArrayList<String> Lottery_Winners;
 
-    @PropertyName("Wait List Maximum")
-    private String waitListMaximum;
 
-    @PropertyName("Entrants")
-    private List<String> entrants;
+    // --- Properties that are NOT in Firestore ---
+    @Exclude // This annotation tells Firestore to ignore this field
+    private String eventId;
 
-    @PropertyName("Accepted Entrants")
-    private List<String> acceptedEntrants;
 
-    @PropertyName("Cancelled Entrants")
-    private List<String> cancelledEntrants;
+    // --- Constructors ---
 
-    // A no-argument constructor is required for Firestore's automatic data mapping
-    public Event() {
-    }
+    // IMPORTANT: A public no-argument constructor is required for Firestore's automatic data mapping.
+    public Event() {}
 
-    // --- GETTERS ---
 
-    public String getName() {
-        return Name;
-    }
+    // --- Getters and Setters ---
+    // Firestore uses these to automatically populate the object
 
-    public String getDate() {
-        return Date;
-    }
+    public String getName() { return Name; }
+    public void setName(String name) { this.Name = name; }
 
-    public String getDeadline() {
-        return Deadline;
-    }
+    public String getDate() { return Date; }
+    public void setDate(String date) { this.Date = date; }
 
-    public String getGenre() {
-        return Genre;
-    }
+    public String getDeadline() { return Deadline; }
+    public void setDeadline(String deadline) { this.Deadline = deadline; }
 
-    public String getLocation() {
-        return Location;
-    }
+    public String getGenre() { return Genre; }
+    public void setGenre(String genre) { this.Genre = genre; }
 
-    @PropertyName("Max People")
-    public String getMaxPeople() {
-        return maxPeople;
-    }
+    public String getLocation() { return Location; }
+    public void setLocation(String location) { this.Location = location; }
 
-    @PropertyName("Wait List Maximum")
-    public String getWaitListMaximum() {
-        return waitListMaximum;
-    }
+    public String getDescription() { return Description; }
+    public void setDescription(String description) { this.Description = description; }
 
-    @PropertyName("Entrants")
-    public List<String> getEntrants() {
-        return entrants;
-    }
+    public String getPosterUrl() { return posterUrl; }
+    public void setPosterUrl(String posterUrl) { this.posterUrl = posterUrl; }
 
-    @PropertyName("Accepted Entrants")
-    public List<String> getAcceptedEntrants() {
-        return acceptedEntrants;
-    }
+    public String getMax_People() { return Max_People; }
+    public void setMax_People(String max_People) { this.Max_People = max_People; }
 
-    @PropertyName("Cancelled Entrants")
-    public List<String> getCancelledEntrants() {
-        return cancelledEntrants;
-    }
+    public String getWait_List_Maximum() { return Wait_List_Maximum; }
+    public void setWait_List_Maximum(String wait_List_Maximum) { this.Wait_List_Maximum = wait_List_Maximum; }
 
-    // --- SETTERS ---
+    public ArrayList<String> getEntrants() { return Entrants; }
+    public void setEntrants(ArrayList<String> entrants) { this.Entrants = entrants; }
 
-    public void setName(String name) {
-        this.Name = name;
-    }
+    public ArrayList<String> getCancelled_Entrants() { return Cancelled_Entrants; }
+    public void setCancelled_Entrants(ArrayList<String> cancelled_Entrants) { this.Cancelled_Entrants = cancelled_Entrants; }
 
-    public void setDate(String date) {
-        this.Date = date;
-    }
+    public ArrayList<String> getAccepted_Entrants() { return Accepted_Entrants; }
+    public void setAccepted_Entrants(ArrayList<String> accepted_Entrants) { this.Accepted_Entrants = accepted_Entrants; }
 
-    public void setDeadline(String deadline) {
-        this.Deadline = deadline;
-    }
+    public ArrayList<String> getLottery_Winners() { return Lottery_Winners; }
+    public void setLottery_Winners(ArrayList<String> lottery_Winners) { this.Lottery_Winners = lottery_Winners; }
 
-    public void setGenre(String genre) {
-        this.Genre = genre;
-    }
 
-    public void setLocation(String location) {
-        this.Location = location;
-    }
+    // --- Excluded (local-only) properties ---
 
-    @PropertyName("Max People")
-    public void setMaxPeople(String maxPeople) {
-        this.maxPeople = maxPeople;
-    }
+    @Exclude
+    public String getEventId() { return eventId; }
+    public void setEventId(String eventId) { this.eventId = eventId; }
 
-    @PropertyName("Wait List Maximum")
-    public void setWaitListMaximum(String waitListMaximum) {
-        this.waitListMaximum = waitListMaximum;
-    }
 
-    @PropertyName("Entrants")
-    public void setEntrants(List<String> entrants) {
-        this.entrants = entrants;
-    }
+    // --- Convenience Methods ---
 
-    @PropertyName("Accepted Entrants")
-    public void setAcceptedEntrants(List<String> acceptedEntrants) {
-        this.acceptedEntrants = acceptedEntrants;
-    }
-
-    @PropertyName("Cancelled Entrants")
-    public void setCancelledEntrants(List<String> cancelledEntrants) {
-        this.cancelledEntrants = cancelledEntrants;
+    /**
+     * Generates the display text for the main organizer list.
+     * @return A formatted string with the event's basic details.
+     */
+    public String getEventListDisplayText() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Name: ").append(Name != null ? Name : "").append("\n");
+        sb.append("Max People: ").append(Max_People != null ? Max_People : "").append("\n");
+        sb.append("Date: ").append(Date != null ? Date : "").append("\n");
+        sb.append("Deadline: ").append(Deadline != null ? Deadline : "").append("\n");
+        sb.append("Genre: ").append(Genre != null ? Genre : "").append("\n");
+        if (Location != null) {
+            sb.append("Location: ").append(Location);
+        }
+        return sb.toString();
     }
 }
+
