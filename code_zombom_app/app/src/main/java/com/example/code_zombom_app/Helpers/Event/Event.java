@@ -114,16 +114,10 @@ public class Event implements Comparable<Event> {
      *         digits, space, dash, and underscore. True otherwise
      */
     private boolean ValidateName(String name) {
-        if (name == null || name.isEmpty()) return false;
-        if (name.trim().isEmpty()) return false;
+        if (name == null) return false;
 
-        char[] cName = name.toCharArray();
-        for (char c : cName) {
-            if (!Character.isLetterOrDigit(c) && c != ' ' && c != '-' && c != '_')
-                return false;
-        }
-
-        return true;
+        String trimmed = name.trim();
+        return !trimmed.isEmpty();
     }
 
     /**
