@@ -32,9 +32,9 @@ public class AdminMenuFragment extends Fragment {
         Button profilesBtn = view.findViewById(R.id.button_profiles);
 
         // Default view: load Events panel
-        loadInnerFragment(new AdminFragment());
+        loadInnerFragment(new EventsAdminFragment());
 
-        eventsBtn.setOnClickListener(v -> loadInnerFragment(new AdminFragment()));
+        eventsBtn.setOnClickListener(v -> loadInnerFragment(new EventsAdminFragment()));
         profilesBtn.setOnClickListener(v -> loadInnerFragment(new ProfileAdminFragment()));
     }
 

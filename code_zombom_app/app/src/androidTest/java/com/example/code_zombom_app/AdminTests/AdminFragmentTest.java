@@ -10,7 +10,8 @@ import androidx.fragment.app.testing.FragmentScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.example.code_zombom_app.R;
-import com.example.code_zombom_app.ui.admin.AdminFragment;
+import com.example.code_zombom_app.ui.admin.EventsAdminFragment;
+import com.example.code_zombom_app.ui.admin.EventsAdminFragment;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -56,7 +57,7 @@ public class AdminFragmentTest {
     /**
      * Initializes and configures all mock objects before each test.
      *
-     * <p>This setup ensures that whenever the {@link AdminFragment} requests data from Firestore,
+     * <p>This setup ensures that whenever the {@link EventsAdminFragment} requests data from Firestore,
      * it will receive a predefined mock event (e.g., a "Halloween Party") instead of connecting
      * to the real database.</p>
      */
@@ -109,8 +110,8 @@ public class AdminFragmentTest {
     @Test
     public void testDeleteButtonShowsDialogDirectly() {
         // Launch the AdminFragment inside a test container (isolated from the rest of the app)
-        FragmentScenario<AdminFragment> scenario =
-                FragmentScenario.launchInContainer(AdminFragment.class, new Bundle());
+        FragmentScenario<EventsAdminFragment> scenario =
+                FragmentScenario.launchInContainer(EventsAdminFragment.class, new Bundle());
 
         // Interact with the fragment after it is created
         scenario.onFragment(fragment -> {
