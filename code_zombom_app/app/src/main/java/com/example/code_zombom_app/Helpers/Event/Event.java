@@ -53,16 +53,20 @@ public class Event implements Comparable<Event> {
 
     // Optional additional metadata exposed to entrants
     private String location;
+
+    // Set the maximum number of entrants that can join the waiting list
     private int capacity;
     private String eventDateText;
     private String registrationClosesAtText;
 
+    /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
 
     // An unique identifier of each event
     private final String eventId;
+
     // Firestore document id to allow round-tripping between UI models and the backend
     private String firestoreDocumentId;
 
