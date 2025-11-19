@@ -7,7 +7,7 @@
     <string name="enter_email">Enter email</string>
     <string name="sign_up">Sign Up</string>
     <string name="log_in_with_device">"<u>Log in with device</u>"</string>
-    <string name="entrant_event_catalog_title">Browse Events</string>
+    <string name="entrant_event_catalog_title">Events</string>
     <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
     <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
     <string name="entrant_event_join_button">Join Waiting List</string>
@@ -47,10 +47,19 @@
     <string name="scan_qr_code">Scan QR Code</string>
     <string name="edit_name">Edit Name</string>
     <string name="log_out">Log out</string>
+    <string name="leave">Leave</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
         <item>Organizer</item>
         <item>Admin</item>
     </string-array>
+
+    <string name="detail_waiting_format">%1$d people currently waiting</string>
+    <string name="detail_capacity_format">Capacity: %1$d</string>
+    <string name="detail_date_format">Event Date: %1$s</string>
+    <string name="detail_deadline_format">Registration Deadline: %1$s</string>
+    <string name="detail_description_placeholder">No additional information provided.</string>
+    <string name="detail_location_format">Location: %1$s</string>
+    <string name="error_loading_event">Unable to load this event right now.</string>
 </resources>

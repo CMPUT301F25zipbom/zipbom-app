@@ -13,6 +13,9 @@
         <action
             android:id="@+id/action_home_to_events_graph"
             app:destination="@id/org_graph" />
+        <action
+            android:id="@+id/action_navigation_home_to_entrant_graph"
+            app:destination="@id/entrant_graph" />
     </fragment>
 
     <fragment
@@ -35,4 +38,5 @@
 
     <!-- Nest Nav_graph into mobile_navigation -->
     <include app:graph="@navigation/organizer_graph" />
+    <include app:graph="@navigation/entrant_graph" />
 </navigation>

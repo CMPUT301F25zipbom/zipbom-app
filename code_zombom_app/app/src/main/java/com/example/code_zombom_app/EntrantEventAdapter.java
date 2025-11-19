@@ -29,6 +29,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
     public interface OnEventActionListener {
         void onEventSelected(@NonNull Event event);
         void onJoinWaitingList(@NonNull Event event);
+        void onLeaveWaitingList(@NonNull Event event);
     }
 
     private final OnEventActionListener actionListener;
@@ -61,6 +62,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
         private final TextView categoriesTextView;
         private final TextView detailsTextView;
         private final Button joinButton;
+        private final Button leaveButton;
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -68,6 +70,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             categoriesTextView = itemView.findViewById(R.id.item_event_category);
             detailsTextView = itemView.findViewById(R.id.item_event_details);
             joinButton = itemView.findViewById(R.id.item_event_join_button);
+            leaveButton = itemView.findViewById(R.id.btn_leave);
         }
 
         /**
@@ -79,13 +82,14 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
             String details = String.format(
                     Locale.getDefault(),
-                    "%d waiting • %d restrictions",
+                    "%d waiting • Max %d",
                     event.getNumberOfWaiting(),
-                    event.getRestrictions().size());
+                    event.getCapacity());
             detailsTextView.setText(details);
 
             itemView.setOnClickListener(v -> actionListener.onEventSelected(event));
             joinButton.setOnClickListener(v -> actionListener.onJoinWaitingList(event));
+            leaveButton.setOnClickListener(v -> actionListener.onLeaveWaitingList(event));
         }
 
         /**

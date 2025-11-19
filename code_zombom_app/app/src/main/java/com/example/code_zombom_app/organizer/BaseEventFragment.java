@@ -25,10 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * An abstract base class for fragments that add or edit events.
  * It handles all shared UI components, input validation, and image handling logic.
@@ -49,12 +45,9 @@ public abstract class BaseEventFragment extends Fragment {
 
     /**
      * Abstract method that subclasses must implement to define what happens when the "Save" or "Update" button is clicked.
-     * @param eventId The ID of the event (can be new or existing).
-     * @param eventData A map containing all the data from the UI fields.
-     * @param posterUrl The URL of the uploaded poster, or null if no new poster was uploaded.
+     * @param event The ID of the event (can be new or existing).
      */
-    protected abstract void processEvent(String eventId, Map<String, Object> eventData, @Nullable String posterUrl);
-
+    protected abstract void processEvent(com.example.code_zombom_app.organizer.Event event);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -121,50 +114,61 @@ public abstract class BaseEventFragment extends Fragment {
      * Main action method triggered by the primary button (Save/Update).
      * It validates input, gathers data, and starts the image upload process if needed.
      */
+    /**
+     * Main action method. It now creates an Event object instead of a Map.
+     */
     protected void onSaveOrUpdateButtonClicked(String eventId) {
         if (!validateAllInput()) {
             return; // Validation methods show Toasts.
         }
 
-        Map<String, Object> eventData = gatherEventData();
+        // --- REFACTORED: Create an Event object instead of a Map ---
+        com.example.code_zombom_app.organizer.Event event = gatherEventData();
+        event.setEventId(eventId); // Set the ID for the new or existing event
 
         if (imageUri != null) {
-            uploadImageAndProcessEvent(eventId, eventData);
+            uploadImageAndProcessEvent(event);
         } else {
-            // No new image, just process the text data.
-            processEvent(eventId, eventData, null);
+            // No new image, just process the event object.
+            processEvent(event);
         }
     }
 
-    private void uploadImageAndProcessEvent(String eventId, Map<String, Object> eventData) {
-        StorageReference storageRef = storage.getReference().child("posters/" + eventId + ".jpg");
+    private void uploadImageAndProcessEvent(com.example.code_zombom_app.organizer.Event event) {
+        StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
-                        .addOnSuccessListener(uri -> processEvent(eventId, eventData, uri.toString()))
+                        .addOnSuccessListener(uri -> {
+                            // --- REFACTORED: Set the poster URL on the event object ---
+                            event.setPosterUrl(uri.toString());
+                            processEvent(event); // Process the fully updated event
+                        })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(getContext(), "Failed to get poster URL. Saving without poster.", Toast.LENGTH_SHORT).show();
-                            processEvent(eventId, eventData, null);
+                            Toast.makeText(getContext(), "Failed to get poster URL.", Toast.LENGTH_SHORT).show();
+                            processEvent(event); // Process without the poster URL
                         }))
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Poster upload failed. Saving other changes.", Toast.LENGTH_SHORT).show();
-                    processEvent(eventId, eventData, null);
+                    Toast.makeText(getContext(), "Poster upload failed.", Toast.LENGTH_SHORT).show();
+                    processEvent(event); // Process without the poster URL
                 });
     }
 
+
     /**
-     * Gathers all data from the EditText fields into a Map.
+     * REFACTORED: Gathers all data from the EditText fields into an Event object.
+     * @return A new Event object populated with UI data.
      */
-    private Map<String, Object> gatherEventData() {
-        Map<String, Object> data = new HashMap<>();
-        data.put("Name", eventNameEditText.getText().toString());
-        data.put("Max People", maxPeopleEditText.getText().toString());
-        data.put("Date", dateEditText.getText().toString());
-        data.put("Deadline", deadlineEditText.getText().toString());
-        data.put("Genre", genreEditText.getText().toString());
-        data.put("Location", locationEditText.getText().toString());
-        data.put("Wait List Maximum", maxentrantEditText.getText().toString());
-        data.put("Description", descriptionEditText.getText().toString());
-        return data;
+    private com.example.code_zombom_app.organizer.Event gatherEventData() {
+        com.example.code_zombom_app.organizer.Event event = new Event();
+        event.setName(eventNameEditText.getText().toString());
+        event.setMax_People(maxPeopleEditText.getText().toString()); // Use the new field name
+        event.setDate(dateEditText.getText().toString());
+        event.setDeadline(deadlineEditText.getText().toString());
+        event.setGenre(genreEditText.getText().toString());
+        event.setLocation(locationEditText.getText().toString());
+        event.setWait_List_Maximum(maxentrantEditText.getText().toString()); // Use the new field name
+        event.setDescription(descriptionEditText.getText().toString());
+        return event;
     }
 
     protected void navigateBack() {
