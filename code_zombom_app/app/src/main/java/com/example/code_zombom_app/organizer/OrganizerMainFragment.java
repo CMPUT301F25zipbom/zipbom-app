@@ -125,7 +125,12 @@ public class OrganizerMainFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
                         // --- NEW: Automatically convert the document to an Event object ---
-                        com.example.code_zombom_app.organizer.Event event = snapshot.toObject(Event.class);
+                        com.example.code_zombom_app.organizer.Event event = snapshot.toObject(com.example.code_zombom_app.organizer.Event.class);
+                        // If toObject returns null, something is wrong with the data mapping (e.g., field name mismatch)
+                        if (event == null) {
+                            Log.e("DATA_MAPPING_ERROR", "Event object is null for document: " + snapshot.getId() + ". Check Firestore fields against the organizer.Event class.");
+                            continue; // Skip this document and move to the next
+                        }
                         event.setEventId(snapshot.getId()); // Manually set the document ID
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
