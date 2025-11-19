@@ -12,7 +12,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import java.util.HashMap;
 import java.util.Map;
-import android.graphics.drawable.BitmapDrawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -22,7 +21,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.code_zombom_app.organizer.Event; // <<< IMPORT THE NEW EVENT CLASS
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -127,7 +125,12 @@ public class OrganizerMainFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
                         // --- NEW: Automatically convert the document to an Event object ---
-                        Event event = snapshot.toObject(Event.class);
+                        com.example.code_zombom_app.organizer.Event event = snapshot.toObject(com.example.code_zombom_app.organizer.Event.class);
+                        // If toObject returns null, something is wrong with the data mapping (e.g., field name mismatch)
+                        if (event == null) {
+                            Log.e("DATA_MAPPING_ERROR", "Event object is null for document: " + snapshot.getId() + ". Check Firestore fields against the organizer.Event class.");
+                            continue; // Skip this document and move to the next
+                        }
                         event.setEventId(snapshot.getId()); // Manually set the document ID
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
@@ -192,7 +195,7 @@ public class OrganizerMainFragment extends Fragment {
      * Makes the Organizer Dialog pop-up.
      * @param event The event that the user clicked on
      */
-    private void showEventOptionsDialog(Event event) {
+    private void showEventOptionsDialog(com.example.code_zombom_app.organizer.Event event) {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 

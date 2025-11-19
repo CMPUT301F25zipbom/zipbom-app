@@ -11,13 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.code_zombom_app.organizer.Event; // Import Event class
 import java.util.ArrayList;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.DocumentReference;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -53,7 +49,7 @@ public class AddEventFragment extends BaseEventFragment {
      * @param event The complete Event object to be saved.
      */
     @Override
-    protected void processEvent(Event event) {
+    protected void processEvent(com.example.code_zombom_app.organizer.Event event) {
         // Add fields that are specific to a new event
         event.setEntrants(new ArrayList<>());
         event.setCancelled_Entrants(new ArrayList<>());
