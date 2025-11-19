@@ -384,6 +384,10 @@ public class EntrantEventListViewModel extends ViewModel {
         // Keep track of the originating Firestore key so we can write back when joining
         event.setFirestoreDocumentId(snapshot.getId());
 
+        // Keep the waiting count in sync with whatever Entrants array Firestore stores.
+        List<String> entrantsFromSnapshot = extractEntrantEmails(getField(snapshot, "Entrants"));
+        event.setWaitingEntrantCount(entrantsFromSnapshot.size());
+
         // Genre/category field may be authored as either "Genre" or "Categories".
         Object rawGenre = getField(snapshot, "Genre", "Categories");
         List<String> categories = extractCategories(rawGenre);
@@ -431,6 +435,11 @@ public class EntrantEventListViewModel extends ViewModel {
         String deadline = getStringField(snapshot, "Deadline", "Registration Deadline");
         if (deadline != null) {
             event.setRegistrationClosesAt(deadline);
+        }
+
+        String description = getStringField(snapshot, "Description", "Event Description");
+        if (description != null) {
+            event.setDescription(description);
         }
 
         // Start/end timestamps also come in a variety of keys, so normalise them to a single value.
