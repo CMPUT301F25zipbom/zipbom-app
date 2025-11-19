@@ -82,9 +82,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
             String details = String.format(
                     Locale.getDefault(),
-                    "%d waiting • %d restrictions",
+                    "%d waiting • Max %d",
                     event.getNumberOfWaiting(),
-                    event.getRestrictions().size());
+                    event.getCapacity());
             detailsTextView.setText(details);
 
             itemView.setOnClickListener(v -> actionListener.onEventSelected(event));

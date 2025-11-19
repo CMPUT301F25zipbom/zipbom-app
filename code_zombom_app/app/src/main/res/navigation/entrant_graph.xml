@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/entrant_graph"
+    app:startDestination="@id/entrantEventListFragment">
+
+    <fragment
+        android:id="@+id/entrantEventListFragment"
+        android:name="com.example.code_zombom_app.EntrantEventListFragment"
+        android:label="fragment_entrant_event_list"
+        tools:layout="@layout/fragment_entrant_event_list" >
+        <action
+            android:id="@+id/action_entrantEventListFragment_to_entrantEventDetailsFragment"
+            app:destination="@id/entrantEventDetailsFragment" />
+    </fragment>
+    <activity
+        android:id="@+id/loginActivity"
+        android:name="com.example.code_zombom_app.Login.LoginActivity"
+        android:label="LoginActivity" />
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.code_zombom_app.ui.home.HomeFragment"
+        android:label="fragment_home"
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_homeFragment_to_loginActivity"
+            app:destination="@id/loginActivity" />
+    </fragment>
+    <activity
+        android:id="@+id/entrantMainActivity"
+        android:name="com.example.code_zombom_app.Entrant.EntrantMainActivity"
+        android:label="EntrantMainActivity" />
+    <action
+        android:id="@+id/action_global_entrantMainActivity"
+        app:destination="@id/entrantMainActivity" />
+    <activity
+        android:id="@+id/editProfileActivity"
+        android:name="com.example.code_zombom_app.Entrant.EditProfile.EditProfileActivity"
+        android:label="EditProfileActivity" />
+    <action
+        android:id="@+id/action_global_editProfileActivity"
+        app:destination="@id/editProfileActivity" />
+    <activity
+        android:id="@+id/filterSortActivity"
+        android:name="com.example.code_zombom_app.FilterSortActivity"
+        android:label="FilterSortActivity" />
+    <action
+        android:id="@+id/action_global_filterSortActivity"
+        app:destination="@id/filterSortActivity" />
+    <fragment
+        android:id="@+id/entrantEventDetailsFragment"
+        android:name="com.example.code_zombom_app.EntrantEventDetailsFragment"
+        android:label="Entrant Event Details"
+        tools:layout="@layout/fragment_entrant_event_details" />
+
+</navigation>

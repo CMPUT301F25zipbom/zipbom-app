@@ -54,4 +54,12 @@
         <item>Organizer</item>
         <item>Admin</item>
     </string-array>
+
+    <string name="detail_waiting_format">%1$d people currently waiting</string>
+    <string name="detail_capacity_format">Capacity: %1$d</string>
+    <string name="detail_date_format">Event Date: %1$s</string>
+    <string name="detail_deadline_format">Registration Deadline: %1$s</string>
+    <string name="detail_description_placeholder">No additional information provided.</string>
+    <string name="detail_location_format">Location: %1$s</string>
+    <string name="error_loading_event">Unable to load this event right now.</string>
 </resources>

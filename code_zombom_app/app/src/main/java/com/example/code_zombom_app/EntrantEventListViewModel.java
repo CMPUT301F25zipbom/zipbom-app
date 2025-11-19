@@ -24,8 +24,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -365,7 +368,8 @@ public class EntrantEventListViewModel extends ViewModel {
      * Converts a Firestore document to the domain {@link Event} instance.
      */
     private Event mapDocumentToEvent(DocumentSnapshot snapshot) {
-        String name = snapshot.getString("Name");
+        // Accept organiser documents that use lowercase or underscored field names for "name".
+        String name = getStringField(snapshot, "Name", "Event Name");
         if (name == null || name.trim().isEmpty()) {
             return null;
         }
@@ -380,7 +384,12 @@ public class EntrantEventListViewModel extends ViewModel {
         // Keep track of the originating Firestore key so we can write back when joining
         event.setFirestoreDocumentId(snapshot.getId());
 
-        Object rawGenre = snapshot.get("Genre");
+        // Keep the waiting count in sync with whatever Entrants array Firestore stores.
+        List<String> entrantsFromSnapshot = extractEntrantEmails(getField(snapshot, "Entrants"));
+        event.setWaitingEntrantCount(entrantsFromSnapshot.size());
+
+        // Genre/category field may be authored as either "Genre" or "Categories".
+        Object rawGenre = getField(snapshot, "Genre", "Categories");
         List<String> categories = extractCategories(rawGenre);
         if (!categories.isEmpty()) {
             for (String category : categories) {
@@ -395,7 +404,8 @@ public class EntrantEventListViewModel extends ViewModel {
             Log.w(TAG, "No recognized categories parsed from '" + rawGenre + "' for event " + name);
         }
 
-        String location = snapshot.getString("Location");
+        // Location may be called "Location" or "Event Location" depending on the screen.
+        String location = getStringField(snapshot, "Location", "Event Location");
         if (location != null && !location.trim().isEmpty()) {
             try {
                 event.setLocation(location);
@@ -404,7 +414,8 @@ public class EntrantEventListViewModel extends ViewModel {
             }
         }
 
-        String maxPeople = snapshot.getString("Max People");
+        // Various organiser screens use different casing for the capacity field.
+        String maxPeople = getStringField(snapshot, "Max People", "MaxPeople", "max_people", "Capacity");
         if (maxPeople != null) {
             try {
                 int capacity = Integer.parseInt(maxPeople);
@@ -414,26 +425,26 @@ public class EntrantEventListViewModel extends ViewModel {
             }
         }
 
-        String eventDate = snapshot.getString("Date");
+        // Some organiser builds store the event date under "Date" while others use "Event Date".
+        String eventDate = getStringField(snapshot, "Date", "Event Date");
         if (eventDate != null) {
             event.setEventDate(eventDate);
         }
 
-        String deadline = snapshot.getString("Deadline");
+        // Same tolerance for the registration deadline label.
+        String deadline = getStringField(snapshot, "Deadline", "Registration Deadline");
         if (deadline != null) {
             event.setRegistrationClosesAt(deadline);
         }
 
-        Date startDate = extractDate(snapshot.get("StartDate"));
-        if (startDate == null) {
-            startDate = extractDate(snapshot.get("Start"));
+        String description = getStringField(snapshot, "Description", "Event Description");
+        if (description != null) {
+            event.setDescription(description);
         }
-        if (startDate == null) {
-            startDate = extractDate(snapshot.get("startDate"));
-        }
-        if (startDate == null) {
-            startDate = extractDate(snapshot.get("Start_Time"));
-        }
+
+        // Start/end timestamps also come in a variety of keys, so normalise them to a single value.
+        Date startDate = extractDate(getField(snapshot,
+                "StartDate", "Start", "startDate", "Start_Time", "EventStart"));
         if (startDate == null) {
             startDate = extractDate(eventDate);
         }
@@ -441,16 +452,8 @@ public class EntrantEventListViewModel extends ViewModel {
             event.setEventStartDate(startDate);
         }
 
-        Date endDate = extractDate(snapshot.get("EndDate"));
-        if (endDate == null) {
-            endDate = extractDate(snapshot.get("End"));
-        }
-        if (endDate == null) {
-            endDate = extractDate(snapshot.get("endDate"));
-        }
-        if (endDate == null) {
-            endDate = extractDate(snapshot.get("End_Time"));
-        }
+        Date endDate = extractDate(getField(snapshot,
+                "EndDate", "End", "endDate", "End_Time", "EventEnd"));
         if (endDate == null) {
             endDate = extractDate(deadline);
         }
@@ -463,6 +466,82 @@ public class EntrantEventListViewModel extends ViewModel {
         }
 
         return event;
+    }
+
+    /**
+     * Fetches the value of the first matching field regardless of casing/spacing differences.
+     *
+     * @param snapshot Firestore document to inspect
+     * @param candidateKeys list of possible field labels (case insensitive)
+     * @return the stored value, or null when not present
+     */
+    @Nullable
+    private Object getField(@NonNull DocumentSnapshot snapshot, String... candidateKeys) {
+        Map<String, Object> data = snapshot.getData();
+        if (data == null || data.isEmpty()) {
+            return null;
+        }
+
+        Set<String> normalizedKeys = normalizeCandidateKeys(candidateKeys);
+        if (normalizedKeys.isEmpty()) {
+            return null;
+        }
+
+        for (Map.Entry<String, Object> entry : data.entrySet()) {
+            if (normalizedKeys.contains(normalizeKey(entry.getKey()))) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Convenience wrapper around {@link #getField(DocumentSnapshot, String...)} that ensures
+     * the value is returned as a string.
+     *
+     * @param snapshot document being mapped into an Event
+     * @param candidateKeys acceptable key spellings for the target property
+     * @return string content when present, otherwise {@code null}
+     */
+    @Nullable
+    private String getStringField(@NonNull DocumentSnapshot snapshot, String... candidateKeys) {
+        Object value = getField(snapshot, candidateKeys);
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof String) {
+            return (String) value;
+        }
+        return String.valueOf(value);
+    }
+
+    /**
+     * Normalises the list of candidate keys into the canonical format used for lookups.
+     */
+    private Set<String> normalizeCandidateKeys(String... candidateKeys) {
+        Set<String> normalized = new HashSet<>();
+        if (candidateKeys == null) {
+            return normalized;
+        }
+        for (String key : candidateKeys) {
+            String normalizedKey = normalizeKey(key);
+            if (!normalizedKey.isEmpty()) {
+                normalized.add(normalizedKey);
+            }
+        }
+        return normalized;
+    }
+
+    /**
+     * Converts a raw Firestore field name into its canonical comparison form
+     * (lowercase alphanumeric, no whitespace/punctuation).
+     */
+    private String normalizeKey(@Nullable String rawKey) {
+        if (rawKey == null) {
+            return "";
+        }
+        return rawKey.toLowerCase(Locale.getDefault())
+                .replaceAll("[^a-z0-9]", "");
     }
 
     private List<String> extractCategories(@Nullable Object rawGenre) {

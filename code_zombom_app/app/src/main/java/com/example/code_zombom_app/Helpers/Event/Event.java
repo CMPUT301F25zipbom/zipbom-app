@@ -18,6 +18,7 @@ import java.util.UUID;
 public class Event implements Comparable<Event> {
     // List of Entrants that joined the waiting list
     private final ArrayList<Entrant> waitingList;
+    private int waitingEntrantCount = -1;
 
     // List of selected Entrants from the waiting list after the lottery process
     private  final ArrayList<Entrant> chosenList;
@@ -56,6 +57,7 @@ public class Event implements Comparable<Event> {
     private int capacity;
     private String eventDateText;
     private String registrationClosesAtText;
+    private String description;
 
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
@@ -89,6 +91,7 @@ public class Event implements Comparable<Event> {
         capacity = 0;
         eventDateText = "";
         registrationClosesAtText = "";
+        description = "";
     }
 
     /**
@@ -114,16 +117,10 @@ public class Event implements Comparable<Event> {
      *         digits, space, dash, and underscore. True otherwise
      */
     private boolean ValidateName(String name) {
-        if (name == null || name.isEmpty()) return false;
-        if (name.trim().isEmpty()) return false;
+        if (name == null) return false;
 
-        char[] cName = name.toCharArray();
-        for (char c : cName) {
-            if (!Character.isLetterOrDigit(c) && c != ' ' && c != '-' && c != '_')
-                return false;
-        }
-
-        return true;
+        String trimmed = name.trim();
+        return !trimmed.isEmpty();
     }
 
     /**
@@ -145,7 +142,19 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public int getNumberOfWaiting() {
+        if (waitingEntrantCount >= 0) {
+            return waitingEntrantCount;
+        }
         return this.waitingList.size();
+    }
+
+    /**
+     * Allows Firestore mapping code to set the waitlist size even when only email addresses are known.
+     *
+     * @param count number of entrants currently waiting
+     */
+    public void setWaitingEntrantCount(int count) {
+        waitingEntrantCount = Math.max(0, count);
     }
 
     /**
@@ -157,6 +166,7 @@ public class Event implements Comparable<Event> {
      */
     public void joinWaitingList(Entrant entrant) {
         this.waitingList.add(entrant);
+        waitingEntrantCount = -1;
     }
 
     /**
@@ -169,6 +179,7 @@ public class Event implements Comparable<Event> {
      */
     public void leaveWaitingList(Entrant entrant) {
         this.waitingList.remove(entrant);
+        waitingEntrantCount = -1;
     }
 
     /**
@@ -612,6 +623,24 @@ public class Event implements Comparable<Event> {
      */
     public String getRegistrationClosesAtText() {
         return registrationClosesAtText;
+    }
+
+    /**
+     * Stores the organiser-authored description text.
+     */
+    public void setDescription(String description) {
+        if (description == null) {
+            this.description = "";
+        } else {
+            this.description = description.trim();
+        }
+    }
+
+    /**
+     * @return organiser-authored description text (may be empty)
+     */
+    public String getDescription() {
+        return description;
     }
 
     /**
