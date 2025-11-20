@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
                 findViewById(R.id.buttonLogIn),
                 findViewById(R.id.buttonSignUp),
                 findViewById(R.id.buttonSignInWithDevice));
+        controller.bindView();
 
         model.addView(this);
     }
@@ -65,6 +66,9 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
         else if (model.getState() == GModel.State.OPEN) {
             Intent signUp = new Intent(this, SignUpActivity.class);
             startActivity(signUp);
+        }
+        else if (model.getState() == GModel.State.REQUEST_LOGIN_WITH_DEVICE_ID) {
+            model.loadProfileWithDeviceId(this);
         }
     }
 }

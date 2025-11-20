@@ -76,6 +76,14 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Listen for transient success/error states emitted after join attempts
+        viewModel.getJoinStatusMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                viewModel.clearJoinStatusMessage();
+            }
+        });
     }
 
     /**
@@ -99,13 +107,39 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
 
     @Override
     public void onEventSelected(@NonNull Event event) {
-        Toast.makeText(requireContext(), event.getName(), Toast.LENGTH_SHORT).show();
+        showEventDetails(event);
     }
 
     @Override
     public void onJoinWaitingList(@NonNull Event event) {
-        Toast.makeText(requireContext(),
-                getString(R.string.join_waiting_list_placeholder, event.getName()),
-                Toast.LENGTH_SHORT).show();
+        viewModel.joinEvent(event);
+    }
+
+    @Override
+    public void onLeaveWaitingList(@NonNull Event event) {
+        viewModel.leaveEvent(event);
+    }
+
+    /**
+     * Replaces the list fragment with the event details fragment using the activity container.
+     */
+    private void showEventDetails(@NonNull Event event) {
+        if (event.getFirestoreDocumentId() == null) {
+            Toast.makeText(requireContext(), R.string.error_loading_event, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Bundle args = new Bundle();
+        args.putString("eventId", event.getFirestoreDocumentId());
+
+        EntrantEventDetailsFragment fragment = new EntrantEventDetailsFragment();
+        fragment.setArguments(args);
+
+        requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.entrant_event_list_container, fragment)
+                .addToBackStack(null)
+                .commit();
     }
 }

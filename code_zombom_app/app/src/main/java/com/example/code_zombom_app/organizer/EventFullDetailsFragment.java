@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,16 +17,19 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 import com.bumptech.glide.Glide;
 
+/**
+ * @author Tejwinder Johal
+ * @version 1.0
+ * This Class is used to display the full details of an event.
+ */
 public class EventFullDetailsFragment extends Fragment {
 
-    private static final String TAG = "EventFullDetails";
     private String eventId;
     private ImageView posterImageView;
 
@@ -35,44 +39,75 @@ public class EventFullDetailsFragment extends Fragment {
             acceptedEntrantsValue, cancelledEntrantsValue, descriptionValue;
 
     private FirebaseFirestore db;
+    private Button returnButton;
 
+    /**
+     * This sets up the eventViewModel, database and catches the arguments.
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         // Get the eventId passed from the previous fragment
         if (getArguments() != null) {
-            this.eventId = getArguments().getString("eventId");
+            eventId = getArguments().getString("eventId");
         }
     }
 
+    /**
+     * Inflates the layout.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return
+     */
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_full_event_details, container, false);
     }
 
+    /**
+     * This function sets the buttons and textviews to variables.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Initialize all TextViews
+        // Initialize UI components
         initializeViews(view);
 
+        // Find the back button and set its click listener
         Button returnButton = view.findViewById(R.id.returnButton);
+        returnButton.setOnClickListener(v -> {
+            // Use the NavController to navigate back to the previous screen
+            NavHostFragment.findNavController(EventFullDetailsFragment.this).popBackStack();
+        });
 
-        // Fetch and display the data if eventId is available
-        if (eventId != null && !eventId.isEmpty()) {
+        // Load the event data from Firestore
+        if (eventId != null) {
             loadEventDetails();
         } else {
-            Log.e(TAG, "Event ID is null. Cannot display details.");
-            // Optionally show an error message on screen
+            Log.e("EventFullDetails", "Event ID is null. Cannot load data.");
+            Toast.makeText(getContext(), "Error: Event ID not found.", Toast.LENGTH_SHORT).show();
         }
-        returnButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(EventFullDetailsFragment.this).navigateUp();
-        });
     }
 
+    /**
+     * Initializes the UI elements.
+     * @param view
+     */
     private void initializeViews(View view) {
         nameValue = view.findViewById(R.id.name_value);
         dateValue = view.findViewById(R.id.date_value);
@@ -88,42 +123,60 @@ public class EventFullDetailsFragment extends Fragment {
         descriptionValue = view.findViewById(R.id.description_value);
     }
 
+    /**
+     * Fetches the event details from Firestore and populates the UI.
+     */
     private void loadEventDetails() {
         db.collection("Events").document(eventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        populateUi(documentSnapshot);
+                    if (isAdded() && documentSnapshot.exists()) {
+                        // --- REFACTORED: Convert the document directly to an Event object ---
+                        com.example.code_zombom_app.organizer.Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null) {
+                            populateUi(event);
+                        } else {
+                            Log.e("EventFullDetails", "Failed to map document to Event object.");
+                            Toast.makeText(getContext(), "Error loading event details.", Toast.LENGTH_SHORT).show();
+                        }
                     } else {
-                        Log.w(TAG, "No such document with ID: " + eventId);
+                        Log.e("EventFullDetails", "Document does not exist or fragment not attached.");
+                        Toast.makeText(getContext(), "Event not found.", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> Log.e(TAG, "Error fetching document", e));
+                .addOnFailureListener(e -> {
+                    Log.e("EventFullDetails", "Error fetching event data from Firestore", e);
+                    Toast.makeText(getContext(), "Failed to load event.", Toast.LENGTH_SHORT).show();
+                });
     }
 
-    private void populateUi(DocumentSnapshot doc) {
+    /**
+     * Populates the UI elements with data from the document.
+     * @param event
+     */
+    private void populateUi(com.example.code_zombom_app.organizer.Event event) {
         // Set simple string values
-        nameValue.setText(doc.getString("Name"));
-        dateValue.setText(doc.getString("Date"));
-        deadlineValue.setText(doc.getString("Deadline"));
-        locationValue.setText(doc.getString("Location"));
-        genreValue.setText(doc.getString("Genre"));
-        maxPeopleValue.setText(doc.getString("Max People"));
-        waitlistMaxValue.setText(doc.getString("Wait List Maximum"));
-        descriptionValue.setText(doc.getString("Description"));
+        nameValue.setText(event.getName());
+        dateValue.setText(event.getDate());
+        deadlineValue.setText(event.getDeadline());
+        locationValue.setText(event.getLocation());
+        genreValue.setText(event.getGenre());
+        maxPeopleValue.setText(event.getMax_People());
+        waitlistMaxValue.setText(event.getWait_List_Maximum());
+        descriptionValue.setText(event.getDescription());
 
 
         // Set array values
-        entrantsValue.setText(formatListToString((List<String>) doc.get("Entrants")));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) doc.get("Accepted Entrants")));
-        cancelledEntrantsValue.setText(formatListToString((List<String>) doc.get("Cancelled Entrants")));
+        entrantsValue.setText(formatListToString((List<String>) event.getEntrants()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) event.getAccepted_Entrants()));
+        cancelledEntrantsValue.setText(formatListToString((List<String>) event.getCancelled_Entrants()));
 
-        String posterUrl = doc.getString("posterUrl");
-        if (posterUrl != null && !posterUrl.isEmpty()) {
+        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
             Glide.with(this)
-                    .load(posterUrl)
-//                    .placeholder(R.drawable.your_placeholder) // Optional: show while loading
-//                    .error(R.drawable.your_placeholder)       // Optional: show on error
+                    .load(event.getPosterUrl())
                     .into(posterImageView);
+            posterImageView.setVisibility(View.VISIBLE);
+        } else {
+            posterImageView.setVisibility(View.GONE);
         }
     }
 

@@ -7,8 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * @deprecated Might be changed or deleted later on
  */
 public class EntrantMainModel extends GModel {
-    public EntrantMainModel(FirebaseFirestore db) {
-        super(db);
+    public EntrantMainModel() {
+        super();
     }
 
     public void doSomething() {}

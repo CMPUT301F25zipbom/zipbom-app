@@ -7,7 +7,8 @@
     app:cardBackgroundColor="#1F1F1F"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    app:checkedIconTint="#E91E63">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -19,28 +20,28 @@
             android:id="@+id/item_event_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="Event Name"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:text="Event Name" />
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/item_event_category"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
+            android:text="Categories"
             android:textColor="#A9A9A9"
-            android:textSize="14sp"
-            android:text="Categories" />
+            android:textSize="14sp" />
 
         <TextView
             android:id="@+id/item_event_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:text="Details"
             android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:text="Details" />
+            android:textSize="14sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -51,11 +52,21 @@
 
             <Button
                 android:id="@+id/item_event_join_button"
-                android:layout_width="wrap_content"
+                android:layout_width="178dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#4CAF50"
                 android:text="@string/entrant_event_join_button"
                 android:textAllCaps="false" />
+
+            <Button
+                android:id="@+id/btn_leave"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0"
+                android:backgroundTint="#E91E63"
+                android:text="@string/leave"
+                android:textAllCaps="false"
+                android:textAlignment="center" />
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

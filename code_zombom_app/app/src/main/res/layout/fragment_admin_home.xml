@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#4CAF50"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp">
+
+    <!-- Top menu buttons -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3">
+
+        <Button
+            android:id="@+id/button_home_events"
+            style="@style/AdminTabButton"
+            android:text="Events"/>
+
+        <Button
+            android:id="@+id/button_home_profiles"
+            style="@style/AdminTabButton"
+            android:text="Profiles"/>
+
+        <Button
+            android:id="@+id/button_home_posters"
+            style="@style/AdminTabButton"
+            android:text="Posters"/>
+
+    </LinearLayout>
+
+    <!-- Content area -->
+    <FrameLayout
+        android:id="@+id/admin_panel_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"/>
+
+</LinearLayout>

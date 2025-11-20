@@ -35,7 +35,10 @@ public class LoginController extends GController<LoadUploadProfileModel> {
         buttonLogin = login;
         buttonSignUp = signup;
         buttonSignUpWithDevice = signUpDevice;
+    }
 
+    @Override
+    public void bindView() {
         editTextemail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -61,6 +64,13 @@ public class LoginController extends GController<LoadUploadProfileModel> {
             @Override
             public void onClick(View v) {
                 ((LoadUploadProfileModel) model).open();
+            }
+        });
+
+        buttonSignUpWithDevice.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((LoadUploadProfileModel) model).requestLoginWithDeviceId();
             }
         });
     }
