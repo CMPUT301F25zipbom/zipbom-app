@@ -22,9 +22,7 @@ public class Entrant extends Profile {
     private boolean notificationsEnabled;
     private boolean lastNotificationReceived;
 
-    /* we keep the event's ID instead of the actual
-     * Event object to avoid overhead
-     */
+    /* We keep the event's ID instead of the actual Event object to avoid overhead */
     private ArrayList<String> waitingEvents;
     private ArrayList<String> eventHistory;
 
