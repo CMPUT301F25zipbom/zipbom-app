@@ -47,6 +47,47 @@ public class EditProfileController extends GController<EditProfileModel> {
         this.toggleButtonNotification = notification;
         this.toggleButtonLinkDevice = link;
 
+
+    }
+
+    /**
+     * Set the View values
+     */
+    public void setView() {
+        if (((EditProfileModel) model).getName() != null &&
+                !((EditProfileModel) model).getName().trim().isEmpty()) {
+            textViewName.setText(((EditProfileModel) model).getName());
+        }
+
+        if (((EditProfileModel) model).getEmail() != null &&
+                !((EditProfileModel) model).getEmail().trim().isEmpty()) {
+            textViewEmail.setText(((EditProfileModel) model).getEmail());
+        }
+
+        if (((EditProfileModel) model).getPhone() != null &&
+                !((EditProfileModel) model).getPhone().trim().isEmpty()) {
+            textViewPhone.setText(((EditProfileModel) model).getPhone());
+        }
+
+        if (((EditProfileModel) model).getNotification())
+            toggleButtonNotification.setBackgroundResource(R.drawable.bellon);
+        else
+            toggleButtonNotification.setBackgroundResource(R.drawable.belloff);
+
+        // Temporarily remove listener before changing checked state
+        toggleButtonLinkDevice.setOnCheckedChangeListener(null);
+
+        // Programmatically set the toggle state
+        toggleButtonLinkDevice.setChecked(((EditProfileModel) model).isLinked(deviceId));
+
+        // Reattach the listener
+        toggleButtonLinkDevice.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
+        });
+    }
+
+    @Override
+    public void bindView() {
         this.buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -106,41 +147,5 @@ public class EditProfileController extends GController<EditProfileModel> {
         this.toggleButtonLinkDevice.setOnCheckedChangeListener(((buttonView, isChecked) -> {
             ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
         }));
-    }
-
-    /**
-     * Set the View values
-     */
-    public void setView() {
-        if (((EditProfileModel) model).getName() != null &&
-                !((EditProfileModel) model).getName().trim().isEmpty()) {
-            textViewName.setText(((EditProfileModel) model).getName());
-        }
-
-        if (((EditProfileModel) model).getEmail() != null &&
-                !((EditProfileModel) model).getEmail().trim().isEmpty()) {
-            textViewEmail.setText(((EditProfileModel) model).getEmail());
-        }
-
-        if (((EditProfileModel) model).getPhone() != null &&
-                !((EditProfileModel) model).getPhone().trim().isEmpty()) {
-            textViewPhone.setText(((EditProfileModel) model).getPhone());
-        }
-
-        if (((EditProfileModel) model).getNotification())
-            toggleButtonNotification.setBackgroundResource(R.drawable.bellon);
-        else
-            toggleButtonNotification.setBackgroundResource(R.drawable.belloff);
-
-        // Temporarily remove listener before changing checked state
-        toggleButtonLinkDevice.setOnCheckedChangeListener(null);
-
-        // Programmatically set the toggle state
-        toggleButtonLinkDevice.setChecked(((EditProfileModel) model).isLinked(deviceId));
-
-        // Reattach the listener
-        toggleButtonLinkDevice.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            ((EditProfileModel) model).toggleLinkDeviceId(isChecked);
-        });
     }
 }

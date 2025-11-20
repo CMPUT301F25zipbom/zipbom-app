@@ -29,6 +29,8 @@ public class Location {
     private String postalCode;
     private Coordinate coordinate;
 
+    public static final String GOOGLE_API = "AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs";
+
     /**
      * Constructor:
      *
@@ -82,8 +84,9 @@ public class Location {
     @NonNull
     @Override
     public String toString() {
-        return name + ", " + street + ", " + city + ", " + province + ", " + country +
-                ", " + postalCode + "(" + String.valueOf(coordinate.getLatitude()) + ", " +
+        return ((name != null && !name.trim().isEmpty()) ? (name + ", ") : "") + street + ", " +
+                city + ", " + province + ", " + country +
+                ", " + postalCode + ", (" + String.valueOf(coordinate.getLatitude()) + ", " +
                 String.valueOf(coordinate.getLongitude()) + ")";
     }
 
@@ -144,21 +147,32 @@ public class Location {
     }
 
     /**
-     * Convert a coordinate to a real-life address
+     * Set the name of the location
+     *
+     * @param name The name of the location
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Convert a coordinate to a real-life address.
      *
      * @param coordinate The coordinate to convert to a real-life location
-     * @return A location if success
+     * @return A location if success, null otherwise
      * @throws RuntimeException If the connection to the real-life address services is corrupted
      */
     public static Location fromCoordinates(Coordinate coordinate) {
         try {
-            String urlStr = "https://nominatim.openstreetmap.org/reverse?format=json&lat=" +
-                    coordinate.getLatitude() + "&lon=" + coordinate.getLongitude();
+            String urlStr = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+                    + coordinate.getLatitude() + "," + coordinate.getLongitude()
+                    + "&key=" + GOOGLE_API;
 
             URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
             conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
 
             StringBuilder json = new StringBuilder();
 
@@ -167,94 +181,72 @@ public class Location {
                     json.append(scanner.nextLine());
             }
 
-            JSONObject obj = new JSONObject(json.toString());
-            JSONObject address = obj.getJSONObject("address");
+            JSONObject root = new JSONObject(json.toString());
+            JSONArray results = root.getJSONArray("results");
+            if (results.length() == 0)
+                return null;
 
-            String houseNumber = address.optString("house_number", "");
-            String road = address.optString("road", "");
-            String street = houseNumber.isEmpty() ? road : houseNumber + " " + road;
+            JSONObject first = results.getJSONObject(0);
 
-            String city = address.optString("city", "");
-            if (city.isEmpty()) city = address.optString("town", "");
-            if (city.isEmpty()) city = address.optString("village", "");
+            String street = getComponent(first, "route");
+            String houseNumber = getComponent(first, "street_number");
+            String fullStreet = houseNumber.isEmpty() ? street : houseNumber + " " + street;
+            String city = getComponent(first, "locality");
+            String province = getComponent(first, "administrative_area_level_1");
+            String country = getComponent(first, "country");
+            String postalCode = getComponent(first, "postal_code");
 
-            String province = address.optString("state", "");
-            String country = address.optString("country", "");
-            String postalCode = address.optString("postcode", "");
-
-            return new Location("", street, city, province, country, postalCode, coordinate);
+            return new Location("", fullStreet, city, province, country,
+                    postalCode, coordinate);
         } catch (IOException | JSONException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Find a coordinate based on an address.
+     * Extracts the value of a specific component from a Google Geocoding API
+     * {@code address_components} array.
+     * <p>
+     * The Google Geocoding API returns an array of {@code address_components} for each result,
+     * where each component has a {@code long_name}, {@code short_name}, and a set of {@code types}.
+     * This helper searches through all components and returns the {@code long_name} of the first
+     * component that matches the specified type.
+     * </p>
      *
-     * @param name Name of the address
-     * @param street (house or road number) + street number of the address
-     * @param city City name of the address
-     * @param province Province name of the address
-     * @param country Country name of the address
-     * @param postalCode Postal code of the address
-     * @return A location with coordinate corresponding to the input address if success, null
-     *         otherwise
-     * @throws RuntimeException If the connection with the real-life location service get corrupted
+     * <p>Example types include:</p>
+     * <ul>
+     *     <li>{@code street_number}</li>
+     *     <li>{@code route}</li>
+     *     <li>{@code locality} (city)</li>
+     *     <li>{@code administrative_area_level_1} (state/province)</li>
+     *     <li>{@code country}</li>
+     *     <li>{@code postal_code}</li>
+     * </ul>
+     *
+     * @param result A JSONObject representing a single Google Geocoding API result
+     *               (typically an element from the "results" array).
+     * @param type   The type of address component to extract (e.g., "locality", "country").
+     * @return The {@code long_name} of the first matching component, or an empty string if
+     *         no component of the specified type is found.
+     * @throws RuntimeException If there is nay unexpected errors in querying the JSON file
+     * @see JSONObject
+     * @see JSONArray
      */
-    public static Location fromAddress(String name,
-                                       String street,
-                                       String city,
-                                       String province,
-                                       String country,
-                                       String postalCode) throws IOException {
+    private static String getComponent(JSONObject result, String type) {
         try {
-            String fullAddress = URLEncoder.encode(street + " " + city + " " + province + " " +
-                    country + " " + postalCode, "UTF-8");
-
-            String urlStr = "https://nominatim.openstreetmap.org/search?format=json&q=" +
-                    fullAddress;
-
-            URL url = new URL(urlStr);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            conn.setRequestProperty("User-Agent", "Mozilla/5.0");
-
-            StringBuilder json = new StringBuilder();
-
-            try (Scanner scanner = new Scanner(conn.getInputStream())) {
-                while (scanner.hasNext())
-                    json.append(scanner.nextLine());
+            JSONArray components = result.getJSONArray("address_components");
+            for (int i = 0; i < components.length(); i++) {
+                JSONObject comp = components.getJSONObject(i);
+                JSONArray types = comp.getJSONArray("types");
+                for (int j = 0; j < types.length(); j++) {
+                    if (types.getString(j).equals(type)) {
+                        return comp.getString("long_name");
+                    }
+                }
             }
-
-            JSONArray results = new JSONArray(json.toString());
-
-            if (results.length() == 0)
-                return null;
-
-            JSONObject first = results.getJSONObject(0);
-            double lat = first.getDouble("lat");
-            double lon = first.getDouble("lon");
-
-            Coordinate coord = new Coordinate(lat, lon);
-
-            JSONObject address = first.optJSONObject("address");
-            if (address != null) {
-                String returnedStreet = address.optString("road", street);
-                String returnedCity = address.optString("city", city);
-                if (returnedCity.isEmpty()) returnedCity = address.optString("town", city);
-                if (returnedCity.isEmpty()) returnedCity = address.optString("village", city);
-                String returnedProvince = address.optString("state", province);
-                String returnedCountry = address.optString("country", country);
-                String returnedPostal = address.optString("postcode", postalCode);
-
-                return new Location(name, returnedStreet, returnedCity, returnedProvince,
-                        returnedCountry, returnedPostal, coord);
-            }
-            else
-                return null;
-        } catch (IOException | JSONException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return "";
     }
-
 }

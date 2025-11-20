@@ -12,18 +12,22 @@ import java.util.HashMap;
  * @see TModel
  */
 public abstract class GModel extends TModel<TView> {
-    protected FirebaseFirestore db;
     protected String errorMsg; // Used to display the error message
     private final HashMap<String, Object> interMsg; // Used to store the intermediate message (information)
     private final String[] allowedKeys = {
             "Profile", "Request", "Message", "Extra"
     };
+
+    private static GModel currentModel; // The model to pass around
+
     public enum State {
         LOGIN_SUCCESS,
         LOGIN_FAILURE,
         LOG_OUT,
         SIGNUP_SUCCESS,
         SIGNUP_FAILURE,
+        SIGNUP_ADDRESS_SUCCESS,
+        SIGNUP_ADDRESS_FAILURE,
         OPEN, // Use this state when you want to open an activity
         CLOSE, // Use this state when you want to go back from an activity
         REQUEST,
@@ -42,16 +46,46 @@ public abstract class GModel extends TModel<TView> {
 
         INTERNAL_ERROR,
         NEUTRAL
-        /* More to be implemented later */
+        /* More to be implemented later when needed */
     }
     protected State state;
 
-    public GModel(FirebaseFirestore db) {
+    public GModel() {
         resetState();
-        this.db = db; // Force the database to be initialized within a context
         interMsg = new HashMap<>();
         for (String key : allowedKeys)
             interMsg.put(key, null);
+    }
+
+    /**
+     * Set the current using model.
+     *
+     * @param model The current model in used
+     * @throws IllegalArgumentException If the {@code model} is null
+     * @throws RuntimeException If there is already another model in use
+     */
+    public static void setCurrentModel(GModel model) {
+        if (model == null)
+            throw new RuntimeException("Current Model in used cannot be null!");
+
+        if (currentModel == null)
+            currentModel = model;
+        else
+            throw new RuntimeException("Another model is already in used!");
+    }
+
+    /**
+     * @return The current model in used, null if there is no model currently in use
+     */
+    public static GModel getCurrentModel() {
+        return currentModel;
+    }
+
+    /**
+     * Manually reset the current model
+     */
+    public static void resetCurrentModel() {
+        currentModel = null;
     }
 
     /**
@@ -113,6 +147,16 @@ public abstract class GModel extends TModel<TView> {
         errorMsg = null;
         if (interMsg != null)
             interMsg.replaceAll((k, v) -> null);
+    }
+
+    /**
+     * Set the state to a new state
+     *
+     * @param state The state to set
+     */
+    protected void setState(State state) {
+        resetState();
+        this.state = state;
     }
 
     /**

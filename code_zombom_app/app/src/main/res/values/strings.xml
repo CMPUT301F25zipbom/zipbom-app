@@ -62,4 +62,8 @@
     <string name="detail_description_placeholder">No additional information provided.</string>
     <string name="detail_location_format">Location: %1$s</string>
     <string name="error_loading_event">Unable to load this event right now.</string>
+    <string name="address">Address</string>
+    <string name="sign_up_address">Sign up address</string>
+    <string name="enter_your_address">Enter your address</string>
+    <string name="enter_address">Enter address</string>
 </resources>

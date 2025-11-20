@@ -35,7 +35,10 @@ public class LoginController extends GController<LoadUploadProfileModel> {
         buttonLogin = login;
         buttonSignUp = signup;
         buttonSignUpWithDevice = signUpDevice;
+    }
 
+    @Override
+    public void bindView() {
         editTextemail.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {

@@ -7,7 +7,7 @@ import com.example.code_zombom_app.Helpers.MVC.GController;
 
 public class EntrantMainController extends GController<EntrantMainModel> {
     private ImageButton imageButtonFilter;
-    private ImageButton imageButtonProfile;
+    private final ImageButton imageButtonProfile;
     private ImageButton imageButtonCamera;
 
     public EntrantMainController(EntrantMainModel M,
@@ -16,7 +16,10 @@ public class EntrantMainController extends GController<EntrantMainModel> {
         imageButtonFilter = filter;
         imageButtonProfile = profile;
         imageButtonCamera = camera;
+    }
 
+    @Override
+    public void bindView() {
         imageButtonProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -94,6 +94,7 @@ dependencies {
         // Optional: Firebase test helpers
         testImplementation("com.google.firebase:firebase-firestore:24.7.1")
 
-
+        // Autofill address
+        implementation("com.google.android.libraries.places:places:3.4.0")
 
 }

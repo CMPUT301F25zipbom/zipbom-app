@@ -9,7 +9,7 @@ import android.widget.EditText;
  * @author Dang Nguyen
  * @version 1.0.0, 11/5/2025
  */
-public abstract class GController<M extends TModel> extends TController {
+public abstract class GController<M extends TModel> extends TController<M> {
     public GController(M model) {
         super(model);
     }
@@ -24,4 +24,9 @@ public abstract class GController<M extends TModel> extends TController {
     protected String getInput(EditText editText) {
         return editText.getText().toString().trim();
     }
+
+    /**
+     * Bind the views to the controller. <b>MUST IMPLEMENT</b>
+     */
+    public abstract void bindView();
 }

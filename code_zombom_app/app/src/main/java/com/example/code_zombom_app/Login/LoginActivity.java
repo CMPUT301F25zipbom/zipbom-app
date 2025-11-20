@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
                 findViewById(R.id.buttonLogIn),
                 findViewById(R.id.buttonSignUp),
                 findViewById(R.id.buttonSignInWithDevice));
+        controller.bindView();
 
         model.addView(this);
     }

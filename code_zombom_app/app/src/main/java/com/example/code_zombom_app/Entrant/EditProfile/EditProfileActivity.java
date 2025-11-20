@@ -60,6 +60,8 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantProfileDelete),
                 findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
+         controller.bindView();
+
         model.addView(this);
         id = model.getDeviceId(this);
     }
