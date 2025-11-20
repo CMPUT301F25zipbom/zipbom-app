@@ -19,6 +19,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.bumptech.glide.Glide;
@@ -166,9 +167,9 @@ public class EventFullDetailsFragment extends Fragment {
 
 
         // Set array values
-        entrantsValue.setText(formatListToString((List<String>) event.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) event.getAccepted_Entrants()));
-        cancelledEntrantsValue.setText(formatListToString((List<String>) event.getCancelled_Entrants()));
+        entrantsValue.setText(formatListToString(event.getEntrants()));
+        acceptedEntrantsValue.setText(formatListToString(event.getAccepted_Entrants()));
+        cancelledEntrantsValue.setText(formatListToString(event.getCancelled_Entrants()));
 
         if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
             Glide.with(this)
