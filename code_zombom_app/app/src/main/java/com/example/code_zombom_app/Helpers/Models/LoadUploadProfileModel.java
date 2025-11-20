@@ -10,8 +10,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoadUploadProfileModel extends GModel {
+    protected FirebaseFirestore db;
     public LoadUploadProfileModel(FirebaseFirestore db) {
-        super(db);
+        super();
+        this.db = db; // Force the database to be initialized within a context
     }
 
     /**

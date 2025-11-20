@@ -16,12 +16,13 @@ import com.example.code_zombom_app.Helpers.MVC.GController;
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.R;
 
-public class SignUpController extends GController<LoadUploadProfileModel> {
+public class SignUpController extends GController<SignUpModel> {
     private final EditText editTextName;
     private final EditText editTextEmail;
     private final EditText editTextPhone;
     private final Button buttonBack;
     private final Button buttonSignUp;
+    private final Button buttonAddress;
     private final ArrayAdapter<CharSequence> userTypeAdapter;
     private final Spinner spinnerUserType;
     private String selectedType;
@@ -29,9 +30,9 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
     private String Email;
     private String Phone;
 
-    public SignUpController(LoadUploadProfileModel M,
+    public SignUpController(SignUpModel M,
                             EditText name, EditText email, EditText phone, Button back,
-                            Button signUp, Spinner userType,
+                            Button signUp, Button address, Spinner userType,
                             ArrayAdapter<CharSequence> adapter)
     {
         super(M);
@@ -40,9 +41,14 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
         editTextPhone = phone;
         buttonBack = back;
         buttonSignUp = signUp;
+        buttonAddress = address;
         spinnerUserType = userType;
 
         userTypeAdapter = adapter;
+    }
+
+    @Override
+    public void bindView() {
         userTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerUserType.setAdapter(userTypeAdapter);
 
@@ -103,14 +109,21 @@ public class SignUpController extends GController<LoadUploadProfileModel> {
                 Name = editTextName.getText().toString().trim();
                 Email = editTextEmail.getText().toString().trim();
                 Phone = editTextPhone.getText().toString().trim();
-                ((LoadUploadProfileModel) model).setProfile(Name, Email, Phone, selectedType);
+                model.setProfile(Name, Email, Phone, selectedType);
             }
         });
 
         buttonBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((LoadUploadProfileModel) model).close();
+                model.close();
+            }
+        });
+
+        buttonAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                model.open("Address");
             }
         });
     }

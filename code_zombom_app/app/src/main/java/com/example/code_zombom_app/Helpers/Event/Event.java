@@ -379,8 +379,8 @@ public class Event implements Comparable<Event> {
      * @see Entrant
      * @since 1.0.0
      */
-    public ArrayList<Entrant> getChosenList() {
-        return new ArrayList<Entrant>(this.chosenList);
+    public ArrayList<String> getChosenList() {
+        return new ArrayList<String>(this.chosenList);
     }
 
     /**
