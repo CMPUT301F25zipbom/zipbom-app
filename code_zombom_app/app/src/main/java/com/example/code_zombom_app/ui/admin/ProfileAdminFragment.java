@@ -33,6 +33,12 @@ public class ProfileAdminFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference profilesDb;
 
+    public static class ProfilesAdminFragment extends Fragment {
+        public ProfilesAdminFragment() {
+            super(R.layout.profile_admin_list);
+        }
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

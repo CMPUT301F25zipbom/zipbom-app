@@ -32,7 +32,7 @@
 
     <fragment
         android:id="@+id/adminFragment"
-        android:name="com.example.code_zombom_app.ui.admin.AdminFragment"
+        android:name="com.example.code_zombom_app.ui.admin.AdminHomeFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_admin" />
 

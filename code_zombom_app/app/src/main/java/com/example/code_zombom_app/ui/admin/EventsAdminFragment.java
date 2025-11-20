@@ -34,7 +34,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
  * to remove it after confirmation.
  * </p>
  */
-public class AdminFragment extends Fragment {
+public class EventsAdminFragment extends Fragment {
+
 
     /** container that holds all event views */
     public LinearLayout eventsContainer;
@@ -65,21 +66,6 @@ public class AdminFragment extends Fragment {
         rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
-
-        Button goToProfilesBtn = new Button(requireContext());
-        goToProfilesBtn.setText("Go to Profiles");
-        goToProfilesBtn.setTextColor(Color.WHITE);
-        goToProfilesBtn.setBackgroundColor(Color.parseColor("#2E5F33"));
-        goToProfilesBtn.setPadding(24, 16, 24, 16);
-        rootLayout.addView(goToProfilesBtn);
-
-        goToProfilesBtn.setOnClickListener(v -> {
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.nav_host_fragment_activity_main, new ProfileAdminFragment())
-                    .addToBackStack(null)
-                    .commit();
-        });
 
         // a ScrollView to make the event list scrollable
         ScrollView scrollView = new ScrollView(getContext());
