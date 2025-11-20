@@ -16,18 +16,18 @@ import java.util.UUID;
      * @see Comparable
      */
 public class Event implements Comparable<Event> {
-    // List of Entrants that joined the waiting list
-    private final ArrayList<Entrant> waitingList;
+    // List of Entrants' email addresses that joined the waiting list
+    private final ArrayList<String> waitingList;
     private int waitingEntrantCount = -1;
 
-    // List of selected Entrants from the waiting list after the lottery process
-    private  final ArrayList<Entrant> chosenList;
+    // List of selected Entrants's email addresses from the waiting list after the lottery process
+    private  final ArrayList<String> chosenList;
 
-    // List of selected Entrants that have accepted the invitation but not yet registered
-    private final ArrayList<Entrant> pendingList;
+    // List of selected Entrant's email addresses that have accepted the invitation but not yet registered
+    private final ArrayList<String> pendingList;
 
-    // List of selected Entrants that have registered (officially participate in) the event
-    private final ArrayList<Entrant> registeredList;
+    // List of selected Entrant's email addresses that have registered (officially participate in) the event
+    private final ArrayList<String> registeredList;
 
     // List of all restrictions the event may have
     private final ArrayList<String> restrictions;
@@ -40,7 +40,7 @@ public class Event implements Comparable<Event> {
     // List of guidelines for the lottery selection process that the event may have
     private final ArrayList<String> lotterySelectionGuidelines;
 
-    // Name of the event: Must have
+    // Name of the event: MUST HAVE
     private String name;
 
     // Created date of the event: Will be automatically assigned when an event is created
@@ -54,17 +54,21 @@ public class Event implements Comparable<Event> {
 
     // Optional additional metadata exposed to entrants
     private String location;
+
+    // Set the maximum number of entrants that can join the waiting list
     private int capacity;
     private String eventDateText;
     private String registrationClosesAtText;
     private String description;
 
+    /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
 
     // An unique identifier of each event
     private final String eventId;
+
     // Firestore document id to allow round-tripping between UI models and the backend
     private String firestoreDocumentId;
 
@@ -75,7 +79,8 @@ public class Event implements Comparable<Event> {
      *
      * @since 1.0.0
      */
-    private Event() {
+    public Event() {
+        name = "";
         waitingList = new ArrayList<>();
         chosenList = new ArrayList<>();
         pendingList = new ArrayList<>();
@@ -104,7 +109,7 @@ public class Event implements Comparable<Event> {
      */
     public Event(String name) {
         this();
-        if (!ValidateName(name))
+        if (!validateName(name))
             throw new IllegalArgumentException("Invalid Name");
         this.name = name;
     }
@@ -116,7 +121,7 @@ public class Event implements Comparable<Event> {
      * @return false if the name is null, empty, blank, or contains anything other than letters,
      *         digits, space, dash, and underscore. True otherwise
      */
-    private boolean ValidateName(String name) {
+    private boolean validateName(String name) {
         if (name == null) return false;
 
         String trimmed = name.trim();
@@ -131,8 +136,8 @@ public class Event implements Comparable<Event> {
      * @see ArrayList
      * @see Entrant
      */
-    public ArrayList<Entrant> getWaitingList() {
-        return new ArrayList<Entrant>(this.waitingList);
+    public ArrayList<String> getWaitingList() {
+        return new ArrayList<String>(this.waitingList);
     }
 
     /**
@@ -160,11 +165,11 @@ public class Event implements Comparable<Event> {
     /**
      * Add an entrant to the waiting list. An entrant can call this method to join the waiting list
      *
-     * @param entrant The entrant that wishes to join the waiting list
+     * @param entrant The entrant's email address that wishes to join the waiting list
      * @see Entrant
      * @since 1.0.0
      */
-    public void joinWaitingList(Entrant entrant) {
+    public void joinWaitingList(String entrant) {
         this.waitingList.add(entrant);
         waitingEntrantCount = -1;
     }
@@ -173,11 +178,11 @@ public class Event implements Comparable<Event> {
      * Remove an entrant from the waiting list. An entrant can call this method if they wish
      * to leave the waiting list
      *
-     * @param entrant The entrant to be removed from the waiting list
+     * @param entrant The entrant's email address to be removed from the waiting list
      * @see Entrant
      * @since 1.0.0
      */
-    public void leaveWaitingList(Entrant entrant) {
+    public void leaveWaitingList(String entrant) {
         this.waitingList.remove(entrant);
         waitingEntrantCount = -1;
     }
@@ -272,7 +277,7 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public void setName(String name) {
-        if (!ValidateName(name))
+        if (!validateName(name))
             throw new IllegalArgumentException("Invalid Name");
         this.name = name;
     }
@@ -346,11 +351,11 @@ public class Event implements Comparable<Event> {
     /**
      * Add an entrant to the chosen list (they won the lottery) if they have not in the chosen list
      *
-     * @param cEntrant The chosen entrant (a winner)
+     * @param cEntrant The chosen entrant's email address (a winner)
      * @see Entrant
      * @since 1.0.0
      */
-    public void addChosenEntrant(Entrant cEntrant) {
+    public void addChosenEntrant(String cEntrant) {
         if (!chosenList.contains(cEntrant))
             this.chosenList.add(cEntrant);
     }
@@ -358,11 +363,11 @@ public class Event implements Comparable<Event> {
     /**
      * Remove an entrant from the chosen list (when they decline the invitation)
      *
-     * @param cEntrant The chosen entrant to be removed
+     * @param cEntrant The chosen entrant's email address to be removed
      * @see Entrant
      * @since 1.0.0
      */
-    public void removeChosenEntrant(Entrant cEntrant) {
+    public void removeChosenEntrant(String cEntrant) {
         this.chosenList.remove(cEntrant);
     }
 
@@ -379,14 +384,14 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Add an entrant to the pending list (when they accept the invitation) if they have not already
+     * Add an entrant's email address to the pending list (when they accept the invitation) if they have not already
      * in the list
      *
      * @param pEntrant The entrant to add to the pending list
      * @see Entrant
      * @since 1.0.0
      */
-    public void addPendingEntrant(Entrant pEntrant) {
+    public void addPendingEntrant(String pEntrant) {
         if (!pendingList.contains(pEntrant))
             this.pendingList.add(pEntrant);
     }
@@ -394,11 +399,11 @@ public class Event implements Comparable<Event> {
     /**
      * Remove an entrant from the pending list (when they decline the invitation)
      *
-     * @param pEntrant The entrant to be removed from the pending list
+     * @param pEntrant The entrant's email address to be removed from the pending list
      * @see Entrant
      * @since 1.0.0
      */
-    public void removePendingEntrant(Entrant pEntrant) {
+    public void removePendingEntrant(String pEntrant) {
         this.pendingList.remove(pEntrant);
     }
 
@@ -410,19 +415,19 @@ public class Event implements Comparable<Event> {
      * @see Entrant
      * @since 1.0.0
      */
-    public ArrayList<Entrant> getPendingList() {
-        return new ArrayList<Entrant>(this.pendingList);
+    public ArrayList<String> getPendingList() {
+        return new ArrayList<String>(this.pendingList);
     }
 
     /**
      * Add an entrant to the registered list (after they have registered to participate successfully)
      * if they have not already in the list
      *
-     * @param rEntrant The participated entrant
+     * @param rEntrant The participated entrant's email address
      * @see Entrant
      * @since 1.0.0
      */
-    public void addRegisteredEntrant(Entrant rEntrant) {
+    public void addRegisteredEntrant(String rEntrant) {
         if (!registeredList.contains(rEntrant))
             this.registeredList.add(rEntrant);
     }
@@ -430,11 +435,11 @@ public class Event implements Comparable<Event> {
     /**
      * Remove an entrant from the registered list (when they don't want to participate anymore)
      *
-     * @param rEntrant The entrant to be removed from the registered list
+     * @param rEntrant The entrant's email address to be removed from the registered list
      * @see Entrant
      * @since 1.0.0
      */
-    public void removeRegisteredEntrant(Entrant rEntrant) {
+    public void removeRegisteredEntrant(String rEntrant) {
         this.registeredList.remove(rEntrant);
     }
 
@@ -446,8 +451,8 @@ public class Event implements Comparable<Event> {
      * @see Entrant
      * @since 1.0.0
      */
-    public ArrayList<Entrant> getRegisteredList() {
-        return new ArrayList<Entrant>(this.registeredList);
+    public ArrayList<String> getRegisteredList() {
+        return new ArrayList<String>(this.registeredList);
     }
 
     /**
