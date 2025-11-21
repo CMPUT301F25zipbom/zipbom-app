@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * A model class representing an event. This Plain Old Java Object (POJO)
  * is used for direct mapping with Firestore documents.
  */
-public class Event implements Serializable { // Serializable is good practice for passing objects in Bundles
+public class EventForOrg implements Serializable { // Serializable is good practice for passing objects in Bundles
 
     // --- Properties that map directly to Firestore fields ---
     private String Name;
@@ -35,7 +35,7 @@ public class Event implements Serializable { // Serializable is good practice fo
     // --- Constructors ---
 
     // IMPORTANT: A public no-argument constructor is required for Firestore's automatic data mapping.
-    public Event() {
+    public EventForOrg() {
         Name = "";
         Date = "";
         Deadline = "";

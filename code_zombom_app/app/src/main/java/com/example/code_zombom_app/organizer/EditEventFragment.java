@@ -20,7 +20,7 @@ import com.bumptech.glide.Glide;
  */
 public class EditEventFragment extends BaseEventFragment {
     private String originalEventId;
-    private com.example.code_zombom_app.organizer.Event eventToEdit;
+    private EventForOrg eventForOrgToEdit;
     private Button updateButton;
 
     /**
@@ -65,25 +65,25 @@ public class EditEventFragment extends BaseEventFragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists() && isAdded()) {
                         // --- REFACTORED: Convert document to Event object ---
-                        eventToEdit = documentSnapshot.toObject(com.example.code_zombom_app.organizer.Event.class);
-                        if (eventToEdit == null) return;
+                        eventForOrgToEdit = documentSnapshot.toObject(EventForOrg.class);
+                        if (eventForOrgToEdit == null) return;
 
 
                         // Set the ID on the object after loading it
-                        eventToEdit.setEventId(documentSnapshot.getId());
+                        eventForOrgToEdit.setEventId(documentSnapshot.getId());
 
                         // --- Populate all fields from the object ---
-                        eventNameEditText.setText(eventToEdit.getName());
-                        maxPeopleEditText.setText(eventToEdit.getMax_People());
-                        dateEditText.setText(eventToEdit.getDate());
-                        deadlineEditText.setText(eventToEdit.getDeadline());
-                        genreEditText.setText(eventToEdit.getGenre());
-                        locationEditText.setText(eventToEdit.getLocation());
-                        descriptionEditText.setText(eventToEdit.getDescription());
-                        maxentrantEditText.setText(eventToEdit.getWait_List_Maximum());
+                        eventNameEditText.setText(eventForOrgToEdit.getName());
+                        maxPeopleEditText.setText(eventForOrgToEdit.getMax_People());
+                        dateEditText.setText(eventForOrgToEdit.getDate());
+                        deadlineEditText.setText(eventForOrgToEdit.getDeadline());
+                        genreEditText.setText(eventForOrgToEdit.getGenre());
+                        locationEditText.setText(eventForOrgToEdit.getLocation());
+                        descriptionEditText.setText(eventForOrgToEdit.getDescription());
+                        maxentrantEditText.setText(eventForOrgToEdit.getWait_List_Maximum());
 
-                        if (eventToEdit.getPosterUrl() != null && !eventToEdit.getPosterUrl().isEmpty()) {
-                            Glide.with(getContext()).load(eventToEdit.getPosterUrl()).into(imagePreview);
+                        if (eventForOrgToEdit.getPosterUrl() != null && !eventForOrgToEdit.getPosterUrl().isEmpty()) {
+                            Glide.with(getContext()).load(eventForOrgToEdit.getPosterUrl()).into(imagePreview);
                             imagePreview.setVisibility(View.VISIBLE);
                         }
                         updateButton.setEnabled(true);
@@ -101,12 +101,12 @@ public class EditEventFragment extends BaseEventFragment {
     /**
      * REFACTORED: Implements the abstract method to update an existing Firestore document
      * directly from the Event object.
-     * @param eventFromUI The complete Event object with updated data.
+     * @param eventForOrgFromUI The complete Event object with updated data.
      */
     @Override
-    protected void processEvent(com.example.code_zombom_app.organizer.Event eventFromUI) {        // Merge UI changes into the full event object ---
+    protected void processEvent(EventForOrg eventForOrgFromUI) {        // Merge UI changes into the full event object ---
         // If the original event failed to load, we can't safely proceed.
-        if (eventToEdit == null) {
+        if (eventForOrgToEdit == null) {
             Toast.makeText(getContext(), "Error: Original event not loaded. Cannot save.", Toast.LENGTH_LONG).show();
             if(updateButton != null) {
                 updateButton.setEnabled(true);
@@ -114,25 +114,25 @@ public class EditEventFragment extends BaseEventFragment {
             return;
         }
         // Copy the editable fields from the UI object to our full object
-        eventToEdit.setName(eventFromUI.getName());
-        eventToEdit.setMax_People(eventFromUI.getMax_People());
-        eventToEdit.setDate(eventFromUI.getDate());
-        eventToEdit.setDeadline(eventFromUI.getDeadline());
-        eventToEdit.setGenre(eventFromUI.getGenre());
-        eventToEdit.setLocation(eventFromUI.getLocation());
-        eventToEdit.setDescription(eventFromUI.getDescription());
-        eventToEdit.setWait_List_Maximum(eventFromUI.getWait_List_Maximum());
+        eventForOrgToEdit.setName(eventForOrgFromUI.getName());
+        eventForOrgToEdit.setMax_People(eventForOrgFromUI.getMax_People());
+        eventForOrgToEdit.setDate(eventForOrgFromUI.getDate());
+        eventForOrgToEdit.setDeadline(eventForOrgFromUI.getDeadline());
+        eventForOrgToEdit.setGenre(eventForOrgFromUI.getGenre());
+        eventForOrgToEdit.setLocation(eventForOrgFromUI.getLocation());
+        eventForOrgToEdit.setDescription(eventForOrgFromUI.getDescription());
+        eventForOrgToEdit.setWait_List_Maximum(eventForOrgFromUI.getWait_List_Maximum());
 
         // Using .set() with an object is often easier than .update() with a map
-        if (eventFromUI.getPosterUrl() != null && !eventFromUI.getPosterUrl().isEmpty()) {
-            eventToEdit.setPosterUrl(eventFromUI.getPosterUrl());
+        if (eventForOrgFromUI.getPosterUrl() != null && !eventForOrgFromUI.getPosterUrl().isEmpty()) {
+            eventForOrgToEdit.setPosterUrl(eventForOrgFromUI.getPosterUrl());
         }
         // Disable button immediately on click to prevent double-taps
         updateButton.setEnabled(false);
 
         // Now, save the *merged* object, which contains the old lists and new text fields
         db.collection("Events").document(originalEventId)
-                .set(eventToEdit) // Save the complete, updated object
+                .set(eventForOrgToEdit) // Save the complete, updated object
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     navigateBack(); // This should now be called correctly

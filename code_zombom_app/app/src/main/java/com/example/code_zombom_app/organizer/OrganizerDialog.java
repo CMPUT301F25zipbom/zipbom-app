@@ -32,7 +32,7 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final com.example.code_zombom_app.organizer.Event event; // <<< Use the Event object
+    private final EventForOrg eventForOrg; // <<< Use the Event object
     private final NavController navController;
     private final View fragmentView;
     private final Map<String, Bitmap> qrCodeBitmaps;
@@ -47,13 +47,13 @@ public class OrganizerDialog extends Dialog {
     /**
      * This method is used to make an organizerdialog object.
      * @param context sets the context
-     * @param event sets the organizerdialog eventid
+     * @param eventForOrg sets the organizerdialog eventid
      * @param navController sets the organizerdialog navController
      * @param fragmentView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, com.example.code_zombom_app.organizer.Event event, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
         super(context);
-        this.event = event; // <<< Store the whole object
+        this.eventForOrg = eventForOrg; // <<< Store the whole object
         this.navController = navController;
         this.fragmentView = fragmentView;
         this.qrCodeBitmaps = qrCodeBitmaps;
@@ -86,7 +86,7 @@ public class OrganizerDialog extends Dialog {
         // This button starts a draw for who will win the lottery
         viewStartButton.setOnClickListener(v -> {
             dismiss(); // Close the dialog
-            event.doDraw(); // Do the draw
+            eventForOrg.doDraw(); // Do the draw
 
 
         });
@@ -99,7 +99,7 @@ public class OrganizerDialog extends Dialog {
         editEventButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", event.getEventId()); // Get ID from the object
+            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object
 
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
@@ -107,9 +107,9 @@ public class OrganizerDialog extends Dialog {
         //This makes the QR code visible when the user clicks generate QR code
         genQRButton.setOnClickListener(v -> {
             dismiss();
-            Bitmap qrBitmap = qrCodeBitmaps.get(event.getEventId());
+            Bitmap qrBitmap = qrCodeBitmaps.get(eventForOrg.getEventId());
             // We need the fragment's root view to find the tag
-            ImageView qrToShow = fragmentView.findViewWithTag(event.getEventId());
+            ImageView qrToShow = fragmentView.findViewWithTag(eventForOrg.getEventId());
 
             if (qrToShow != null) {
                 uploadQrCodeToFirebase(qrBitmap);
@@ -125,7 +125,7 @@ public class OrganizerDialog extends Dialog {
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", event.getEventId()); // Get ID from the object    // Navigate to the full details fragment
+            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object    // Navigate to the full details fragment
 
             // Navigate to the full details fragment
             navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
@@ -151,7 +151,7 @@ public class OrganizerDialog extends Dialog {
         byte[] data = baos.toByteArray();
 
         // Define the path in Firebase Storage
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + event.getEventId() + ".png");
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventForOrg.getEventId() + ".png");
 
         // Upload the byte array
         storageRef.putBytes(data)
@@ -172,11 +172,11 @@ public class OrganizerDialog extends Dialog {
      * @param url The public URL of the uploaded image.
      */
     private void saveQrUrlToFirestore(String url) {
-        FirebaseFirestore.getInstance().collection("Events").document(event.getEventId())
+        FirebaseFirestore.getInstance().collection("Events").document(eventForOrg.getEventId())
                 .update("qrCodeUrl", url)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "QR Code URL updated for event: " + event.getEventId());
+                    Log.d("Firestore", "QR Code URL updated for event: " + eventForOrg.getEventId());
                     dismiss(); // Close the dialog on success
                 })
                 .addOnFailureListener(e -> {

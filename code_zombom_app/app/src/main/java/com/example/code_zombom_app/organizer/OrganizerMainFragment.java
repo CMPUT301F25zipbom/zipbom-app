@@ -125,13 +125,13 @@ public class OrganizerMainFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
                         // --- NEW: Automatically convert the document to an Event object ---
-                        com.example.code_zombom_app.organizer.Event event = snapshot.toObject(com.example.code_zombom_app.organizer.Event.class);
+                        EventForOrg eventForOrg = snapshot.toObject(EventForOrg.class);
                         // If toObject returns null, something is wrong with the data mapping (e.g., field name mismatch)
-                        if (event == null) {
+                        if (eventForOrg == null) {
                             Log.e("DATA_MAPPING_ERROR", "Event object is null for document: " + snapshot.getId() + ". Check Firestore fields against the organizer.Event class.");
                             continue; // Skip this document and move to the next
                         }
-                        event.setEventId(snapshot.getId()); // Manually set the document ID
+                        eventForOrg.setEventId(snapshot.getId()); // Manually set the document ID
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
                         // String eventId = snapshot.getId(); // <<< GET THE DOCUMENT ID HERE
@@ -139,22 +139,22 @@ public class OrganizerMainFragment extends Fragment {
                         TextView eventDetailsTextView = eventItemView.findViewById(R.id.event_item_textview);
                         ImageView qrCodeImageView = eventItemView.findViewById(R.id.event_qr_code_imageview);
 
-                        qrCodeImageView.setTag(event.getEventId());
+                        qrCodeImageView.setTag(eventForOrg.getEventId());
 
                         // --- Use the convenience method from the Event class ---
-                        String eventText = event.getEventListDisplayText();
+                        String eventText = eventForOrg.getEventListDisplayText();
                         eventDetailsTextView.setText(eventText);
 
 
                         // --- Generate QR Code Data (now much cleaner) ---
                         StringBuilder qrDataBuilder = new StringBuilder();
-                        qrDataBuilder.append("Event: ").append(event.getName()).append("\n");
-                        qrDataBuilder.append("Location: ").append(event.getLocation()).append("\n");
-                        qrDataBuilder.append("Date: ").append(event.getDate()).append("\n");
-                        qrDataBuilder.append("Deadline: ").append(event.getDeadline()).append("\n");
-                        qrDataBuilder.append("Description: ").append(event.getDescription()).append("\n");
-                        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
-                            qrDataBuilder.append("Poster: ").append(event.getPosterUrl());
+                        qrDataBuilder.append("Event: ").append(eventForOrg.getName()).append("\n");
+                        qrDataBuilder.append("Location: ").append(eventForOrg.getLocation()).append("\n");
+                        qrDataBuilder.append("Date: ").append(eventForOrg.getDate()).append("\n");
+                        qrDataBuilder.append("Deadline: ").append(eventForOrg.getDeadline()).append("\n");
+                        qrDataBuilder.append("Description: ").append(eventForOrg.getDescription()).append("\n");
+                        if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
+                            qrDataBuilder.append("Poster: ").append(eventForOrg.getPosterUrl());
                         }
                         String qrCodeData = qrDataBuilder.toString();
 
@@ -165,10 +165,10 @@ public class OrganizerMainFragment extends Fragment {
                         qrCodeImageView.setImageBitmap(bitmap);
 
                         // Store the generated bitmap in our map
-                        qrCodeBitmaps.put(event.getEventId(), bitmap);
+                        qrCodeBitmaps.put(eventForOrg.getEventId(), bitmap);
 
                         // --- Set click listener (pass the object or its properties) ---
-                        eventItemView.setOnClickListener(v -> showEventOptionsDialog(event));
+                        eventItemView.setOnClickListener(v -> showEventOptionsDialog(eventForOrg));
                         eventsContainer.addView(eventItemView);
 
                     } catch (WriterException e) {
@@ -193,14 +193,14 @@ public class OrganizerMainFragment extends Fragment {
 
     /**
      * Makes the Organizer Dialog pop-up.
-     * @param event The event that the user clicked on
+     * @param eventForOrg The event that the user clicked on
      */
-    private void showEventOptionsDialog(com.example.code_zombom_app.organizer.Event event) {
+    private void showEventOptionsDialog(EventForOrg eventForOrg) {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 
         // Create the dialog by passing the entire Event object.
-        OrganizerDialog dialog = new OrganizerDialog(requireContext(), event, navController, fragmentView, qrCodeBitmaps);
+        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventForOrg, navController, fragmentView, qrCodeBitmaps);
         dialog.show();
     }
 }

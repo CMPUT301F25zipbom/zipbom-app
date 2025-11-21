@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
  * This test verifies that UI interactions launch the correct intents.
  */
 @RunWith(AndroidJUnit4.class)
-public class AddEventFragmentIntentTest {
+public class AddEventForOrgFragmentIntentTest {
 
     /**
      * JUnit rule that initializes Espresso-Intents before each test

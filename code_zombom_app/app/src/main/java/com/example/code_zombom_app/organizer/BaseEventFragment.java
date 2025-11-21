@@ -45,9 +45,9 @@ public abstract class BaseEventFragment extends Fragment {
 
     /**
      * Abstract method that subclasses must implement to define what happens when the "Save" or "Update" button is clicked.
-     * @param event The ID of the event (can be new or existing).
+     * @param eventForOrg The ID of the event (can be new or existing).
      */
-    protected abstract void processEvent(com.example.code_zombom_app.organizer.Event event);
+    protected abstract void processEvent(EventForOrg eventForOrg);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -123,33 +123,33 @@ public abstract class BaseEventFragment extends Fragment {
         }
 
         // --- REFACTORED: Create an Event object instead of a Map ---
-        com.example.code_zombom_app.organizer.Event event = gatherEventData();
-        event.setEventId(eventId); // Set the ID for the new or existing event
+        EventForOrg eventForOrg = gatherEventData();
+        eventForOrg.setEventId(eventId); // Set the ID for the new or existing event
 
         if (imageUri != null) {
-            uploadImageAndProcessEvent(event);
+            uploadImageAndProcessEvent(eventForOrg);
         } else {
             // No new image, just process the event object.
-            processEvent(event);
+            processEvent(eventForOrg);
         }
     }
 
-    private void uploadImageAndProcessEvent(com.example.code_zombom_app.organizer.Event event) {
-        StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
+    private void uploadImageAndProcessEvent(EventForOrg eventForOrg) {
+        StorageReference storageRef = storage.getReference().child("posters/" + eventForOrg.getEventId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
                             // --- REFACTORED: Set the poster URL on the event object ---
-                            event.setPosterUrl(uri.toString());
-                            processEvent(event); // Process the fully updated event
+                            eventForOrg.setPosterUrl(uri.toString());
+                            processEvent(eventForOrg); // Process the fully updated event
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(getContext(), "Failed to get poster URL.", Toast.LENGTH_SHORT).show();
-                            processEvent(event); // Process without the poster URL
+                            processEvent(eventForOrg); // Process without the poster URL
                         }))
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Poster upload failed.", Toast.LENGTH_SHORT).show();
-                    processEvent(event); // Process without the poster URL
+                    processEvent(eventForOrg); // Process without the poster URL
                 });
     }
 
@@ -158,17 +158,17 @@ public abstract class BaseEventFragment extends Fragment {
      * REFACTORED: Gathers all data from the EditText fields into an Event object.
      * @return A new Event object populated with UI data.
      */
-    private com.example.code_zombom_app.organizer.Event gatherEventData() {
-        com.example.code_zombom_app.organizer.Event event = new Event();
-        event.setName(eventNameEditText.getText().toString());
-        event.setMax_People(maxPeopleEditText.getText().toString()); // Use the new field name
-        event.setDate(dateEditText.getText().toString());
-        event.setDeadline(deadlineEditText.getText().toString());
-        event.setGenre(genreEditText.getText().toString());
-        event.setLocation(locationEditText.getText().toString());
-        event.setWait_List_Maximum(maxentrantEditText.getText().toString()); // Use the new field name
-        event.setDescription(descriptionEditText.getText().toString());
-        return event;
+    private EventForOrg gatherEventData() {
+        EventForOrg eventForOrg = new EventForOrg();
+        eventForOrg.setName(eventNameEditText.getText().toString());
+        eventForOrg.setMax_People(maxPeopleEditText.getText().toString()); // Use the new field name
+        eventForOrg.setDate(dateEditText.getText().toString());
+        eventForOrg.setDeadline(deadlineEditText.getText().toString());
+        eventForOrg.setGenre(genreEditText.getText().toString());
+        eventForOrg.setLocation(locationEditText.getText().toString());
+        eventForOrg.setWait_List_Maximum(maxentrantEditText.getText().toString()); // Use the new field name
+        eventForOrg.setDescription(descriptionEditText.getText().toString());
+        return eventForOrg;
     }
 
     protected void navigateBack() {

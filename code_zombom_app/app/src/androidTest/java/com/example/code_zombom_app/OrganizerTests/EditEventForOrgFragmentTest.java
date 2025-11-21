@@ -25,7 +25,7 @@ import com.example.code_zombom_app.organizer.EditEventFragment;
  * photo stuff
  */
 @RunWith(AndroidJUnit4.class)
-public class EditEventFragmentTest {
+public class EditEventForOrgFragmentTest {
     private EditEventFragment getTestFragment() {
         return new EditEventFragment();
     }
