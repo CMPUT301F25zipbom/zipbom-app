@@ -11,8 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.util.ArrayList;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Helpers.Event.Event;
 import com.google.firebase.firestore.DocumentReference;
 
 /**
@@ -46,19 +46,12 @@ public class AddEventFragment extends BaseEventFragment {
     /**
      * REFACTORED: Implements the abstract method to create a new Firestore document
      * directly from the Event object.
-     * @param eventForOrg The complete Event object to be saved.
+     * @param event The complete Event object to be saved.
      */
     @Override
-    protected void processEvent(EventForOrg eventForOrg) {
-        // Add fields that are specific to a new event
-        eventForOrg.setEntrants(new ArrayList<>());
-        eventForOrg.setCancelled_Entrants(new ArrayList<>());
-        eventForOrg.setAccepted_Entrants(new ArrayList<>());
-        eventForOrg.setLottery_Winners(new ArrayList<>());
-
-        // --- REFACTORED: Pass the entire Event object to .set() ---
-        db.collection("Events").document(eventForOrg.getEventId())
-                .set(eventForOrg) // Firestore will automatically map the Event object to a document
+    protected void processEvent(Event event) {
+        // Use the central EventService to persist with the canonical schema
+        eventService.saveEvent(event)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event created successfully!", Toast.LENGTH_SHORT).show();
                     navigateBack();

@@ -119,29 +119,5 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         }
         return sb.toString();
     }
-    public void doDraw() {
-        // If there's no one to draw from, or the capacity is invalid, do nothing.
-        if (Entrants == null || Entrants.isEmpty() || Max_People == null) {
-            return;
-        }
-        int maxWinners;
-        try {
-            maxWinners = Integer.parseInt(Max_People);
-        } catch (NumberFormatException e) {
-            // If Max_People is not a valid number (e.g., "abc"), do nothing.
-            return;
-        }
-        for (int i = 0; i < Integer.parseInt(Max_People); i++) {
-            if (Entrants.isEmpty()) {
-                break;
-            }
-            int randomIndex = (int) (Math.random() * Entrants.size());
-            String winner = Entrants.get(randomIndex);
-
-            // Add the winner to the lottery list and remove them from the entrants list.
-            Lottery_Winners.add(winner);
-            Entrants.remove(randomIndex);
-        }
-    }
 }
 

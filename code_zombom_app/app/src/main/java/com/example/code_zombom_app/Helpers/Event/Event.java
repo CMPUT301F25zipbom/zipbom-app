@@ -60,6 +60,8 @@ public class Event implements Comparable<Event> {
     private String eventDateText;
     private String registrationClosesAtText;
     private String description;
+    // URL of the uploaded event poster stored in Firebase Storage
+    private String posterUrl;
 
     /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
@@ -97,6 +99,7 @@ public class Event implements Comparable<Event> {
         eventDateText = "";
         registrationClosesAtText = "";
         description = "";
+        posterUrl = "";
     }
 
     /**
@@ -646,6 +649,26 @@ public class Event implements Comparable<Event> {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Stores the publicly accessible URL to the uploaded event poster.
+     *
+     * @param posterUrl download URL of the poster image (may be null)
+     */
+    public void setPosterUrl(String posterUrl) {
+        if (posterUrl == null) {
+            this.posterUrl = "";
+        } else {
+            this.posterUrl = posterUrl.trim();
+        }
+    }
+
+    /**
+     * @return publicly accessible URL to the uploaded poster image (empty when not set)
+     */
+    public String getPosterUrl() {
+        return posterUrl;
     }
 
     /**

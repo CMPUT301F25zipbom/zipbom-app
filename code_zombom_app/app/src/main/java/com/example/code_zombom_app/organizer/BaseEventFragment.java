@@ -20,6 +20,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -40,20 +42,24 @@ public abstract class BaseEventFragment extends Fragment {
     // Common variables
     protected FirebaseFirestore db;
     protected FirebaseStorage storage;
+    protected EventService eventService;
+    /** Canonical event instance retained when editing to keep lists intact. */
+    protected Event baseEvent;
     protected Uri imageUri;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     /**
      * Abstract method that subclasses must implement to define what happens when the "Save" or "Update" button is clicked.
-     * @param eventForOrg The ID of the event (can be new or existing).
+     * @param event The canonical event being saved or updated.
      */
-    protected abstract void processEvent(EventForOrg eventForOrg);
+    protected abstract void processEvent(Event event);
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        eventService = new EventService(db);
 
         // Initialize the image picker launcher
         imagePickerLauncher = registerForActivityResult(
@@ -122,53 +128,80 @@ public abstract class BaseEventFragment extends Fragment {
             return; // Validation methods show Toasts.
         }
 
-        // --- REFACTORED: Create an Event object instead of a Map ---
-        EventForOrg eventForOrg = gatherEventData();
-        eventForOrg.setEventId(eventId); // Set the ID for the new or existing event
+        // --- REFACTORED: Create or update the canonical Event object ---
+        Event event = gatherEventData(eventId);
+        if (event == null) {
+            Toast.makeText(getContext(), "Invalid event details. Please check your input.", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (imageUri != null) {
-            uploadImageAndProcessEvent(eventForOrg);
+            uploadImageAndProcessEvent(event);
         } else {
             // No new image, just process the event object.
-            processEvent(eventForOrg);
+            processEvent(event);
         }
     }
 
-    private void uploadImageAndProcessEvent(EventForOrg eventForOrg) {
-        StorageReference storageRef = storage.getReference().child("posters/" + eventForOrg.getEventId() + ".jpg");
+    private void uploadImageAndProcessEvent(Event event) {
+        StorageReference storageRef = storage.getReference().child("posters/" + event.getFirestoreDocumentId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
                             // --- REFACTORED: Set the poster URL on the event object ---
-                            eventForOrg.setPosterUrl(uri.toString());
-                            processEvent(eventForOrg); // Process the fully updated event
+                            event.setPosterUrl(uri.toString());
+                            processEvent(event); // Process the fully updated event
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(getContext(), "Failed to get poster URL.", Toast.LENGTH_SHORT).show();
-                            processEvent(eventForOrg); // Process without the poster URL
+                            processEvent(event); // Process without the poster URL
                         }))
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Poster upload failed.", Toast.LENGTH_SHORT).show();
-                    processEvent(eventForOrg); // Process without the poster URL
+                    processEvent(event); // Process without the poster URL
                 });
     }
 
 
     /**
-     * REFACTORED: Gathers all data from the EditText fields into an Event object.
-     * @return A new Event object populated with UI data.
+     * Gathers all data from the EditText fields into an Event object. When editing,
+     * the baseEvent (loaded from Firestore) is mutated to preserve waitlist and lottery lists.
+     * @return A populated Event object or null when input is invalid.
      */
-    private EventForOrg gatherEventData() {
-        EventForOrg eventForOrg = new EventForOrg();
-        eventForOrg.setName(eventNameEditText.getText().toString());
-        eventForOrg.setMax_People(maxPeopleEditText.getText().toString()); // Use the new field name
-        eventForOrg.setDate(dateEditText.getText().toString());
-        eventForOrg.setDeadline(deadlineEditText.getText().toString());
-        eventForOrg.setGenre(genreEditText.getText().toString());
-        eventForOrg.setLocation(locationEditText.getText().toString());
-        eventForOrg.setWait_List_Maximum(maxentrantEditText.getText().toString()); // Use the new field name
-        eventForOrg.setDescription(descriptionEditText.getText().toString());
-        return eventForOrg;
+    private Event gatherEventData(String eventId) {
+        String name = eventNameEditText.getText().toString();
+        Event event;
+        try {
+            event = (baseEvent != null) ? baseEvent : new Event(name);
+            event.setName(name);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+
+        event.setFirestoreDocumentId(eventId);
+        event.setEventDate(dateEditText.getText().toString());
+        event.setRegistrationClosesAt(deadlineEditText.getText().toString());
+        event.setLocation(locationEditText.getText().toString());
+        event.setDescription(descriptionEditText.getText().toString());
+        // Poster URL is set later when an image is uploaded
+
+        String genre = genreEditText.getText().toString();
+        if (!genre.trim().isEmpty()) {
+            try {
+                event.addCategory(genre);
+            } catch (IllegalArgumentException ignored) {
+                event.addRestriction("Category: " + genre);
+            }
+        }
+
+        try {
+            int capacity = Integer.parseInt(maxPeopleEditText.getText().toString());
+            event.setCapacity(capacity);
+        } catch (NumberFormatException ignored) {
+            event.setCapacity(0);
+        }
+
+        return event;
     }
 
     protected void navigateBack() {

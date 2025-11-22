@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 
+import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -36,6 +37,7 @@ public class OrganizerDialog extends Dialog {
     private final NavController navController;
     private final View fragmentView;
     private final Map<String, Bitmap> qrCodeBitmaps;
+    private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
 
 //    private final String eventId;
@@ -83,12 +85,10 @@ public class OrganizerDialog extends Dialog {
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
-        // This button starts a draw for who will win the lottery
+        // This button starts a draw for who will win the lottery using the central service
         viewStartButton.setOnClickListener(v -> {
             dismiss(); // Close the dialog
-            eventForOrg.doDraw(); // Do the draw
-
-
+            runLottery();
         });
         // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
         messageButton.setOnClickListener(v -> {
@@ -182,6 +182,18 @@ public class OrganizerDialog extends Dialog {
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), "Failed to save QR code URL.", Toast.LENGTH_SHORT).show();
                     Log.e("Firestore", "Error updating event with QR URL", e);
+                });
+    }
+
+    /**
+     * Runs a lottery draw via the central EventService and surfaces the outcome to the organiser.
+     */
+    private void runLottery() {
+        eventService.runLotteryDraw(eventForOrg.getEventId())
+                .addOnSuccessListener(ignored -> Toast.makeText(getContext(), "Lottery draw completed.", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), e.getMessage() != null ? e.getMessage() : "Lottery draw failed.", Toast.LENGTH_SHORT).show();
+                    Log.e("OrganizerDialog", "Lottery draw failed", e);
                 });
     }
 }

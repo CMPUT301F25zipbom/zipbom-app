@@ -11,6 +11,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.organizer.EventForOrg;
 import com.bumptech.glide.Glide;
 
 /**
@@ -21,6 +24,7 @@ import com.bumptech.glide.Glide;
 public class EditEventFragment extends BaseEventFragment {
     private String originalEventId;
     private EventForOrg eventForOrgToEdit;
+    private Event domainEventToEdit;
     private Button updateButton;
 
     /**
@@ -67,7 +71,8 @@ public class EditEventFragment extends BaseEventFragment {
                         // --- REFACTORED: Convert document to Event object ---
                         eventForOrgToEdit = documentSnapshot.toObject(EventForOrg.class);
                         if (eventForOrgToEdit == null) return;
-
+                        domainEventToEdit = EventMapper.toDomain(eventForOrgToEdit, documentSnapshot.getId());
+                        baseEvent = domainEventToEdit;
 
                         // Set the ID on the object after loading it
                         eventForOrgToEdit.setEventId(documentSnapshot.getId());
@@ -104,35 +109,30 @@ public class EditEventFragment extends BaseEventFragment {
      * @param eventForOrgFromUI The complete Event object with updated data.
      */
     @Override
-    protected void processEvent(EventForOrg eventForOrgFromUI) {        // Merge UI changes into the full event object ---
+    protected void processEvent(Event eventFromUi) {
         // If the original event failed to load, we can't safely proceed.
-        if (eventForOrgToEdit == null) {
+        if (domainEventToEdit == null) {
             Toast.makeText(getContext(), "Error: Original event not loaded. Cannot save.", Toast.LENGTH_LONG).show();
             if(updateButton != null) {
                 updateButton.setEnabled(true);
             }
             return;
         }
-        // Copy the editable fields from the UI object to our full object
-        eventForOrgToEdit.setName(eventForOrgFromUI.getName());
-        eventForOrgToEdit.setMax_People(eventForOrgFromUI.getMax_People());
-        eventForOrgToEdit.setDate(eventForOrgFromUI.getDate());
-        eventForOrgToEdit.setDeadline(eventForOrgFromUI.getDeadline());
-        eventForOrgToEdit.setGenre(eventForOrgFromUI.getGenre());
-        eventForOrgToEdit.setLocation(eventForOrgFromUI.getLocation());
-        eventForOrgToEdit.setDescription(eventForOrgFromUI.getDescription());
-        eventForOrgToEdit.setWait_List_Maximum(eventForOrgFromUI.getWait_List_Maximum());
 
-        // Using .set() with an object is often easier than .update() with a map
-        if (eventForOrgFromUI.getPosterUrl() != null && !eventForOrgFromUI.getPosterUrl().isEmpty()) {
-            eventForOrgToEdit.setPosterUrl(eventForOrgFromUI.getPosterUrl());
-        }
+        // Merge editable fields into the canonical event while keeping waitlist/lottery data.
+        domainEventToEdit.setName(eventFromUi.getName());
+        domainEventToEdit.setCapacity(eventFromUi.getCapacity());
+        domainEventToEdit.setEventDate(eventFromUi.getEventDateText());
+        domainEventToEdit.setRegistrationClosesAt(eventFromUi.getRegistrationClosesAtText());
+        domainEventToEdit.setLocation(eventFromUi.getLocation());
+        domainEventToEdit.setDescription(eventFromUi.getDescription());
+        domainEventToEdit.setPosterUrl(eventFromUi.getPosterUrl());
+        domainEventToEdit.setFirestoreDocumentId(originalEventId);
+
         // Disable button immediately on click to prevent double-taps
         updateButton.setEnabled(false);
 
-        // Now, save the *merged* object, which contains the old lists and new text fields
-        db.collection("Events").document(originalEventId)
-                .set(eventForOrgToEdit) // Save the complete, updated object
+        eventService.saveEvent(domainEventToEdit)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
                     navigateBack(); // This should now be called correctly

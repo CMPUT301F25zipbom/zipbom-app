@@ -22,6 +22,8 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -132,6 +134,11 @@ public class OrganizerMainFragment extends Fragment {
                             continue; // Skip this document and move to the next
                         }
                         eventForOrg.setEventId(snapshot.getId()); // Manually set the document ID
+                        Event mappedEvent = EventMapper.toDomain(eventForOrg, snapshot.getId());
+                        if (mappedEvent == null) {
+                            Log.e("DATA_MAPPING_ERROR", "Mapped event is null for document: " + snapshot.getId());
+                            continue;
+                        }
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
                         // String eventId = snapshot.getId(); // <<< GET THE DOCUMENT ID HERE
@@ -146,17 +153,8 @@ public class OrganizerMainFragment extends Fragment {
                         eventDetailsTextView.setText(eventText);
 
 
-                        // --- Generate QR Code Data (now much cleaner) ---
-                        StringBuilder qrDataBuilder = new StringBuilder();
-                        qrDataBuilder.append("Event: ").append(eventForOrg.getName()).append("\n");
-                        qrDataBuilder.append("Location: ").append(eventForOrg.getLocation()).append("\n");
-                        qrDataBuilder.append("Date: ").append(eventForOrg.getDate()).append("\n");
-                        qrDataBuilder.append("Deadline: ").append(eventForOrg.getDeadline()).append("\n");
-                        qrDataBuilder.append("Description: ").append(eventForOrg.getDescription()).append("\n");
-                        if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
-                            qrDataBuilder.append("Poster: ").append(eventForOrg.getPosterUrl());
-                        }
-                        String qrCodeData = qrDataBuilder.toString();
+                        // --- Generate QR Code Data using the canonical mapper ---
+                        String qrCodeData = EventMapper.buildQrPayload(mappedEvent, eventForOrg.getPosterUrl());
 
                         // Generate and set the QR code
                         BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
