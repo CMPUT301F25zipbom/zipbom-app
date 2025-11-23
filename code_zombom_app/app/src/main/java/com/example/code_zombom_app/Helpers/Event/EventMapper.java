@@ -50,6 +50,11 @@ public final class EventMapper {
         } catch (NumberFormatException ignored) {
             event.setCapacity(0);
         }
+        try {
+            event.setWaitlistLimit(Integer.parseInt(nullToEmpty(source.getWait_List_Maximum())));
+        } catch (NumberFormatException ignored) {
+            event.setWaitlistLimit(0);
+        }
 
         // Genre -> category (store unrecognised genres as restrictions for visibility)
         String genre = source.getGenre();
@@ -94,7 +99,7 @@ public final class EventMapper {
         dto.setLocation(event.getLocation());
         dto.setDescription(event.getDescription());
         dto.setMax_People(String.valueOf(event.getCapacity()));
-        dto.setWait_List_Maximum(String.valueOf(event.getNumberOfWaiting()));
+        dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
         dto.setEntrants(event.getWaitingList());
         dto.setAccepted_Entrants(event.getRegisteredList());
         dto.setLottery_Winners(event.getChosenList());
