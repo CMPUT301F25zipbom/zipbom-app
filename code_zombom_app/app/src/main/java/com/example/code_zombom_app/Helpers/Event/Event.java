@@ -234,8 +234,8 @@ public class Event implements Comparable<Event> {
      */
     public void addCategory(String category) {
         if (!checkCategory(category))
-            throw new IllegalArgumentException("Unrecognized category");
-        this.categories.add(category);
+            throw new IllegalArgumentException("Invalid category");
+        this.categories.add(category.trim());
     }
 
     /**
@@ -260,6 +260,13 @@ public class Event implements Comparable<Event> {
     }
 
     /**
+     * Removes all categories from this event.
+     */
+    public void clearCategories() {
+        this.categories.clear();
+    }
+
+    /**
      * Check if a category is in the accepted categories or not.
      *
      * @param category The category to check
@@ -267,11 +274,7 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     private boolean checkCategory(String category) {
-        for (String c : acceptedCategories) {
-            if (c.equals(category))
-                return true;
-        }
-        return false;
+        return category != null && !category.trim().isEmpty();
     }
 
     /**

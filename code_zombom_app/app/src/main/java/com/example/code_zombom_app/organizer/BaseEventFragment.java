@@ -185,6 +185,8 @@ public abstract class BaseEventFragment extends Fragment {
         event.setDescription(descriptionEditText.getText().toString());
         // Poster URL is set later when an image is uploaded
 
+        // Ensure the category list reflects the latest genre input only
+        event.clearCategories();
         String genre = genreEditText.getText().toString();
         if (!genre.trim().isEmpty()) {
             try {

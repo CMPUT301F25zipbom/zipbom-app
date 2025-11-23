@@ -59,11 +59,7 @@ public final class EventMapper {
         // Genre -> category (store unrecognised genres as restrictions for visibility)
         String genre = source.getGenre();
         if (genre != null && !genre.trim().isEmpty()) {
-            try {
-                event.addCategory(genre);
-            } catch (IllegalArgumentException ex) {
-                event.addRestriction("Category: " + genre);
-            }
+            event.addCategory(genre);
         }
 
         // Lists
