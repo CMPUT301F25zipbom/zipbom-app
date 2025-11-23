@@ -203,6 +203,13 @@ public abstract class BaseEventFragment extends Fragment {
             event.setCapacity(0);
         }
 
+        try {
+            int waitLimit = Integer.parseInt(maxentrantEditText.getText().toString());
+            event.setWaitlistLimit(waitLimit);
+        } catch (NumberFormatException ignored) {
+            event.setWaitlistLimit(0);
+        }
+
         return event;
     }
 
