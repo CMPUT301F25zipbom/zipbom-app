@@ -1,6 +1,11 @@
 package com.example.code_zombom_app.organizer;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +40,8 @@ public class EditEventFragment extends BaseEventFragment {
         if (getArguments() != null) {
             originalEventId = getArguments().getString("eventId");
         }
+        //sendemail("rwenstro@ualberta.ca");
+        //sendsms("6398400233");
     }
 
     /**
@@ -145,5 +152,25 @@ public class EditEventFragment extends BaseEventFragment {
                         updateButton.setEnabled(true);
                     }
                 });
+    }
+
+    void sendemail(String useremail){
+
+        String[] to = {useremail};
+        String[] cc = {"zipbomapp@gmail.com"};
+
+        Intent mail = new Intent(Intent.ACTION_SEND);
+        mail.setData(Uri.parse("mailto:"));
+        mail.putExtra(Intent.EXTRA_EMAIL, to);
+        mail.putExtra(Intent.EXTRA_CC, cc);
+        mail.putExtra(Intent.EXTRA_TEXT, "The event you have signed up for has been edited.");
+        mail.putExtra(Intent.EXTRA_SUBJECT, "Zipbomapp event edited");
+
+        startActivity(Intent.createChooser(mail, "mailto"));
+    }
+
+    void sendsms(String phonenumber){
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phonenumber, null, "An event you have signed up for has been edited.", null, null);
     }
 }
