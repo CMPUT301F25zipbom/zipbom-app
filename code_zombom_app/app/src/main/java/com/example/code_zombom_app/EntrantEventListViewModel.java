@@ -9,6 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.Helpers.Event.EventService;
+import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -62,6 +65,7 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
 
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private final EventService eventService = new EventService(firestore);
     private ListenerRegistration listenerRegistration;
 
     private String currentQuery = "";
@@ -153,37 +157,14 @@ public class EntrantEventListViewModel extends ViewModel {
         final String normalizedEmail = entrantEmail.trim();
         joinInProgress.setValue(true);
 
-        DocumentReference docRef = firestore.collection("Events").document(documentId);
-        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-                    // Read the freshest snapshot inside the transaction so the limit check is accurate
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
-                    if (entrants.contains(normalizedEmail)) {
-                        throw new JoinException("You have already joined this waiting list.");
-                    }
-
-                    int waitlistMaximum = extractMaxPeopleLimit(snapshot.get("Max People"));
-                    if (waitlistMaximum > 0 && entrants.size() >= waitlistMaximum) {
-                        throw new JoinException("This waiting list is full.");
-                    }
-
-                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
-                    updatedEntrants.add(normalizedEmail);
-                    transaction.update(docRef, "Entrants", updatedEntrants);
-                    return null;
-                })
+        eventService.addEntrantToWaitlist(documentId, normalizedEmail)
                 .addOnSuccessListener(ignored -> {
                     String eventName = event.getName() == null ? "event" : event.getName();
                     joinStatusMessage.setValue("Joined " + eventName + " waiting list.");
                 })
                 .addOnFailureListener(e -> {
-                    if (e instanceof JoinException) {
-                        joinStatusMessage.setValue(e.getMessage());
-                    } else {
-                        joinStatusMessage.setValue("Couldn't join the waiting list. Please try again.");
-                        Log.e(TAG, "Failed to join event " + documentId, e);
-                    }
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't join the waiting list. Please try again.");
+                    Log.e(TAG, "Failed to join event " + documentId, e);
                 })
                 .addOnCompleteListener(task -> joinInProgress.setValue(false));
     }
@@ -206,31 +187,14 @@ public class EntrantEventListViewModel extends ViewModel {
         final String normalizedEmail = entrantEmail.trim();
         joinInProgress.setValue(true);
 
-        DocumentReference docRef = firestore.collection("Events").document(documentId);
-        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
-                    if (!entrants.contains(normalizedEmail)) {
-                        throw new LeaveException("You are not on this waiting list.");
-                    }
-
-                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
-                    updatedEntrants.remove(normalizedEmail);
-                    transaction.update(docRef, "Entrants", updatedEntrants);
-                    return null;
-                })
+        eventService.removeEntrantFromWaitlist(documentId, normalizedEmail)
                 .addOnSuccessListener(ignored -> {
                     String eventName = event.getName() == null ? "event" : event.getName();
                     joinStatusMessage.setValue("Left " + eventName + " waiting list.");
                 })
                 .addOnFailureListener(e -> {
-                    if (e instanceof LeaveException) {
-                        joinStatusMessage.setValue(e.getMessage());
-                    } else {
-                        joinStatusMessage.setValue("Couldn't leave the waiting list. Please try again.");
-                        Log.e(TAG, "Failed to leave event " + documentId, e);
-                    }
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't leave the waiting list. Please try again.");
+                    Log.e(TAG, "Failed to leave event " + documentId, e);
                 })
                 .addOnCompleteListener(task -> joinInProgress.setValue(false));
     }
@@ -368,6 +332,16 @@ public class EntrantEventListViewModel extends ViewModel {
      * Converts a Firestore document to the domain {@link Event} instance.
      */
     private Event mapDocumentToEvent(DocumentSnapshot snapshot) {
+        // Prefer the organiser DTO mapping when possible to keep both roles aligned on one model.
+        try {
+            EventForOrg dto = snapshot.toObject(EventForOrg.class);
+            Event mapped = EventMapper.toDomain(dto, snapshot.getId());
+            if (mapped != null) {
+                return mapped;
+            }
+        } catch (Exception ex) {
+            Log.w(TAG, "Fallback to tolerant mapping for document " + snapshot.getId(), ex);
+        }
         // Accept organiser documents that use lowercase or underscored field names for "name".
         String name = getStringField(snapshot, "Name", "Event Name");
         if (name == null || name.trim().isEmpty()) {
