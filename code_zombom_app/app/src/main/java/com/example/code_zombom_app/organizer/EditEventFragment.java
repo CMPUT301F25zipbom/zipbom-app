@@ -106,7 +106,7 @@ public class EditEventFragment extends BaseEventFragment {
     /**
      * REFACTORED: Implements the abstract method to update an existing Firestore document
      * directly from the Event object.
-     * @param eventForOrgFromUI The complete Event object with updated data.
+     * @param eventFromUi The complete Event object with updated data.
      */
     @Override
     protected void processEvent(Event eventFromUi) {
@@ -125,7 +125,9 @@ public class EditEventFragment extends BaseEventFragment {
         domainEventToEdit.setEventDate(eventFromUi.getEventDateText());
         domainEventToEdit.setRegistrationClosesAt(eventFromUi.getRegistrationClosesAtText());
         domainEventToEdit.setLocation(eventFromUi.getLocation());
+        domainEventToEdit.setGenre(eventFromUi.getGenre());
         domainEventToEdit.setDescription(eventFromUi.getDescription());
+        domainEventToEdit.setMaxEntrants(eventFromUi.getMaxEntrants());
         domainEventToEdit.setPosterUrl(eventFromUi.getPosterUrl());
         domainEventToEdit.setFirestoreDocumentId(originalEventId);
 

@@ -115,7 +115,10 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         sb.append("Deadline: ").append(Deadline != null ? Deadline : "").append("\n");
         sb.append("Genre: ").append(Genre != null ? Genre : "").append("\n");
         if (Location != null) {
-            sb.append("Location: ").append(Location);
+            sb.append("Location: ").append(Location).append("\n");
+        }
+        if (Wait_List_Maximum != null) {
+            sb.append("Wait List Max: ").append(Wait_List_Maximum);
         }
         return sb.toString();
     }

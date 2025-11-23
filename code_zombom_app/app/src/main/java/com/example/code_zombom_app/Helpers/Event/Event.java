@@ -62,8 +62,10 @@ public class Event implements Comparable<Event> {
     private String description;
     // URL of the uploaded event poster stored in Firebase Storage
     private String posterUrl;
+    private String genre;
+    private int maxEntrants;
 
-    /* Expand this if you want to add more category */
+        /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
@@ -100,6 +102,8 @@ public class Event implements Comparable<Event> {
         registrationClosesAtText = "";
         description = "";
         posterUrl = "";
+        genre = "";
+        maxEntrants = 0;
     }
 
     /**
@@ -232,7 +236,9 @@ public class Event implements Comparable<Event> {
     public void addCategory(String category) {
         if (!checkCategory(category))
             throw new IllegalArgumentException("Unrecognized category");
-        this.categories.add(category);
+        else {
+            this.categories.add(category);
+        }
     }
 
     /**
@@ -293,6 +299,22 @@ public class Event implements Comparable<Event> {
      */
     public String getName() {
         return this.name;
+    }
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getMaxEntrants() {
+        return maxEntrants;
+    }
+
+    public void setMaxEntrants(int maxEntrants) {
+        if (maxEntrants < 0)
+            this.maxEntrants = maxEntrants;
     }
 
     /**

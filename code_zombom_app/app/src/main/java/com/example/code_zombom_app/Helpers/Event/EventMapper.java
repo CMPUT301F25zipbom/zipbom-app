@@ -39,6 +39,7 @@ public final class EventMapper {
 
         // Basic text fields
         event.setLocation(source.getLocation());
+        event.setMaxEntrants(Integer.parseInt(source.getMax_People()));
         event.setEventDate(source.getDate());
         event.setRegistrationClosesAt(source.getDeadline());
         event.setDescription(source.getDescription());
