@@ -57,6 +57,8 @@ public class Event implements Comparable<Event> {
 
     // Set the maximum number of entrants that can join the waiting list
     private int capacity;
+    // Optional limit for how many entrants can join the waitlist (0 = unlimited)
+    private int waitlistLimit;
     private String eventDateText;
     private String registrationClosesAtText;
     private String description;
@@ -98,6 +100,7 @@ public class Event implements Comparable<Event> {
         eventId = UUID.randomUUID().toString();
         location = "";
         capacity = 0;
+        waitlistLimit = 0;
         eventDateText = "";
         registrationClosesAtText = "";
         description = "";
@@ -593,6 +596,25 @@ public class Event implements Comparable<Event> {
      */
     public int getCapacity() {
         return capacity;
+    }
+
+    /**
+     * Updates the waitlist limit; values less than zero are treated as zero.
+     *
+     * @param limit desired waitlist maximum
+     */
+    public void setWaitlistLimit(int limit) {
+        if (limit < 0) {
+            limit = 0;
+        }
+        this.waitlistLimit = limit;
+    }
+
+    /**
+     * @return maximum number of entrants allowed on the waitlist (0 means unlimited)
+     */
+    public int getWaitlistLimit() {
+        return waitlistLimit;
     }
 
     /**

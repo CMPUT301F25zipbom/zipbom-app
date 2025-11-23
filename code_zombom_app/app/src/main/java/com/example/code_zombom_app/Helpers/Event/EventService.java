@@ -48,7 +48,10 @@ public class EventService {
             if (event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You have already joined this waiting list.");
             }
-            int waitlistMaximum = event.getCapacity();
+            int waitlistMaximum = event.getWaitlistLimit();
+            if (waitlistMaximum <= 0) {
+                waitlistMaximum = event.getCapacity();
+            }
             if (waitlistMaximum > 0 && event.getWaitingList().size() >= waitlistMaximum) {
                 throw new IllegalArgumentException("This waiting list is full.");
             }
