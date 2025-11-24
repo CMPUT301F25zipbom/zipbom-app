@@ -74,9 +74,9 @@ public final class EventMapper {
         for (String winner : safeList(source.getLottery_Winners())) {
             event.addChosenEntrant(winner);
         }
-        for (String accepted : safeList(source.getAccepted_Entrants())) {
-            event.addRegisteredEntrant(accepted);
-        }
+//        for (String accepted : safeList(source.getAccepted_Entrants())) {
+//            event.addRegisteredEntrant(accepted);
+//        }
 
         // Store the best-known wait count when entrants were not hydrated
         event.setWaitingEntrantCount(event.getWaitingList().size());
@@ -102,7 +102,7 @@ public final class EventMapper {
         dto.setMax_People(String.valueOf(event.getCapacity()));
         dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
         dto.setEntrants(event.getWaitingList());
-        dto.setAccepted_Entrants(event.getRegisteredList());
+//        dto.setAccepted_Entrants(event.getRegisteredList());
         dto.setLottery_Winners(event.getChosenList());
         dto.setPosterUrl(event.getPosterUrl());
         // No direct place for pending/cancelled in the domain yet.
