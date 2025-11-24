@@ -256,7 +256,7 @@ public class Location {
         // Add the heatmap overlay to the map
         TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
 
-        // Optional: zoom the camera to include all points
+        // Zoom the camera to include all points
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (LatLng pos : latLngList) builder.include(pos);
 
