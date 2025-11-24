@@ -240,7 +240,7 @@ public class Event implements Comparable<Event> {
         if (!checkCategory(category))
             throw new IllegalArgumentException("Unrecognized category");
         else {
-            this.categories.add(category);
+            this.categories.add(normalizeCategory(category));
         }
     }
 
@@ -274,10 +274,23 @@ public class Event implements Comparable<Event> {
      */
     private boolean checkCategory(String category) {
         for (String c : acceptedCategories) {
-            if (c.equals(category))
+            if (c.equalsIgnoreCase(category))
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the canonical accepted category string when input matches (case-insensitive),
+     * otherwise returns the original input.
+     */
+    private String normalizeCategory(String category) {
+        for (String c : acceptedCategories) {
+            if (c.equalsIgnoreCase(category)) {
+                return c;
+            }
+        }
+        return category;
     }
 
     /**
@@ -714,8 +727,15 @@ public class Event implements Comparable<Event> {
     public String getPosterUrl() {
         return posterUrl;
     }
+        /**
+         * Removes all categories from this event.
+         */
+        public void clearCategories() {
+            this.categories.clear();
+        }
 
-    /**
+
+        /**
      * This class provides an additional method to sort the event by their created date from newest
      * (earliest) to oldest (most recent)
      *

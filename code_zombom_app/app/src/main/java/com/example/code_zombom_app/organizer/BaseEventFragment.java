@@ -187,12 +187,15 @@ public abstract class BaseEventFragment extends Fragment {
         event.setDescription(descriptionEditText.getText().toString());
         // Poster URL is set later when an image is uploaded
 
+        // Replace any previous genre with the current input
+        event.clearCategories();
         String genre = genreEditText.getText().toString();
         if (!genre.trim().isEmpty()) {
             try {
                 event.addCategory(genre);
             } catch (IllegalArgumentException ignored) {
-                event.addRestriction("Category: " + genre);
+                Toast.makeText(getContext(), "Genre must be one of: Sport, eSport, Food, Music, Engineering.", Toast.LENGTH_SHORT).show();
+                return null;
             }
         }
 
