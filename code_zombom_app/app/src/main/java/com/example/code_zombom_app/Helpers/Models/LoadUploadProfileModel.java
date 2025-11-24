@@ -1,7 +1,10 @@
 package com.example.code_zombom_app.Helpers.Models;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
+
 import android.content.Context;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
@@ -11,6 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class LoadUploadProfileModel extends GModel {
     protected FirebaseFirestore db;
+    protected static final String errorTag = "FireBaseFireStore Error"; // Tag to debug errors
     public LoadUploadProfileModel(FirebaseFirestore db) {
         super();
         this.db = db; // Force the database to be initialized within a context
@@ -64,7 +68,7 @@ public class LoadUploadProfileModel extends GModel {
 
                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Log.e(errorTag, "Load Profile Failure", e);
                     state = State.LOGIN_FAILURE;
                     errorMsg = "Cannot query the database!";
                     notifyViews();
@@ -74,18 +78,23 @@ public class LoadUploadProfileModel extends GModel {
     /**
      * Create a new profile and upload it onto the database
      *
-     * @param name  The name of the profile
-     * @param email The email address associate with this profile
-     * @param phone The phone number associate with this profile
-     * @param type  The type of profile
+     * @param name     The name of the profile
+     * @param email    The email address associate with this profile
+     * @param phone    The phone number associate with this profile
+     * @param location The location associate with this profile
+     * @param type     The type of profile
      */
-    public void setProfile(String name, String email, String phone, String type) {
+    public void uploadProfile(String name, String email, String phone, Location location, String type) {
         resetState();
         Profile profile = null;
 
         try {
             if (type.equals("Entrant"))
                 profile = new Entrant(name, email, phone);
+            if (location != null) {
+                assert profile != null;
+                profile.setLocation(location);
+            }
         }
         catch (IllegalArgumentException e) {
             state = State.SIGNUP_FAILURE;
@@ -114,7 +123,7 @@ public class LoadUploadProfileModel extends GModel {
                                     notifyViews();
                                 })
                                 .addOnFailureListener(e -> {
-                                    e.printStackTrace();
+                                    Log.e(errorTag, "Upload error", e);
                                     state = State.SIGNUP_FAILURE;
                                     errorMsg = "Cannot add profile to the database!";
                                     notifyViews();
@@ -122,7 +131,7 @@ public class LoadUploadProfileModel extends GModel {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Log.e(errorTag, "Querying error", e);
                     state = State.LOGIN_FAILURE;
                     errorMsg = "Error in querying the database!";
                     notifyViews();
@@ -158,7 +167,7 @@ public class LoadUploadProfileModel extends GModel {
                                         notifyViews();
                                     })
                                     .addOnFailureListener(e -> {
-                                        e.printStackTrace();
+                                        Log.e(errorTag, "Update Profile Error", e);
                                         state = State.EDIT_PROFILE_FAILURE;
                                         errorMsg = "Cannot update profile in the database!";
                                         notifyViews();
@@ -170,7 +179,7 @@ public class LoadUploadProfileModel extends GModel {
                         }
                     })
                     .addOnFailureListener(e -> {
-                        e.printStackTrace();
+                        Log.e(errorTag, "Querying error", e);
                         state = State.EDIT_PROFILE_FAILURE;
                         errorMsg = "Error querying the database!";
                         notifyViews();
@@ -200,14 +209,14 @@ public class LoadUploadProfileModel extends GModel {
                                                     notifyViews();
                                                 })
                                                 .addOnFailureListener(e -> {
-                                                    e.printStackTrace();
+                                                    Log.e(errorTag, "Upload Edited Profile Error", e);
                                                     state = State.EDIT_PROFILE_FAILURE;
                                                     errorMsg = "Cannot upload the edited profile to the database!";
                                                     notifyViews();
                                                 });
                                     })
                                     .addOnFailureListener(e -> {
-                                        e.printStackTrace();
+                                        Log.e(errorTag, "Delete Old Profile Error", e);
                                         state = State.EDIT_PROFILE_FAILURE;
                                         errorMsg = "Cannot delete the old profile from the database!";
                                         notifyViews();
@@ -215,7 +224,7 @@ public class LoadUploadProfileModel extends GModel {
                         }
                     })
                     .addOnFailureListener(e -> {
-                        e.printStackTrace();
+                        Log.e(errorTag, "Querying Error", e);
                         state = State.EDIT_PROFILE_FAILURE;
                         errorMsg = "Failure querying the database for the new email address!";
                         notifyViews();
@@ -242,7 +251,7 @@ public class LoadUploadProfileModel extends GModel {
                     notifyViews();
                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Log.e(errorTag, "Deleting Old Profile Error", e);
                     state = State.DELETE_PROFILE_FAILURE;
                     errorMsg = "Cannot delete this profile from the database!";
                 });
@@ -291,7 +300,7 @@ public class LoadUploadProfileModel extends GModel {
                                     }
                                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Log.e(errorTag, "Querying Error", e);
                     state = State.ADD_DEVICE_ID_FAILURE;
                     errorMsg = "Cannot query the database for the device id " + id + "!";
                     notifyViews();
@@ -350,7 +359,7 @@ public class LoadUploadProfileModel extends GModel {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    e.printStackTrace();
+                    Log.e(errorTag, "Querying Error", e);
                     state = State.LOGIN_FAILURE;
                     errorMsg = "Error in querying the database";
                     notifyViews();
