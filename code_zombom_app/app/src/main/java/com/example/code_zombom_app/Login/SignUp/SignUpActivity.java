@@ -18,16 +18,19 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUpActivity extends AppCompatActivity implements TView<SignUpModel>  {
     private TextView textViewAddress;
+    private Location location;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_signup);
+        textViewAddress = findViewById(R.id.textViewAddress);
 
         SignUpModel model = new SignUpModel(FirebaseFirestore.getInstance());
         GModel.setCurrentModel(model);
         SignUpController controller = new SignUpController(model,
+                textViewAddress,
                 findViewById(R.id.editTextSignUpName),
                 findViewById(R.id.editTextSignUpEmail),
                 findViewById(R.id.editTextSignUpPhone),
@@ -44,12 +47,13 @@ public class SignUpActivity extends AppCompatActivity implements TView<SignUpMod
 
         model.addView(this);
 
-        textViewAddress = findViewById(R.id.textViewAddress);
+
     }
 
     @Override
     public void update(SignUpModel model) {
         textViewAddress.setText("");
+        location = null;
 
         if (model.getState() == GModel.State.SIGNUP_SUCCESS) {
             Toast.makeText(this, "Sign up succeed!", Toast.LENGTH_SHORT).show();
@@ -69,9 +73,12 @@ public class SignUpActivity extends AppCompatActivity implements TView<SignUpMod
                 }
             }
         } else if (model.getState() == GModel.State.SIGNUP_ADDRESS_SUCCESS) {
-            Location location = (Location) model.getInterMsg("Message");
-            textViewAddress.setText(location.toString());
+            location = (Location) model.getInterMsg("Message");
+            String displayAddress = "Address: " + location.toString();
+            textViewAddress.setText(displayAddress);
         }
+
+        //TODO: with sufficient time: Create a clear address button
     }
 
     /**

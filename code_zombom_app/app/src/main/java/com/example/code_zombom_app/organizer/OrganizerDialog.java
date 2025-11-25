@@ -85,6 +85,12 @@ public class OrganizerDialog extends Dialog {
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
+        if (eventForOrg.getLottery_Winners() != null && !eventForOrg.getLottery_Winners().isEmpty()) {
+            viewStartButton.setText("Replacement Draw");
+        } else {
+            viewStartButton.setText("Start Draw");
+        }
+
         // This button starts a draw for who will win the lottery using the central service
         viewStartButton.setOnClickListener(v -> {
             dismiss(); // Close the dialog

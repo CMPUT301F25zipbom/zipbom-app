@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.Helpers.Users;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
@@ -16,6 +18,7 @@ public class Profile {
     protected String phone;
     protected ArrayList<String> deviceId = new ArrayList<>();
     protected String type; // Admin, organizer or entrant
+    protected Location location;
 
     /**
      * This constructor is required for Firestore deserialization
@@ -32,6 +35,7 @@ public class Profile {
         if (email == null || email.trim().isEmpty())
             throw new IllegalArgumentException("Email cannot be null, blank or empty");
         this.email = email;
+        this.location = null; // Use setLocation to manually set a location to a profile
     }
 
     /**
@@ -59,7 +63,8 @@ public class Profile {
         this.email = other.getEmail();
         this.phone = other.getPhone();
         this.deviceId = other.getDeviceId();
-        this.type = other.type;
+        this.type = other.getType();
+        this.location = other.getLocation();
     }
 
     /**
@@ -150,5 +155,21 @@ public class Profile {
      */
     public String getType() {
         return this.type;
+    }
+
+    /**
+     * Set the location for a Profile.
+     *
+     * @param location The location to set
+     */
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    /**
+     * @return The current location of this profile (can be null)
+     */
+    public Location getLocation() {
+        return this.location;
     }
 }
