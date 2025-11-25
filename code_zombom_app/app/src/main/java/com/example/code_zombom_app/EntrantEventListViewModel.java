@@ -63,10 +63,13 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<Boolean> joinInProgress = new MutableLiveData<>(false);
     /** One-off success/error message that the fragment shows via a toast/snackbar. */
     private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
+    /** Latest notification payload available to the entrant. */
+    private final MutableLiveData<EntrantNotification> entrantNotification = new MutableLiveData<>(null);
 
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final EventService eventService = new EventService(firestore);
     private ListenerRegistration listenerRegistration;
+    private ListenerRegistration notificationListener;
 
     private String currentQuery = "";
     private FilterSortState currentFilterSortState = new FilterSortState();
@@ -107,6 +110,13 @@ public class EntrantEventListViewModel extends ViewModel {
         joinStatusMessage.setValue(null);
     }
 
+    /**
+     * @return latest notification (null after consumed)
+     */
+    public LiveData<EntrantNotification> getEntrantNotification() {
+        return entrantNotification;
+    }
+
     public void filterEvents(String query) {
         currentQuery = query != null ? query : "";
         recomputeFilteredEvents();
@@ -132,6 +142,7 @@ public class EntrantEventListViewModel extends ViewModel {
      */
     public void setEntrantEmail(@Nullable String email) {
         entrantEmail = email;
+        startNotificationListener();
     }
 
     /**
@@ -233,6 +244,119 @@ public class EntrantEventListViewModel extends ViewModel {
                         loading.setValue(false);
                     }
                 });
+    }
+
+    /**
+     * Listens for win/lose notifications addressed to the current entrant using a collection group query.
+     */
+    private void startNotificationListener() {
+        if (notificationListener != null) {
+            notificationListener.remove();
+            notificationListener = null;
+        }
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            return;
+        }
+        final String normalizedEmail = entrantEmail.trim().toLowerCase();
+        notificationListener = firestore.collectionGroup("Notifications")
+                .whereEqualTo("recipientEmail", normalizedEmail)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null || value.isEmpty()) {
+                        return;
+                    }
+                    value.getDocuments().forEach(doc -> {
+                        String type = doc.getString("type");
+                        String eventName = doc.getString("eventName");
+                        String recipient = doc.getString("recipientEmail");
+                        if (recipient != null && !recipient.equalsIgnoreCase(normalizedEmail)) {
+                            return;
+                        }
+                        if (type == null) {
+                            return;
+                        }
+                        String message;
+                        if ("win".equalsIgnoreCase(type)) {
+                            message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
+                        } else if ("lose".equalsIgnoreCase(type)) {
+                            message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
+                        } else {
+                            return;
+                        }
+                        entrantNotification.setValue(new EntrantNotification(doc.getReference().getParent().getParent().getId(), eventName, message, type));
+                    });
+                });
+    }
+
+    /** Notifies Firestore that the entrant saw the latest notification. */
+    public void onNotificationDisplayed() {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            return;
+        }
+        String normalizedEmail = entrantEmail.trim().toLowerCase();
+        firestore.collection("Profiles")
+                .document(entrantEmail)
+                .update("lastNotificationReceived", true);
+    }
+
+    public void loadLatestNotification(@Nullable String eventId, @NonNull NotificationCallback callback) {
+        if (eventId == null || entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            callback.onNotificationLoaded(null);
+            return;
+        }
+        String normalizedEmail = entrantEmail.trim().toLowerCase();
+        firestore.collection("Events")
+                .document(eventId)
+                .collection("Notifications")
+                .whereEqualTo("recipientEmail", normalizedEmail)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        callback.onNotificationLoaded(null);
+                        return;
+                    }
+                    DocumentSnapshot doc = null;
+                    for (DocumentSnapshot candidate : snapshot.getDocuments()) {
+                        if (doc == null) {
+                            doc = candidate;
+                            continue;
+                        }
+                        long currentTs = candidate.getLong("createdAt") == null ? 0 : candidate.getLong("createdAt");
+                        long selectedTs = doc.getLong("createdAt") == null ? 0 : doc.getLong("createdAt");
+                        if (currentTs > selectedTs) {
+                            doc = candidate;
+                        }
+                    }
+                    if (doc == null) {
+                        callback.onNotificationLoaded(null);
+                        return;
+                    }
+                    String type = doc.getString("type");
+                    String eventName = doc.getString("eventName");
+                    String message;
+                    if ("win".equalsIgnoreCase(type)) {
+                        message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
+                    } else if ("lose".equalsIgnoreCase(type)) {
+                        message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
+                    } else {
+                        message = doc.getString("message");
+                    }
+                    callback.onNotificationLoaded(new EntrantNotification(eventId, eventName, message, type));
+                })
+                .addOnFailureListener(e -> callback.onNotificationLoaded(null));
+    }
+
+    public static class EntrantNotification {
+        public final String eventId;
+        public final String eventName;
+        public final String message;
+        public final String type;
+
+        public EntrantNotification(String eventId, String eventName, String message, String type) {
+            this.eventId = eventId;
+            this.eventName = eventName;
+            this.message = message;
+            this.type = type;
+        }
     }
 
     private void recomputeFilteredEvents() {
@@ -689,5 +813,9 @@ public class EntrantEventListViewModel extends ViewModel {
         if (listenerRegistration != null) {
             listenerRegistration.remove();
         }
+    }
+
+    interface NotificationCallback {
+        void onNotificationLoaded(@Nullable EntrantNotification notification);
     }
 }

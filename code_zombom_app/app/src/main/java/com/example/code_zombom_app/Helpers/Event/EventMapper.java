@@ -44,6 +44,12 @@ public final class EventMapper {
         event.setRegistrationClosesAt(source.getDeadline());
         event.setDescription(source.getDescription());
         event.setPosterUrl(source.getPosterUrl());
+        if (source.getDrawComplete() != null) {
+            event.setDrawComplete(source.getDrawComplete());
+        }
+        if (source.getDrawTimestamp() != null) {
+            event.setDrawTimestamp(source.getDrawTimestamp());
+        }
 
         // Capacity (defaults to zero when missing/malformed)
         try {
@@ -105,6 +111,8 @@ public final class EventMapper {
 //        dto.setAccepted_Entrants(event.getRegisteredList());
         dto.setLottery_Winners(event.getChosenList());
         dto.setPosterUrl(event.getPosterUrl());
+        dto.setDrawComplete(event.isDrawComplete());
+        dto.setDrawTimestamp(event.getDrawTimestamp());
         // No direct place for pending/cancelled in the domain yet.
         return dto;
     }
