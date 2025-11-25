@@ -50,6 +50,12 @@ public abstract class GModel extends TModel<TView> {
         REMOVE_DEVICE_ID,
 
 
+        UPLOAD_EVENT_SUCESS,
+        UPLOAD_EVENT_FAILURE,
+        LOAD_EVENT_SUCCESS,
+        LOAD_EVENT_FAILURE,
+
+
         INTERNAL_ERROR,
         NEUTRAL
         /* More to be implemented later when needed */

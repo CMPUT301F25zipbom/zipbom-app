@@ -66,4 +66,10 @@
     <string name="sign_up_address">Sign up address</string>
     <string name="enter_your_address">Enter your address</string>
     <string name="enter_address">Enter address</string>
+    <string name="event_name">Event Name</string>
+    <string name="max_amount_of_people">Max Amount Of People</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_the_event_location">Enter the event location</string>
 </resources>

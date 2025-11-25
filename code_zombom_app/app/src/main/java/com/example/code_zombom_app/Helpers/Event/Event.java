@@ -1,5 +1,6 @@
 package com.example.code_zombom_app.Helpers.Event;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 
 import java.util.ArrayList;
@@ -32,11 +33,6 @@ public class Event implements Comparable<Event> {
     // List of all restrictions the event may have
     private final ArrayList<String> restrictions;
 
-    /* List of categories that the event may belong to. This includes:  Sport, eSport, Food, Music,
-     * and Engineering (for now)
-     */
-    private final ArrayList<String> categories;
-
     // List of guidelines for the lottery selection process that the event may have
     private final ArrayList<String> lotterySelectionGuidelines;
 
@@ -53,30 +49,30 @@ public class Event implements Comparable<Event> {
     private Date eventEndDate;
 
     // Optional additional metadata exposed to entrants
-    private String location;
+    private Location location;
 
     // Set the maximum number of entrants that can join the waiting list
     private int capacity;
     // Optional limit for how many entrants can join the waitlist (0 = unlimited)
     private int waitlistLimit;
-    private String eventDateText;
-    private String registrationClosesAtText;
     private String description;
     // URL of the uploaded event poster stored in Firebase Storage
     private String posterUrl;
+
+    /**
+     * NOTE: To make our life easier I have deleted the attribute categories. From now on this define
+     * the genre of an event and each event has ONLY ONE genre.
+     */
     private String genre;
     private int maxEntrants;
 
-        /* Expand this if you want to add more category */
+    /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
 
     // An unique identifier of each event
     private final String eventId;
-
-    // Firestore document id to allow round-tripping between UI models and the backend
-    private String firestoreDocumentId;
 
     /**
      * Private constructor for class Event. This means an event cannot be created with new Event()
@@ -92,17 +88,14 @@ public class Event implements Comparable<Event> {
         pendingList = new ArrayList<>();
         registeredList = new ArrayList<>();
         restrictions = new ArrayList<>();
-        categories = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
         createdDate = new Date(); // Get the current (created) date
         eventStartDate = null;
         eventEndDate = null;
         eventId = UUID.randomUUID().toString();
-        location = "";
+        location = null;
         capacity = 0;
         waitlistLimit = 0;
-        eventDateText = "";
-        registrationClosesAtText = "";
         description = "";
         posterUrl = "";
         genre = "";
@@ -226,43 +219,6 @@ public class Event implements Comparable<Event> {
      */
     public ArrayList<String> getRestrictions() {
         return new ArrayList<String>(this.restrictions);
-    }
-
-    /**
-     * Add a new category to the category list.
-     *
-     * @param category A new category to add to the category list
-     * @throws IllegalArgumentException When the added category is not Sport, eSport, Food, Music,
-     *                                  or Engineering
-     * @since 1.0.0
-     */
-    public void addCategory(String category) {
-        if (!checkCategory(category))
-            throw new IllegalArgumentException("Unrecognized category");
-        else {
-            this.categories.add(normalizeCategory(category));
-        }
-    }
-
-    /**
-     * Remove a category from the categories list. No need for exception handling in this method
-     * i.e., if the removed category is not in the list or is illegal, simply do nothing
-     *
-     * @param category The category to be removed
-     * @since 1.0.0
-     */
-    public void removeCategory(String category) {
-        this.categories.remove(category);
-    }
-
-    /**
-     * Get the categories list.
-     *
-     * @return A deep-copy of the categories list
-     * @since 1.0.0
-     */
-    public ArrayList<String> getCategories() {
-        return new ArrayList<String>(this.categories);
     }
 
     /**
@@ -539,22 +495,6 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Stores the Firestore document id so UI gestures can reference the backing record.
-     *
-     * @param firestoreDocumentId document key from the "Events" collection
-     */
-    public void setFirestoreDocumentId(String firestoreDocumentId) {
-        this.firestoreDocumentId = firestoreDocumentId;
-    }
-
-    /**
-     * @return Firestore document key associated with this event instance.
-     */
-    public String getFirestoreDocumentId() {
-        return firestoreDocumentId;
-    }
-
-    /**
      * Define the natural sorting order for an event, which is by alphabetically sorting their name.
      * In case two events have the same name, sort alphabetically by their identifier.
      *
@@ -573,22 +513,19 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Updates the event location. Blank inputs are treated as no location.
+     * Updates the event location. Null inputs are treated as no location.
      *
-     * @param location user supplied location (may be null)
+     * @param location The location to add to an event
      */
-    public void setLocation(String location) {
-        if (location == null) {
-            this.location = "";
-        } else {
-            this.location = location.trim();
-        }
+    public void setLocation(Location location) {
+        if (location != null)
+            this.location = location;
     }
 
     /**
-     * @return user facing location string, or empty if not provided
+     * @return The event's location
      */
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
@@ -651,46 +588,6 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Stores a human-readable event date/time string (organizer supplied).
-     *
-     * @param eventDate formatted date/time string
-     */
-    public void setEventDate(String eventDate) {
-        if (eventDate == null) {
-            this.eventDateText = "";
-        } else {
-            this.eventDateText = eventDate.trim();
-        }
-    }
-
-    /**
-     * @return formatted event date/time string
-     */
-    public String getEventDateText() {
-        return eventDateText;
-    }
-
-    /**
-     * Stores a human-readable registration deadline string.
-     *
-     * @param deadline formatted deadline value (may be null)
-     */
-    public void setRegistrationClosesAt(String deadline) {
-        if (deadline == null) {
-            this.registrationClosesAtText = "";
-        } else {
-            this.registrationClosesAtText = deadline.trim();
-        }
-    }
-
-    /**
-     * @return formatted registration closing time
-     */
-    public String getRegistrationClosesAtText() {
-        return registrationClosesAtText;
-    }
-
-    /**
      * Stores the organiser-authored description text.
      */
     public void setDescription(String description) {
@@ -727,13 +624,22 @@ public class Event implements Comparable<Event> {
     public String getPosterUrl() {
         return posterUrl;
     }
+
         /**
-         * Removes all categories from this event.
+         * @return The accepted categories
          */
-        public void clearCategories() {
-            this.categories.clear();
+        public static String[] getAcceptedCategories() {
+            return acceptedCategories;
         }
 
+        /*********************/
+        public void setFirestoreDocumentId(String id) {
+        }
+
+        public String getFirestoreDocumentId() {
+            return null;
+        }
+        /********************/
 
         /**
      * This class provides an additional method to sort the event by their created date from newest
