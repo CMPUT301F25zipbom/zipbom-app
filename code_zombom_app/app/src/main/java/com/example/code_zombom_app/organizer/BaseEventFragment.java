@@ -54,7 +54,7 @@ public abstract class BaseEventFragment extends Fragment {
     protected Event baseEvent;
     protected Uri imageUri;
     private Uri pendingImageUri = null; // To handle the race condition
-    //private ActivityResultLauncher<Intent> imagePickerLauncher;
+    protected boolean isPosterUploaded = false; // Tracks if a poster exists
     private ActivityResultLauncher<Intent> resultLauncher;
 
     /**
@@ -99,6 +99,10 @@ public abstract class BaseEventFragment extends Fragment {
         descriptionEditText = view.findViewById(R.id.editTextDescription);
         buttonUploadPhoto = view.findViewById(R.id.buttonUploadPhoto2);
         imagePreview = view.findViewById(R.id.imagePreview);
+
+        if (isPosterUploaded) {
+            buttonUploadPhoto.setText("Update Poster");
+        }
 
         if (pendingImageUri != null) {
             imagePreview.setImageURI(pendingImageUri);
@@ -186,12 +190,24 @@ public abstract class BaseEventFragment extends Fragment {
 
     private void uploadImageAndProcessEvent(Event event) {
         StorageReference storageRef = storage.getReference().child("posters/" + event.getFirestoreDocumentId() + ".jpg");
+        if (isPosterUploaded) {
+            // If we are "updating", we first delete the old poster.
+            // this is to prevents orphaned files.
+            storageRef.delete().addOnSuccessListener(aVoid -> {
+                // Old poster deleted successfully, now upload the new one.
+                Log.d("FirebaseStorage", "Old poster successfully deleted.");
+            }).addOnFailureListener(e -> {
+                // Failed to delete the old one, but we'll try to upload the new one anyway.
+                Log.e("FirebaseStorage", "Failed to delete old poster.", e);
+            });
+        }
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
                             // --- REFACTORED: Set the poster URL on the event object ---
                             event.setPosterUrl(uri.toString());
                             processEvent(event); // Process the fully updated event
+                            isPosterUploaded = true;
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(getContext(), "Failed to get poster URL.", Toast.LENGTH_SHORT).show();
