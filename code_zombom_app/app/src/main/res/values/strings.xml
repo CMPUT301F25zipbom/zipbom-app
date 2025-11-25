@@ -72,4 +72,7 @@
     <string name="end_date">End Date</string>
     <string name="cancel">Cancel</string>
     <string name="enter_the_event_location">Enter the event location</string>
+    <string name="genre">Genre</string>
+    <string name="location">Location</string>
+    <string name="details">Details</string>
 </resources>

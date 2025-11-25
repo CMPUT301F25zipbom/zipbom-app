@@ -4,6 +4,9 @@ import android.util.Log;
 
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
 
 /**
  * <p>
@@ -18,8 +21,15 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * @version 11/24/2025
  */
 public class EventModel extends GModel {
-    private final FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private Event loadedEvent; // The loaded event from the database
+    protected final FirebaseFirestore db;
+    protected Event loadedEvent; // The loaded event from the database
+    protected ArrayList<Event> loadedEvents; // All loaded event from the database
+
+    public EventModel() {
+        super();
+        db = FirebaseFirestore.getInstance();
+        loadedEvents = new ArrayList<>();
+    }
 
     /**
      * Upload an event onto the database.
@@ -59,6 +69,8 @@ public class EventModel extends GModel {
      * @see FirebaseFirestore
      */
     public void loadEvent(String id) {
+        resetState();
+
         db.collection("Events")
                 .document(id)
                 .get()
@@ -83,10 +95,42 @@ public class EventModel extends GModel {
     }
 
     /**
+     * Load all events currently in the database
+     */
+    public void loadEvents() {
+        resetState();
+
+        db.collection("Events")
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    loadedEvents.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        loadedEvents.add(doc.toObject(Event.class));
+                    }
+                    setState(State.LOAD_EVENTS_SUCCESS);
+                    notifyViews();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("FirebaseFirestore Error", "Cannot query the events", e);
+                    setState(State.LOAD_EVENTS_FAILURE);
+                    errorMsg = "Cannot query the database for the events";
+                    notifyViews();
+                });
+    }
+
+    /**
      * @return The loaded event from the database.
      */
     public Event getLoadedEvent() {
         return loadedEvent;
+    }
+
+    /**
+     *
+     * @return All events currently in the database
+     */
+    public ArrayList<Event> getLoadedEvents() {
+        return loadedEvents;
     }
 
     protected void resetState() {

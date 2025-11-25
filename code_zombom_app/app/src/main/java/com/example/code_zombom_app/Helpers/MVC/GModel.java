@@ -54,6 +54,8 @@ public abstract class GModel extends TModel<TView> {
         UPLOAD_EVENT_FAILURE,
         LOAD_EVENT_SUCCESS,
         LOAD_EVENT_FAILURE,
+        LOAD_EVENTS_SUCCESS,
+        LOAD_EVENTS_FAILURE,
 
 
         INTERNAL_ERROR,

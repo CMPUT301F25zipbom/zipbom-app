@@ -46,7 +46,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_event_catalog, parent, false);
+                .inflate(R.layout.listview_events, parent, false);
         return new EventViewHolder(view);
     }
 
@@ -66,9 +66,9 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.item_event_name);
-            categoriesTextView = itemView.findViewById(R.id.item_event_category);
-            detailsTextView = itemView.findViewById(R.id.item_event_details);
+            nameTextView = itemView.findViewById(R.id.textView_listView_event_name);
+            categoriesTextView = itemView.findViewById(R.id.textView_listView_event_genre);
+            detailsTextView = itemView.findViewById(R.id.textView_listView_event_details);
             joinButton = itemView.findViewById(R.id.item_event_join_button);
             leaveButton = itemView.findViewById(R.id.btn_leave);
         }
