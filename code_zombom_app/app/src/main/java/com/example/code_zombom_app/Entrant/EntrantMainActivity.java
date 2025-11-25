@@ -87,7 +87,16 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(
                 new ScanContract(),
                 result -> {
-                    //TODO: Implement result
+                    if (result != null && result.getContents() != null) {
+                        String qR = result.getContents();
+
+                        /* Show the event in a popup window */
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle("Event Details");
+                        builder.setMessage(qR);
+                        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                        builder.show();
+                    }
                 });
 
         EntrantMainModel model = new EntrantMainModel();

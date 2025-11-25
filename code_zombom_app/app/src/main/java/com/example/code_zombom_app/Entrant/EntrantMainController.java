@@ -61,6 +61,7 @@ public class EntrantMainController extends GController<EntrantMainModel> {
                 options.setPrompt("Scan an event QR Code");
                 options.setBeepEnabled(true);
                 options.setOrientationLocked(true);
+                options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
                 barcodeLauncher.launch(options);
             }
         });
