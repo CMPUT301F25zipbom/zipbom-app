@@ -27,6 +27,7 @@ public class EntrantEventDetailsFragment extends Fragment {
     private TextView dateView;
     private TextView deadlineView;
     private TextView descriptionView;
+    private View notificationIcon;
 
     @Nullable
     @Override
@@ -45,6 +46,7 @@ public class EntrantEventDetailsFragment extends Fragment {
         dateView = view.findViewById(R.id.detail_event_date);
         deadlineView = view.findViewById(R.id.detail_event_deadline);
         descriptionView = view.findViewById(R.id.detail_event_description);
+        notificationIcon = view.findViewById(R.id.notification_icon);
 
         viewModel = new ViewModelProvider(requireActivity()).get(EntrantEventListViewModel.class);
         viewModel.getEvents().observe(getViewLifecycleOwner(), events -> {
@@ -62,6 +64,18 @@ public class EntrantEventDetailsFragment extends Fragment {
                 }
             }
         });
+
+        notificationIcon.setOnClickListener(v -> {
+            viewModel.onNotificationDisplayed();
+            String eventId = getArguments() != null ? getArguments().getString("eventId") : null;
+            EntrantNotificationFragment fragment = EntrantNotificationFragment.newInstance(eventId);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.entrant_event_list_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
     }
 
     private void bindEvent(@NonNull Event event) {
