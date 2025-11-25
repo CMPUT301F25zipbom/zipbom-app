@@ -26,7 +26,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     private ArrayList<String> Entrants;
     private ArrayList<String> Cancelled_Entrants;
     private ArrayList<String> Accepted_Entrants;
-    private ArrayList<String> Lottery_Winners;
+    private ArrayList<String> lotteryWinners;
 
 
     // --- Properties that are NOT in Firestore ---
@@ -49,7 +49,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         Entrants = new ArrayList<>();
         Cancelled_Entrants = new ArrayList<>();
         Accepted_Entrants = new ArrayList<>();
-        Lottery_Winners = new ArrayList<>();
+        lotteryWinners = new ArrayList<>();
         drawComplete = false;
         drawTimestamp = 0L;
     }
@@ -94,8 +94,8 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     public ArrayList<String> getAccepted_Entrants() { return Accepted_Entrants; }
     public void setAccepted_Entrants(ArrayList<String> accepted_Entrants) { this.Accepted_Entrants = accepted_Entrants; }
 
-    public ArrayList<String> getLottery_Winners() { return Lottery_Winners; }
-    public void setLottery_Winners(ArrayList<String> lottery_Winners) { this.Lottery_Winners = lottery_Winners; }
+    public ArrayList<String> getLotteryWinners() { return lotteryWinners; }
+    public void setLotteryWinners(ArrayList<String> lotteryWinners) { this.lotteryWinners = lotteryWinners; }
 
     public Boolean getDrawComplete() { return drawComplete; }
     public void setDrawComplete(Boolean drawComplete) { this.drawComplete = drawComplete; }

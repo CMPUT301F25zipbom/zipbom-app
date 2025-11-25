@@ -78,7 +78,7 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/item_event_join_button"
+                android:id="@+id/button_listView_event_join_waitingList"
                 android:layout_width="178dp"
                 android:layout_height="wrap_content"
                 android:backgroundTint="#4CAF50"
@@ -86,7 +86,7 @@
                 android:textAllCaps="false" />
 
             <Button
-                android:id="@+id/btn_leave"
+                android:id="@+id/button_listView_event_leave_waitingList"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"

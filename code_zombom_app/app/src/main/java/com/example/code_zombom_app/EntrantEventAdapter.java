@@ -69,8 +69,8 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
             nameTextView = itemView.findViewById(R.id.textView_listView_event_name);
             categoriesTextView = itemView.findViewById(R.id.textView_listView_event_genre);
             detailsTextView = itemView.findViewById(R.id.textView_listView_event_details);
-            joinButton = itemView.findViewById(R.id.item_event_join_button);
-            leaveButton = itemView.findViewById(R.id.btn_leave);
+            joinButton = itemView.findViewById(R.id.button_listView_event_join_waitingList);
+            leaveButton = itemView.findViewById(R.id.button_listView_event_leave_waitingList);
         }
 
         /**

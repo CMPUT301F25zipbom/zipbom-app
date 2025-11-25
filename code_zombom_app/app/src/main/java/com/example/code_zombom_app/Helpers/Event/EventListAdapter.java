@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,9 +31,23 @@ public class EventListAdapter extends ArrayAdapter<Event> {
     private TextView textViewEndDate;
     private TextView textViewLocation;
     private TextView textViewDetails;
+    private Button buttonJoinWaitingList;
+    private Button buttonLeaveWaitingList;
 
-    public EventListAdapter(@NonNull Context context, @NonNull List<Event> events) {
+    private String email;
+    private EventService eventService;
+
+    /**
+     *
+     * @param context The adapter's context
+     * @param events The list of events
+     * @param email The entrant's email address
+     */
+    public EventListAdapter(@NonNull Context context, @NonNull List<Event> events,
+                            String email) {
         super(context, 0, events);
+        this.email = email;
+        this.eventService = new EventService();
     }
 
     @NonNull
@@ -50,19 +65,60 @@ public class EventListAdapter extends ArrayAdapter<Event> {
         textViewEndDate = convertView.findViewById(R.id.textView_listView_event_endDate);
         textViewLocation = convertView.findViewById(R.id.textView_listView_event_location);
         textViewDetails = convertView.findViewById(R.id.textView_listView_event_details);
+        buttonJoinWaitingList = convertView.findViewById(R.id.button_listView_event_join_waitingList);
+        buttonLeaveWaitingList = convertView.findViewById(R.id.button_listView_event_leave_waitingList);
 
         if (event != null) {
-            textViewName.setText(event.getName());
+            textViewName.setText("Name: " + event.getName());
             textViewGenre.setText(event.getGenre());
             if (event.getEventStartDate() != null)
-                textViewStartDate.setText(event.getEventStartDate().toString());
+                textViewStartDate.setText("Start date: " + event.getEventStartDate().toString());
             if (event.getEventEndDate() != null)
-                textViewEndDate.setText(event.getEventEndDate().toString());
+                textViewEndDate.setText("End date: " + event.getEventEndDate().toString());
             if (event.getLocation() != null)
-                textViewLocation.setText(event.getLocation().toString());
-            textViewDetails.setText(event.getDescription());
+                textViewLocation.setText("Location: " + event.getLocation().toString());
+            textViewDetails.setText("Descriptions: " + event.getDescription());
         }
 
+        assert event != null;
+        setFocusable(event);
+
+        buttonJoinWaitingList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                event.joinWaitingList(email);
+                eventService.addEntrantToWaitlist(event.getEventId(), email); // Update the database
+                setFocusable(event);
+                notifyDataSetChanged();
+            }
+        });
+
+        buttonLeaveWaitingList.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                event.leaveWaitingList(email);
+                eventService.removeEntrantFromWaitlist(event.getEventId(), email); // Update the database
+                setFocusable(event);
+                notifyDataSetChanged();
+            }
+        });
+
         return convertView;
+    }
+
+    /**
+     * Disable/Enable the joining/leaving waiting list buttons
+     *
+     * @param event The event in the list view in this context
+     */
+    private void setFocusable(Event event) {
+        if (event.isInWaitingList(email)) {
+            buttonJoinWaitingList.setEnabled(false);
+            buttonLeaveWaitingList.setEnabled(true);
+        } else {
+            buttonJoinWaitingList.setEnabled(true);
+            buttonLeaveWaitingList.setEnabled(false);
+        }
     }
 }

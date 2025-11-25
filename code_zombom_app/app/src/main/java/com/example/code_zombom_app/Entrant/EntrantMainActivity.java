@@ -4,12 +4,20 @@ import static android.content.Intent.getIntent;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -19,12 +27,19 @@ import com.example.code_zombom_app.FilterSortActivity;
 import com.example.code_zombom_app.FilterSortState;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventListAdapter;
+import com.example.code_zombom_app.Helpers.Filter.EventFilter;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class EntrantMainActivity extends AppCompatActivity implements TView<EntrantMainModel> {
     private String email;
@@ -69,9 +84,15 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
 //            filterButton.setOnClickListener(v -> showFilterActivity());
 //        }
 
+        ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(
+                new ScanContract(),
+                result -> {
+                    //TODO: Implement result
+                });
+
         EntrantMainModel model = new EntrantMainModel();
         events = model.getLoadedEvents();
-        eventListAdapter = new EventListAdapter(this, events);
+        eventListAdapter = new EventListAdapter(this, events, email);
         listViewEvent = findViewById(R.id.listViewEntrantEvent);
         listViewEvent.setAdapter(eventListAdapter);
 
@@ -80,16 +101,14 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 findViewById(R.id.imageButtonProfile),
                 findViewById(R.id.imageButtonCamera),
                 listViewEvent,
-                eventListAdapter
+                eventListAdapter,
+                barcodeLauncher
 
         );
 
         controller.bindView();
         model.addView(this);
         model.loadEvents();
-        events = model.getLoadedEvents();
-
-        int i = 1; // An entry point for debugging
     }
 
 //    private void showFilterActivity() {
@@ -117,6 +136,185 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
             Toast.makeText(this, "Error in loading the events: " + model.getErrorMsg(),
                     Toast.LENGTH_SHORT).show();
         }
+        else if (model.getState() == GModel.State.REQUEST_FILTER_EVENT) {
+            openFilterPopUpWindow(model);
+        }
+    }
+
+    /**
+     * Open a popup window that allow the users to enter options for filtering the events
+     *
+     * @param model The control model of this view
+     */
+    //TODO: Finish the implementation
+    private void openFilterPopUpWindow(EntrantMainModel model) {
+        EventFilter filter = new EventFilter();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.popup_entrant_filter_events, null);
+
+        Spinner spinnerGenre = view.findViewById(R.id.spinnerFilterByGenre);
+
+        String[] genresString = Event.getAcceptedCategories();
+        List<String> genres = new ArrayList<>(Arrays.asList(genresString));
+        genres.add(0, "Any");
+
+        ArrayAdapter<String> genreAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                genres);
+
+        spinnerGenre.setAdapter(genreAdapter);
+
+        CheckBox checkBoxAvailability = view.findViewById(R.id.checkBox_filter_by_availability);
+        LinearLayout linearLayoutAvailability = view.findViewById(R.id.linearLayout_filter_by_availability);
+
+        checkBoxAvailability.setOnCheckedChangeListener((b, checked) -> {
+            linearLayoutAvailability.setVisibility(checked ? View.VISIBLE : View.GONE);
+        });
+
+        Calendar today = Calendar.getInstance();
+        Calendar nextDay = Calendar.getInstance();
+        nextDay.add(Calendar.DAY_OF_MONTH, 1);
+
+        DatePicker datePickerStartDate = view.findViewById(R.id.datePicker_filter_by_availability_startDate);
+        DatePicker datePickerEndDate = view.findViewById(R.id.datePicker_filter_by_availability_endDate);
+
+        datePickerStartDate.updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH),
+                today.get(Calendar.DAY_OF_MONTH));
+        datePickerEndDate.updateDate(nextDay.get(Calendar.YEAR), nextDay.get(Calendar.MONTH),
+                nextDay.get(Calendar.DAY_OF_MONTH));
+
+        /* Preventing setting the end date to be earlier than the start date and the start date
+         * to be earlier than today
+         */
+        datePickerStartDate.setMinDate(today.getTimeInMillis());
+        datePickerEndDate.setMinDate(nextDay.getTimeInMillis());
+
+        /* Automatically update the chosen dates when the users enter an invalid date */
+        datePickerStartDate.init(
+                today.get(Calendar.YEAR),
+                today.get(Calendar.MONTH),
+                today.get(Calendar.DAY_OF_MONTH),
+                (datePicker, year, month, day) -> {
+
+                    Calendar start = Calendar.getInstance();
+                    start.set(year, month, day);
+
+                    // End date must be at least 1 day after
+                    Calendar minEnd = (Calendar) start.clone();
+                    minEnd.add(Calendar.DAY_OF_MONTH, 1);
+
+                    datePickerEndDate.setMinDate(minEnd.getTimeInMillis());
+
+                    // If current end < new minEnd -> reset
+                    Calendar currentEnd = Calendar.getInstance();
+                    currentEnd.set(
+                            datePickerEndDate.getYear(),
+                            datePickerEndDate.getMonth(),
+                            datePickerEndDate.getDayOfMonth()
+                    );
+
+                    if (currentEnd.before(minEnd)) {
+                        datePickerEndDate.updateDate(
+                                minEnd.get(Calendar.YEAR),
+                                minEnd.get(Calendar.MONTH),
+                                minEnd.get(Calendar.DAY_OF_MONTH)
+                        );
+                    }
+                }
+        );
+
+        datePickerEndDate.init(
+                nextDay.get(Calendar.YEAR),
+                nextDay.get(Calendar.MONTH),
+                nextDay.get(Calendar.DAY_OF_MONTH),
+                (datePicker, year, month, day) -> {
+
+                    Calendar start = Calendar.getInstance();
+                    start.set(
+                            datePickerStartDate.getYear(),
+                            datePickerStartDate.getMonth(),
+                            datePickerStartDate.getDayOfMonth()
+                    );
+
+                    Calendar selectedEnd = Calendar.getInstance();
+                    selectedEnd.set(year, month, day);
+
+                    // Minimum valid end: start + 1 day
+                    Calendar minEnd = (Calendar) start.clone();
+                    minEnd.add(Calendar.DAY_OF_MONTH, 1);
+
+                    // If user selects an invalid end date -> automatically correct it
+                    if (selectedEnd.before(minEnd)) {
+                        datePickerEndDate.updateDate(
+                                minEnd.get(Calendar.YEAR),
+                                minEnd.get(Calendar.MONTH),
+                                minEnd.get(Calendar.DAY_OF_MONTH)
+                        );
+                    }
+                });
+
+        Button buttonReset = view.findViewById(R.id.button_filter_event_reset);
+        Button buttonApply = view.findViewById(R.id.button_filter_event_apply);
+
+        builder.setView(view);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                filter.reset();
+
+                // Set the spinner back to position zero
+
+                checkBoxAvailability.setChecked(false);
+                linearLayoutAvailability.setVisibility(View.GONE);
+
+                datePickerStartDate.updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH),
+                        today.get(Calendar.DAY_OF_MONTH));
+                datePickerEndDate.updateDate(nextDay.get(Calendar.YEAR), nextDay.get(Calendar.MONTH),
+                        nextDay.get(Calendar.DAY_OF_MONTH));
+
+                model.loadEvents();
+
+                dialog.dismiss();
+            }
+        });
+
+        buttonApply.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                model.filterEvent(filter);
+                dialog.dismiss();
+            }
+        });
+
+    }
+
+    /**
+     * Get a Date from the DatePicker class.
+     *
+     * @param datePicker The DatePicker object, which contains the date the the users
+     *                   have selected
+     * @return A Date that have been selected by the users
+     */
+    private Date getDateFromDatePicker(DatePicker datePicker) {
+        int day = datePicker.getDayOfMonth();
+        int month = datePicker.getMonth();            // 0-based (January = 0)
+        int year = datePicker.getYear();
+
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        calendar.set(year, month, day);
+
+        return calendar.getTime();
     }
 
 }

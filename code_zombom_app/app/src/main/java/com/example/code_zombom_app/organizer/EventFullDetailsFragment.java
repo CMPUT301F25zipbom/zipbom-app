@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.organizer;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
+
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -106,7 +108,7 @@ public class EventFullDetailsFragment extends Fragment {
 
     /**
      * Initializes the UI elements.
-     * @param view
+     * @param view The UI's view
      */
     private void initializeViews(View view) {
         nameValue = view.findViewById(R.id.name_value);
@@ -131,9 +133,9 @@ public class EventFullDetailsFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (isAdded() && documentSnapshot.exists()) {
                         // --- REFACTORED: Convert the document directly to an Event object ---
-                        EventForOrg eventForOrg = documentSnapshot.toObject(EventForOrg.class);
-                        if (eventForOrg != null) {
-                            populateUi(eventForOrg);
+                        Event event = documentSnapshot.toObject(Event.class);
+                        if (event != null) {
+                            populateUi(event);
                         } else {
                             Log.e("EventFullDetails", "Failed to map document to Event object.");
                             Toast.makeText(getContext(), "Error loading event details.", Toast.LENGTH_SHORT).show();
@@ -151,28 +153,31 @@ public class EventFullDetailsFragment extends Fragment {
 
     /**
      * Populates the UI elements with data from the document.
-     * @param eventForOrg
+     * @param event The event to populate
      */
-    private void populateUi(EventForOrg eventForOrg) {
+    private void populateUi(Event event) {
         // Set simple string values
-        nameValue.setText(eventForOrg.getName());
-        dateValue.setText(eventForOrg.getDate());
-        deadlineValue.setText(eventForOrg.getDeadline());
-        locationValue.setText(eventForOrg.getLocation());
-        genreValue.setText(eventForOrg.getGenre());
-        maxPeopleValue.setText(eventForOrg.getMax_People());
-        waitlistMaxValue.setText(eventForOrg.getWait_List_Maximum());
-        descriptionValue.setText(eventForOrg.getDescription());
+        nameValue.setText(event.getName());
+        if (event.getEventStartDate() != null)
+            dateValue.setText(event.getEventStartDate().toString());
+        if (event.getEventEndDate() != null)
+            deadlineValue.setText(event.getEventEndDate().toString());
+        if (event.getLocation() != null)
+            locationValue.setText(event.getLocation().toString());
+        genreValue.setText(event.getGenre());
+        maxPeopleValue.setText(String.valueOf(event.getCapacity()));
+        waitlistMaxValue.setText(String.valueOf(event.getWaitlistLimit()));
+        descriptionValue.setText(event.getDescription());
 
 
         // Set array values
-        entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getLottery_Winners()));
-        cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
+        entrantsValue.setText(formatListToString((List<String>) event.getWaitingList()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) event.getLotteryWinners()));
+        cancelledEntrantsValue.setText(formatListToString((List<String>) event.getCancelledList()));
 
-        if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
+        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
             Glide.with(this)
-                    .load(eventForOrg.getPosterUrl())
+                    .load(event.getPosterUrl())
                     .into(posterImageView);
             posterImageView.setVisibility(View.VISIBLE);
         } else {

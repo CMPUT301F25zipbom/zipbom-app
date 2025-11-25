@@ -19,7 +19,7 @@ import java.util.UUID;
 public class Event implements Comparable<Event> {
     // List of Entrants' email addresses that joined the waiting list
     private final ArrayList<String> waitingList;
-    private int waitingEntrantCount = -1;
+    private int waitingEntrantCount;
 
     // List of selected Entrants's email addresses from the waiting list after the lottery process
     private  final ArrayList<String> chosenList;
@@ -35,6 +35,11 @@ public class Event implements Comparable<Event> {
 
     // List of guidelines for the lottery selection process that the event may have
     private final ArrayList<String> lotterySelectionGuidelines;
+
+    // List of cancelled entrants
+    private ArrayList<String> cancelledList;
+
+    private ArrayList<String> lotteryWinners;
 
     // Name of the event: MUST HAVE
     private String name;
@@ -106,6 +111,9 @@ public class Event implements Comparable<Event> {
         maxEntrants = 0;
         drawComplete = false;
         drawTimestamp = 0L;
+        lotteryWinners = new ArrayList<>();
+        cancelledList = new ArrayList<>();
+        waitingEntrantCount = 0;
     }
 
     /**
@@ -180,7 +188,7 @@ public class Event implements Comparable<Event> {
      */
     public void joinWaitingList(String entrant) {
         this.waitingList.add(entrant);
-        waitingEntrantCount = -1;
+        waitingEntrantCount++;
     }
 
     /**
@@ -193,7 +201,18 @@ public class Event implements Comparable<Event> {
      */
     public void leaveWaitingList(String entrant) {
         this.waitingList.remove(entrant);
-        waitingEntrantCount = -1;
+        waitingEntrantCount--;
+    }
+
+
+    /**
+     * Check if an entrant is in the waiting list.
+     *
+     * @param entrant The entrant's email address to check
+     * @return true if the entrant is in the waiting list, false otherwise
+     */
+    public boolean isInWaitingList(String entrant) {
+        return waitingList.contains(entrant);
     }
 
     /**
@@ -500,6 +519,17 @@ public class Event implements Comparable<Event> {
         return this.eventId;
     }
 
+    public ArrayList<String> getLotteryWinners() { return lotteryWinners; }
+    public void setLotteryWinners(ArrayList<String> lotteryWinners) { this.lotteryWinners = lotteryWinners; }
+
+    public ArrayList<String> getCancelledList() {
+        return cancelledList;
+    }
+
+    public void setCancelledList(ArrayList<String> cancelledList) {
+        this.cancelledList = cancelledList;
+    }
+
     /**
      * Define the natural sorting order for an event, which is by alphabetically sorting their name.
      * In case two events have the same name, sort alphabetically by their identifier.
@@ -653,15 +683,6 @@ public class Event implements Comparable<Event> {
         public static String[] getAcceptedCategories() {
             return acceptedCategories;
         }
-
-        /*********************/
-        public void setFirestoreDocumentId(String id) {
-        }
-
-        public String getFirestoreDocumentId() {
-            return null;
-        }
-        /********************/
 
         /**
      * This class provides an additional method to sort the event by their created date from newest

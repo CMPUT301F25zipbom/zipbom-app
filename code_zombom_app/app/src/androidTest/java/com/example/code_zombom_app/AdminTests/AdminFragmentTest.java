@@ -63,8 +63,8 @@ public class AdminFragmentTest {
                 assert(container.getChildCount() == 2);
 
                 // 7️⃣ Verify event details
-                TextView firstEvent = container.getChildAt(0).findViewById(R.id.event_item_textview);
-                TextView secondEvent = container.getChildAt(1).findViewById(R.id.event_item_textview);
+                TextView firstEvent = container.getChildAt(0).findViewById(R.id.textView_event_list_items_details);
+                TextView secondEvent = container.getChildAt(1).findViewById(R.id.textView_event_list_items_details);
 
                 String firstText = firstEvent.getText().toString();
                 String secondText = secondEvent.getText().toString();

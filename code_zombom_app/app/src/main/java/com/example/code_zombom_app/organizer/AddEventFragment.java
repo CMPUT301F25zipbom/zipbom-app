@@ -45,21 +45,11 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * @author Robert Enstrom, Tejwinder Johal
+ * @author Robert Enstrom, Tejwinder Johal, Dang Nguyen
  * @version 1.0
  * This class is responsible for creating a new event, making sure the event is valid and saving it to firebase
  */
 public class AddEventFragment extends Fragment {
-
-    /**
-     * REFACTORED: Implements the abstract method to create a new Firestore document
-     * directly from the Event object.
-     * @param event The complete Event object to be saved.
-     */
-    protected void processEvent(Event event) {
-        // Use the central EventService to persist with the canonical schema
-        eventModel.uploadEvent(event);
-    }
 
     // Common UI Components
     protected EditText eventNameEditText, maxPeopleEditText,
@@ -77,9 +67,6 @@ public class AddEventFragment extends Fragment {
     // Common variables
     protected FirebaseFirestore db;
     protected FirebaseStorage storage;
-    protected EventModel eventService;
-    /** Canonical event instance retained when editing to keep lists intact. */
-    protected Event baseEvent;
     protected Uri imageUri;
     private ActivityResultLauncher<Intent> imagePickerLauncher;
 
@@ -130,10 +117,9 @@ public class AddEventFragment extends Fragment {
         saveButton.setOnClickListener(v -> {
             // Create a new empty document to get a unique ID
             DocumentReference newEventRef = db.collection("Events").document();
-            String newEventId = newEventRef.getId();
 
             // Call the shared save/update handler from the base class
-            onSaveOrUpdateButtonClicked(newEventId);
+            onSaveOrUpdateButtonClicked();
         });
 
         initializeUI(view);
@@ -159,45 +145,86 @@ public class AddEventFragment extends Fragment {
 
         /* The default date for the start date is today and for the end date is next month */
         Calendar today = Calendar.getInstance();
-        Calendar nextMonth = Calendar.getInstance();
-        nextMonth.add(Calendar.MONTH, 1);
+        Calendar nextDay = Calendar.getInstance();
+        nextDay.add(Calendar.DAY_OF_MONTH, 1);
 
         datePickerStartDate.updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH),
                 today.get(Calendar.DAY_OF_MONTH));
-        datePickerEndDate.updateDate(nextMonth.get(Calendar.YEAR), nextMonth.get(Calendar.MONTH),
-                nextMonth.get(Calendar.DAY_OF_MONTH));
+        datePickerEndDate.updateDate(nextDay.get(Calendar.YEAR), nextDay.get(Calendar.MONTH),
+                nextDay.get(Calendar.DAY_OF_MONTH));
 
         /* Preventing setting the end date to be earlier than the start date and the start date
          * to be earlier than today
          */
         datePickerStartDate.setMinDate(today.getTimeInMillis());
-        datePickerEndDate.setMinDate(nextMonth.getTimeInMillis());
+        datePickerEndDate.setMinDate(nextDay.getTimeInMillis());
 
         /* Automatically update the chosen dates when the users enter an invalid date */
-        datePickerStartDate.init(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH),
-                new DatePicker.OnDateChangedListener() {
-                    @Override
-                    public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                        Calendar selectedStart = Calendar.getInstance();
-                        selectedStart.set(year, monthOfYear, dayOfMonth);
+        datePickerStartDate.init(
+                today.get(Calendar.YEAR),
+                today.get(Calendar.MONTH),
+                today.get(Calendar.DAY_OF_MONTH),
+                (datePicker, year, month, day) -> {
 
-                        // End date must be at least 1 month after start date
-                        Calendar minEnd = (Calendar) selectedStart.clone();
-                        minEnd.add(Calendar.DAY_OF_MONTH, 1);
+                    Calendar start = Calendar.getInstance();
+                    start.set(year, month, day);
 
-                        datePickerEndDate.setMinDate(minEnd.getTimeInMillis());
+                    // End date must be at least 1 day after
+                    Calendar minEnd = (Calendar) start.clone();
+                    minEnd.add(Calendar.DAY_OF_MONTH, 1);
 
-                        // Optional: if end date is before min, reset it
-                        Calendar currentEnd = Calendar.getInstance();
-                        currentEnd.set(datePickerEndDate.getYear(), datePickerEndDate.getMonth(), datePickerEndDate.getDayOfMonth());
-                        if (!currentEnd.after(selectedStart)) {
-                            datePickerEndDate.updateDate(minEnd.get(Calendar.YEAR), minEnd.get(Calendar.MONTH), minEnd.get(Calendar.DAY_OF_MONTH));
-                        }
+                    datePickerEndDate.setMinDate(minEnd.getTimeInMillis());
+
+                    // If current end < new minEnd -> reset
+                    Calendar currentEnd = Calendar.getInstance();
+                    currentEnd.set(
+                            datePickerEndDate.getYear(),
+                            datePickerEndDate.getMonth(),
+                            datePickerEndDate.getDayOfMonth()
+                    );
+
+                    if (currentEnd.before(minEnd)) {
+                        datePickerEndDate.updateDate(
+                                minEnd.get(Calendar.YEAR),
+                                minEnd.get(Calendar.MONTH),
+                                minEnd.get(Calendar.DAY_OF_MONTH)
+                        );
+                    }
+                }
+        );
+
+        datePickerEndDate.init(
+                nextDay.get(Calendar.YEAR),
+                nextDay.get(Calendar.MONTH),
+                nextDay.get(Calendar.DAY_OF_MONTH),
+                (datePicker, year, month, day) -> {
+
+                    Calendar start = Calendar.getInstance();
+                    start.set(
+                            datePickerStartDate.getYear(),
+                            datePickerStartDate.getMonth(),
+                            datePickerStartDate.getDayOfMonth()
+                    );
+
+                    Calendar selectedEnd = Calendar.getInstance();
+                    selectedEnd.set(year, month, day);
+
+                    // Minimum valid end: start + 1 day
+                    Calendar minEnd = (Calendar) start.clone();
+                    minEnd.add(Calendar.DAY_OF_MONTH, 1);
+
+                    // If user selects an invalid end date -> automatically correct it
+                    if (selectedEnd.before(minEnd)) {
+                        datePickerEndDate.updateDate(
+                                minEnd.get(Calendar.YEAR),
+                                minEnd.get(Calendar.MONTH),
+                                minEnd.get(Calendar.DAY_OF_MONTH)
+                        );
                     }
                 });
 
         autocompleteSupportFragmentEventAddress = (AutocompleteSupportFragment)
-                getChildFragmentManager().findFragmentById(R.id.fragment_autoComplete_event_address);
+        getChildFragmentManager().findFragmentById(R.id.fragment_autoComplete_event_address);
 
         assert autocompleteSupportFragmentEventAddress != null;
         autocompleteSupportFragmentEventAddress.setPlaceFields(Arrays.asList(
@@ -274,13 +301,13 @@ public class AddEventFragment extends Fragment {
     /**
      * Main action method. It now creates an Event object instead of a Map.
      */
-    protected void onSaveOrUpdateButtonClicked(String eventId) {
+    protected void onSaveOrUpdateButtonClicked() {
         if (!validateAllInput()) {
             return; // Validation methods show Toasts.
         }
 
         // --- REFACTORED: Create or update the canonical Event object ---
-        Event event = gatherEventData(eventId);
+        Event event = gatherEventData();
         if (event == null) {
             Toast.makeText(getContext(), "Invalid event details. Please check your input.", Toast.LENGTH_SHORT).show();
             return;
@@ -295,7 +322,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void uploadImageAndProcessEvent(Event event) {
-        StorageReference storageRef = storage.getReference().child("posters/" + event.getFirestoreDocumentId() + ".jpg");
+        StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
@@ -319,10 +346,10 @@ public class AddEventFragment extends Fragment {
      * the baseEvent (loaded from Firestore) is mutated to preserve waitlist and lottery lists.
      * @return A populated Event object or null when input is invalid.
      */
-    private Event gatherEventData(String eventId) {
+    private Event gatherEventData() {
         String name = eventNameEditText.getText().toString();
         try {
-            event = (baseEvent != null) ? baseEvent : new Event(name);
+            event = new Event(name);
         } catch (IllegalArgumentException ex) {
             return null;
         }
@@ -408,5 +435,18 @@ public class AddEventFragment extends Fragment {
         calendar.set(year, month, day);
 
         return calendar.getTime();
+    }
+
+    /**
+     * REFACTORED: Implements the abstract method to create a new Firestore document
+     * directly from the Event object.
+     * @param event The complete Event object to be saved.
+     */
+    protected void processEvent(Event event) {
+        // Use the central EventService to persist with the canonical schema
+        eventModel.uploadEvent(event);
+
+        // TODO: Handle the case when uploading event failed. For now it mostly succeed
+        navigateBack();
     }
 }
