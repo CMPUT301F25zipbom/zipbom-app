@@ -2,7 +2,10 @@ package com.example.code_zombom_app.organizer;
 
 import static androidx.core.content.ContextCompat.startActivity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
@@ -15,6 +18,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.example.code_zombom_app.R;
 import com.bumptech.glide.Glide;
 
@@ -40,8 +46,6 @@ public class EditEventFragment extends BaseEventFragment {
         if (getArguments() != null) {
             originalEventId = getArguments().getString("eventId");
         }
-        //sendemail("rwenstro@ualberta.ca");
-        //sendsms("6398400233");
     }
 
     /**
@@ -142,6 +146,10 @@ public class EditEventFragment extends BaseEventFragment {
                 .set(eventToEdit) // Save the complete, updated object
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
+
+                    // Now we need to notify the users that the event they have joined in has changed
+                    notifyusers();
+
                     navigateBack(); // This should now be called correctly
                 })
                 .addOnFailureListener(e -> {
@@ -152,6 +160,16 @@ public class EditEventFragment extends BaseEventFragment {
                         updateButton.setEnabled(true);
                     }
                 });
+    }
+
+    void notifyusers (){
+        // We need to loop through the list of people and see if they have notifications turned on.
+        // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
+
+        // Get this list of entrants and then we loop through
+
+        // Make sure to save all of the notifications to the firebase.
+        // We can easily do this by saving a Notification template to the firebase.
     }
 
     void sendemail(String useremail){
@@ -169,8 +187,15 @@ public class EditEventFragment extends BaseEventFragment {
         startActivity(Intent.createChooser(mail, "mailto"));
     }
 
-    void sendsms(String phonenumber){
-        SmsManager smsManager = SmsManager.getDefault();
-        smsManager.sendTextMessage(phonenumber, null, "An event you have signed up for has been edited.", null, null);
+    void sendsmsmessage(String phonenumber){
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("smsto:" + phonenumber));
+        intent.putExtra("sms_body", "An event you have signed up for has been edited.");
+
+        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivity(intent);
+        } else {
+            Toast.makeText(getContext(), "SMS message fail :(", Toast.LENGTH_SHORT).show();
+        }
     }
 }
