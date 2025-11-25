@@ -70,42 +70,6 @@ public abstract class BaseEventFragment extends Fragment {
         eventService = new EventService(db);
 
         registerResult();
-
-        // Initialize the image picker launcher
-//        imagePickerLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-//                        // Take persistable permission to Os.access the image URI across restarts
-//                        Uri newlySelectedUri = result.getData().getData();
-//                        if (newlySelectedUri != null) {
-//                            try {
-//                                // Assign the URI to the class variable so it can be used later
-//                                imageUri = newlySelectedUri;
-//
-//                                final int takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION;
-//
-//                                // Get the ContentResolver and take persistable permission
-//                                ContentResolver resolver = requireActivity().getContentResolver();
-//                                resolver.takePersistableUriPermission(imageUri, takeFlags); // This now uses the correct, non-null URI
-//
-//                                // Now that we have permission, set the image preview
-//                                imagePreview.setImageURI(imageUri);
-//                                imagePreview.setVisibility(View.VISIBLE);
-//
-//                            } catch (SecurityException e) {
-//                                // This can happen if the user selects an image from a source that doesn't support
-//                                // persistable permissions. Log the error and inform the user.
-//                                e.printStackTrace();
-//                                Toast.makeText(getContext(), "Could not get permission for the selected image.", Toast.LENGTH_SHORT).show();
-//                            }
-//                        }
-////                        imageUri = result.getData().getData();
-////                        imagePreview.setImageURI(imageUri);
-////                        imagePreview.setVisibility(View.VISIBLE);
-//                    }
-//                }
-//        );
     }
 
     @Nullable
@@ -151,14 +115,6 @@ public abstract class BaseEventFragment extends Fragment {
      * Opens the device's gallery for the user to pick an image.
      */
     private void openGallery() {
-//        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
-//        resultLauncher.launch(intent);
-
-//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//        intent.addCategory(Intent.CATEGORY_OPENABLE);
-//        intent.setType("image/*"); // Specify that we only want to see image files
-//
-//        imagePickerLauncher.launch(intent);
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*"); // Specify that we only want to see image files
@@ -198,18 +154,6 @@ public abstract class BaseEventFragment extends Fragment {
                         }
                     }
                 }
-//                new ActivityResultCallback<ActivityResult>() {
-//                    @Override
-//                    public void onActivityResult(ActivityResult o) {
-//                        try{
-//                            imageUri = o.getData().getData();
-//                            imagePreview.setImageURI(imageUri);
-//                            imagePreview.setVisibility(View.VISIBLE);
-//                        } catch (Exception e){
-//                            Toast.makeText(getContext(), "No image selected", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                }
         );
     }
 
