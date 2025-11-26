@@ -168,6 +168,9 @@ public class OrganizerMainFragment extends Fragment {
                         // --- Set click listener (pass the object or its properties) ---
                         eventItemView.setOnClickListener(v -> showEventOptionsDialog(eventForOrg));
                         eventsContainer.addView(eventItemView);
+                        if (eventForOrg.getQrCodeExists()) {
+                            qrCodeImageView.setVisibility(View.VISIBLE);
+                        }
 
                     } catch (WriterException e) {
                         Log.e("QRCode", "Error generating QR code", e);
@@ -197,8 +200,26 @@ public class OrganizerMainFragment extends Fragment {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 
-        // Create the dialog by passing the entire Event object.
-        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventForOrg, navController, fragmentView, qrCodeBitmaps);
+        // Get the specific bitmap for this event from the map.
+        Bitmap qrBitmapForEvent = qrCodeBitmaps.get(eventForOrg.getEventId());
+
+        // Find the specific ImageView using the tag
+        // We search within the fragment's main view.
+        ImageView qrImageViewForEvent = null;
+        if (fragmentView != null) {
+            qrImageViewForEvent = fragmentView.findViewWithTag(eventForOrg.getEventId());
+        }
+
+        // Create the dialog with the direct references.
+        // This now matches the new constructor you will create in OrganizerDialog.
+        OrganizerDialog dialog = new OrganizerDialog(
+                requireContext(),
+                eventForOrg,
+                navController,
+                qrImageViewForEvent, // Pass the specific ImageView
+                qrBitmapForEvent     // Pass the specific Bitmap
+        );
+
         dialog.show();
     }
 }
