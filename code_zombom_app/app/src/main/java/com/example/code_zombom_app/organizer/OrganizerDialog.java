@@ -35,30 +35,26 @@ import java.util.Map;
 public class OrganizerDialog extends Dialog {
     private final EventForOrg eventForOrg; // <<< Use the Event object
     private final NavController navController;
-    private final View fragmentView;
-    private final Map<String, Bitmap> qrCodeBitmaps;
-    private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
-
-
-//    private final String eventId;
-//    private final String eventText;
-//    private final NavController navController;
 //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
+    private final ImageView qrCodeImageView; // Direct reference to the ImageView
+    private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
+
+    private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
     /**
      * This method is used to make an organizerdialog object.
      * @param context sets the context
      * @param eventForOrg sets the organizerdialog eventid
      * @param navController sets the organizerdialog navController
-     * @param fragmentView sets the organizerdialog fragmentView
+     * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, ImageView qrCodeImageView, Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
         super(context);
         this.eventForOrg = eventForOrg; // <<< Store the whole object
         this.navController = navController;
-        this.fragmentView = fragmentView;
-        this.qrCodeBitmaps = qrCodeBitmaps;
+        this.qrCodeImageView = qrCodeImageView; // Store the direct reference
+        this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
     }
 
     /**
@@ -112,19 +108,15 @@ public class OrganizerDialog extends Dialog {
         });
         //This makes the QR code visible when the user clicks generate QR code
         genQRButton.setOnClickListener(v -> {
-            dismiss();
-            Bitmap qrBitmap = qrCodeBitmaps.get(eventForOrg.getEventId());
-            // We need the fragment's root view to find the tag
-            ImageView qrToShow = fragmentView.findViewWithTag(eventForOrg.getEventId());
-
-            if (qrToShow != null) {
-                uploadQrCodeToFirebase(qrBitmap);
-                if (qrToShow.getVisibility() == View.GONE) {
-                    qrToShow.setVisibility(View.VISIBLE);
-                } else {
-                    // If for some reason it's not found, show an error
-                    Toast.makeText(getContext(), "Error: QR Code image not found.", Toast.LENGTH_SHORT).show();
-                }
+            if (qrCodeImageView != null && qrCodeBitmap != null) {
+                qrCodeImageView.setImageBitmap(qrCodeBitmap);
+                qrCodeImageView.setVisibility(View.VISIBLE);
+                eventForOrg.setQrCodeExists(true); // Update the state
+                uploadQrCodeToFirebase(qrCodeBitmap);
+            } else {
+                // 5. If something is wrong, show a clear error.
+                Toast.makeText(getContext(), "Error: Could not display QR code.", Toast.LENGTH_SHORT).show();
+                Log.e("OrganizerDialog", "QR Bitmap or ImageView was null. Cannot display.");
             }
         });
         //This gets rid of the popup.
@@ -178,16 +170,23 @@ public class OrganizerDialog extends Dialog {
      * @param url The public URL of the uploaded image.
      */
     private void saveQrUrlToFirestore(String url) {
-        FirebaseFirestore.getInstance().collection("Events").document(eventForOrg.getEventId())
-                .update("qrCodeUrl", url)
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Get the reference to the specific event document
+        db.collection("Events").document(eventForOrg.getEventId())
+                .update(
+                        "qrCodeUrl", url,          // Save the URL
+                        "qrCodeExists", true   // --- THIS IS THE CRITICAL FIX ---
+                )
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "QR Code URL updated for event: " + eventForOrg.getEventId());
+                    Log.d("Firestore", "QR Code URL and exists flag updated for event: " + eventForOrg.getEventId());
                     dismiss(); // Close the dialog on success
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to save QR code URL.", Toast.LENGTH_SHORT).show();
-                    Log.e("Firestore", "Error updating event with QR URL", e);
+                    Toast.makeText(getContext(), "Failed to save QR code details.", Toast.LENGTH_SHORT).show();
+                    Log.e("Firestore", "Error updating event with QR details", e);
+                    dismiss();
                 });
     }
 
