@@ -67,8 +67,8 @@ public class EditEventFragment extends BaseEventFragment {
         // Populate fields that require a full Firestore document read (Description, Waitlist, Poster)
         db.collection("Events").document(originalEventId).get()
                 .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && isAdded()) {
-                        // --- REFACTORED: Convert document to Event object ---
+                    if (documentSnapshot.exists() && isAdded() && getView() != null){
+                        // Convert document to Event object
                         eventForOrgToEdit = documentSnapshot.toObject(EventForOrg.class);
                         if (eventForOrgToEdit == null) return;
                         domainEventToEdit = EventMapper.toDomain(eventForOrgToEdit, documentSnapshot.getId());
@@ -88,8 +88,16 @@ public class EditEventFragment extends BaseEventFragment {
                         maxentrantEditText.setText(eventForOrgToEdit.getWait_List_Maximum());
 
                         if (eventForOrgToEdit.getPosterUrl() != null && !eventForOrgToEdit.getPosterUrl().isEmpty()) {
-                            Glide.with(getContext()).load(eventForOrgToEdit.getPosterUrl()).into(imagePreview);
-                            imagePreview.setVisibility(View.VISIBLE);
+
+                            // Add a null check on imagePreview before using it.
+                            if (imagePreview != null) {
+                                Glide.with(requireContext())
+                                        .load(eventForOrgToEdit.getPosterUrl())
+                                        .into(imagePreview);
+
+                                imagePreview.setVisibility(View.VISIBLE);
+                                isPosterUploaded = true; // Make sure your flag is set
+                            }
                         }
                         updateButton.setEnabled(true);
                     }else {
