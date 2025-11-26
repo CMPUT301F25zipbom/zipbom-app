@@ -249,7 +249,7 @@ public abstract class BaseEventFragment extends Fragment {
             try {
                 event.addCategory(genre);
             } catch (IllegalArgumentException ignored) {
-                Toast.makeText(getContext(), "Genre must be one of: Sport, eSport, Food, Music, Engineering.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Genre not in the Categories.", Toast.LENGTH_SHORT).show();
                 return null;
             }
         }

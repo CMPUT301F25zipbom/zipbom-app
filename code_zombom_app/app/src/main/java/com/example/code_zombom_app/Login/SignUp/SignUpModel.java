@@ -9,9 +9,12 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignUpModel extends LoadUploadProfileModel {
+    private Location location;
+
 
     public SignUpModel(FirebaseFirestore db) {
         super(db);
+        location = null;
     }
 
     /**
@@ -28,7 +31,11 @@ public class SignUpModel extends LoadUploadProfileModel {
                         place.getLatLng().longitude
                 );
 
-                Location location = Location.fromCoordinates(coordinate);
+                location = Location.fromCoordinates(coordinate);
+                if (place.getName() != null && !place.getName().trim().isEmpty()) {
+                    assert location != null;
+                    location.setName(place.getName());
+                }
 
                 setState(State.SIGNUP_ADDRESS_SUCCESS);
                 setInterMsg("Message", location);
@@ -42,5 +49,12 @@ public class SignUpModel extends LoadUploadProfileModel {
             new android.os.Handler(android.os.Looper.getMainLooper()).post(this::notifyViews);
         }).start();
 
+    }
+
+    /**
+     * @return The current location
+     */
+    public Location getLocation() {
+        return location;
     }
 }
