@@ -24,6 +24,8 @@ import androidx.core.content.ContextCompat;
 import com.example.code_zombom_app.R;
 import com.bumptech.glide.Glide;
 
+import java.util.ArrayList;
+
 /**
  * @author Robert Enstrom, Tejwinder Johal
  * @version 2.0
@@ -167,6 +169,21 @@ public class EditEventFragment extends BaseEventFragment {
         // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
 
         // Get this list of entrants and then we loop through
+        //String[] entrants = db.collection("Events").document(originalEventId).get("waitingList");
+        db.collection("Events").document(originalEventId).get().addOnSuccessListener(querySnapshot -> {
+                    // This code runs when the data is successfully retrieved
+                    if (querySnapshot.exists() && isAdded()) {
+                        // --- REFACTORED: Convert document to Event object ---
+                        Event eventnotify = querySnapshot.toObject(Event.class);
+                        if (eventToEdit == null) return;
+
+                        ArrayList<String> people = eventnotify.getLottery_Winners();
+                        Log.e("Tagsyo", people.get(0));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Notify", "Error getting waiting list", e);
+                });
 
         // Make sure to save all of the notifications to the firebase.
         // We can easily do this by saving a Notification template to the firebase.
