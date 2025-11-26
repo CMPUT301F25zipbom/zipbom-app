@@ -134,7 +134,7 @@
         <TextView
             android:id="@+id/entrants_label"
             style="@style/DetailsLabel"
-            android:text="Entrants:"
+            android:text="Waiting:"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/waitlist_max_value" />
 

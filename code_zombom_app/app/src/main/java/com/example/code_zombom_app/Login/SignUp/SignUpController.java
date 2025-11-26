@@ -12,11 +12,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.Helpers.MVC.GController;
-import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
-import com.example.code_zombom_app.R;
 
 public class SignUpController extends GController<SignUpModel> {
+    private final TextView textViewAddress;
     private final EditText editTextName;
     private final EditText editTextEmail;
     private final EditText editTextPhone;
@@ -31,11 +31,13 @@ public class SignUpController extends GController<SignUpModel> {
     private String Phone;
 
     public SignUpController(SignUpModel M,
+                            TextView addressView,
                             EditText name, EditText email, EditText phone, Button back,
                             Button signUp, Button address, Spinner userType,
                             ArrayAdapter<CharSequence> adapter)
     {
         super(M);
+        textViewAddress = addressView;
         editTextName = name;
         editTextEmail = email;
         editTextPhone = phone;
@@ -109,7 +111,8 @@ public class SignUpController extends GController<SignUpModel> {
                 Name = editTextName.getText().toString().trim();
                 Email = editTextEmail.getText().toString().trim();
                 Phone = editTextPhone.getText().toString().trim();
-                model.setProfile(Name, Email, Phone, selectedType);
+
+                model.uploadProfile(Name, Email, Phone, model.getLocation(), selectedType);
             }
         });
 

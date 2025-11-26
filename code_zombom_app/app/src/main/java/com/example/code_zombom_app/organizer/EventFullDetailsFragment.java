@@ -131,9 +131,9 @@ public class EventFullDetailsFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (isAdded() && documentSnapshot.exists()) {
                         // --- REFACTORED: Convert the document directly to an Event object ---
-                        com.example.code_zombom_app.organizer.Event event = documentSnapshot.toObject(Event.class);
-                        if (event != null) {
-                            populateUi(event);
+                        EventForOrg eventForOrg = documentSnapshot.toObject(EventForOrg.class);
+                        if (eventForOrg != null) {
+                            populateUi(eventForOrg);
                         } else {
                             Log.e("EventFullDetails", "Failed to map document to Event object.");
                             Toast.makeText(getContext(), "Error loading event details.", Toast.LENGTH_SHORT).show();
@@ -151,28 +151,28 @@ public class EventFullDetailsFragment extends Fragment {
 
     /**
      * Populates the UI elements with data from the document.
-     * @param event
+     * @param eventForOrg
      */
-    private void populateUi(com.example.code_zombom_app.organizer.Event event) {
+    private void populateUi(EventForOrg eventForOrg) {
         // Set simple string values
-        nameValue.setText(event.getName());
-        dateValue.setText(event.getDate());
-        deadlineValue.setText(event.getDeadline());
-        locationValue.setText(event.getLocation());
-        genreValue.setText(event.getGenre());
-        maxPeopleValue.setText(event.getMax_People());
-        waitlistMaxValue.setText(event.getWait_List_Maximum());
-        descriptionValue.setText(event.getDescription());
+        nameValue.setText(eventForOrg.getName());
+        dateValue.setText(eventForOrg.getDate());
+        deadlineValue.setText(eventForOrg.getDeadline());
+        locationValue.setText(eventForOrg.getLocation());
+        genreValue.setText(eventForOrg.getGenre());
+        maxPeopleValue.setText(eventForOrg.getMax_People());
+        waitlistMaxValue.setText(eventForOrg.getWait_List_Maximum());
+        descriptionValue.setText(eventForOrg.getDescription());
 
 
         // Set array values
-        entrantsValue.setText(formatListToString((List<String>) event.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) event.getAccepted_Entrants()));
-        cancelledEntrantsValue.setText(formatListToString((List<String>) event.getCancelled_Entrants()));
+        entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
+        cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
 
-        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+        if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
             Glide.with(this)
-                    .load(event.getPosterUrl())
+                    .load(eventForOrg.getPosterUrl())
                     .into(posterImageView);
             posterImageView.setVisibility(View.VISIBLE);
         } else {

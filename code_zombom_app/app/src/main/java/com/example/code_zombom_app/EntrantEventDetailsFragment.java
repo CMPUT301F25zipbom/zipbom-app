@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,6 +13,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 /**
  * Simple detail screen that mirrors the currently selected event from the shared ViewModel.
@@ -27,6 +30,8 @@ public class EntrantEventDetailsFragment extends Fragment {
     private TextView dateView;
     private TextView deadlineView;
     private TextView descriptionView;
+    private View notificationIcon;
+    private ImageView posterView;
 
     @Nullable
     @Override
@@ -45,6 +50,8 @@ public class EntrantEventDetailsFragment extends Fragment {
         dateView = view.findViewById(R.id.detail_event_date);
         deadlineView = view.findViewById(R.id.detail_event_deadline);
         descriptionView = view.findViewById(R.id.detail_event_description);
+        notificationIcon = view.findViewById(R.id.notification_icon);
+        posterView = view.findViewById(R.id.detail_event_poster);
 
         viewModel = new ViewModelProvider(requireActivity()).get(EntrantEventListViewModel.class);
         viewModel.getEvents().observe(getViewLifecycleOwner(), events -> {
@@ -62,6 +69,18 @@ public class EntrantEventDetailsFragment extends Fragment {
                 }
             }
         });
+
+        notificationIcon.setOnClickListener(v -> {
+            viewModel.onNotificationDisplayed();
+            String eventId = getArguments() != null ? getArguments().getString("eventId") : null;
+            EntrantNotificationFragment fragment = EntrantNotificationFragment.newInstance(eventId);
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.entrant_event_list_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        });
+
     }
 
     private void bindEvent(@NonNull Event event) {
@@ -82,5 +101,18 @@ public class EntrantEventDetailsFragment extends Fragment {
             description = getString(R.string.detail_description_placeholder);
         }
         descriptionView.setText(description);
+
+        // Load poster when a URL is present, otherwise hide the container to avoid empty space.
+        String posterUrl = event.getPosterUrl();
+        if (posterUrl != null && !posterUrl.trim().isEmpty()) {
+            posterView.setVisibility(View.VISIBLE);
+            Glide.with(this)
+                    .load(posterUrl.trim())
+                    .diskCacheStrategy(DiskCacheStrategy.AUTOMATIC)
+                    .centerCrop()
+                    .into(posterView);
+        } else {
+            posterView.setVisibility(View.GONE);
+        }
     }
 }

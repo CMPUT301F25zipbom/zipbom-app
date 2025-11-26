@@ -18,7 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -45,6 +49,7 @@ public class EventsAdminFragment extends Fragment {
 
     /** reference to the firestore collection that stores events */
     private CollectionReference eventsdb;
+    private EventService eventService = new EventService();
 
     /**
      * called when the fragment's UI is being created.
@@ -131,15 +136,29 @@ public class EventsAdminFragment extends Fragment {
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
 
-                    // event description text
+                    // event description text (prefer canonical mapping to stay in sync with organiser/entrant flows)
                     StringBuilder eventText = new StringBuilder();
-                    eventText.append("Name: ").append(snapshot.getString("Name")).append("\n")
-                            .append("Max People: ").append(snapshot.getString("Max People")).append("\n")
-                            .append("Date: ").append(snapshot.getString("Date")).append("\n")
-                            .append("Deadline: ").append(snapshot.getString("Deadline")).append("\n")
-                            .append("Genre: ").append(snapshot.getString("Genre")).append("\n");
-                    if (snapshot.getString("Location") != null) {
-                        eventText.append("Location: ").append(snapshot.getString("Location"));
+                    try {
+                        EventForOrg dto = snapshot.toObject(EventForOrg.class);
+                        Event event = EventMapper.toDomain(dto, snapshot.getId());
+                        if (event != null) {
+                            eventText.append("Name: ").append(event.getName()).append("\n")
+                                    .append("Max People: ").append(event.getCapacity()).append("\n")
+                                    .append("Date: ").append(event.getEventDateText()).append("\n")
+                                    .append("Deadline: ").append(event.getRegistrationClosesAtText()).append("\n")
+                                    .append("Genre: ");
+                            if (!event.getCategories().isEmpty()) {
+                                eventText.append(event.getCategories().get(0));
+                            }
+                            if (event.getLocation() != null && !event.getLocation().isEmpty()) {
+                                eventText.append("\nLocation: ").append(event.getLocation());
+                            }
+                        } else {
+                            appendRawFields(snapshot, eventText);
+                        }
+                    } catch (Exception ex) {
+                        Log.w("AdminMapping", "Falling back to raw fields for " + snapshot.getId(), ex);
+                        appendRawFields(snapshot, eventText);
                     }
 
                     View eventView = LayoutInflater.from(getContext())
@@ -171,6 +190,20 @@ public class EventsAdminFragment extends Fragment {
                 eventsContainer.addView(noEvents);
             }
         });
+    }
+
+    /**
+     * Builds a fallback event string using the raw Firestore fields when mapping fails.
+     */
+    private void appendRawFields(QueryDocumentSnapshot snapshot, StringBuilder eventText) {
+        eventText.append("Name: ").append(snapshot.getString("Name")).append("\n")
+                .append("Max People: ").append(snapshot.getString("Max People")).append("\n")
+                .append("Date: ").append(snapshot.getString("Date")).append("\n")
+                .append("Deadline: ").append(snapshot.getString("Deadline")).append("\n")
+                .append("Genre: ").append(snapshot.getString("Genre")).append("\n");
+        if (snapshot.getString("Location") != null) {
+            eventText.append("Location: ").append(snapshot.getString("Location"));
+        }
     }
 
     /**
@@ -217,8 +250,7 @@ public class EventsAdminFragment extends Fragment {
                     // Log or store the reason
                     Log.d("AdminDelete", "Deleting event " + snapshot.getId() + " for reason: " + reason);
 
-                    // Delete the event from Firestore
-                    eventsdb.document(snapshot.getId()).delete()
+                    eventService.deleteEvent(snapshot.getId())
                             .addOnSuccessListener(aVoid ->
                                     Toast.makeText(getContext(),
                                             "Event deleted. Reason: " + reason,

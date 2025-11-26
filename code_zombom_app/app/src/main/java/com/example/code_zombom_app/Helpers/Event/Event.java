@@ -57,11 +57,21 @@ public class Event implements Comparable<Event> {
 
     // Set the maximum number of entrants that can join the waiting list
     private int capacity;
+    // Optional limit for how many entrants can join the waitlist (0 = unlimited)
+    private int waitlistLimit;
     private String eventDateText;
     private String registrationClosesAtText;
     private String description;
+    // URL of the uploaded event poster stored in Firebase Storage
+    private String posterUrl;
+    private String genre;
+    private int maxEntrants;
+    // Marks whether the organiser has run the lottery draw
+    private boolean drawComplete;
+    // Timestamp (ms since epoch) when the draw completed; 0 when not set
+    private long drawTimestamp;
 
-    /* Expand this if you want to add more category */
+        /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
@@ -94,9 +104,15 @@ public class Event implements Comparable<Event> {
         eventId = UUID.randomUUID().toString();
         location = "";
         capacity = 0;
+        waitlistLimit = 0;
         eventDateText = "";
         registrationClosesAtText = "";
         description = "";
+        posterUrl = "";
+        genre = "";
+        maxEntrants = 0;
+        drawComplete = false;
+        drawTimestamp = 0L;
     }
 
     /**
@@ -229,7 +245,9 @@ public class Event implements Comparable<Event> {
     public void addCategory(String category) {
         if (!checkCategory(category))
             throw new IllegalArgumentException("Unrecognized category");
-        this.categories.add(category);
+        else {
+            this.categories.add(normalizeCategory(category));
+        }
     }
 
     /**
@@ -262,10 +280,23 @@ public class Event implements Comparable<Event> {
      */
     private boolean checkCategory(String category) {
         for (String c : acceptedCategories) {
-            if (c.equals(category))
+            if (c.equalsIgnoreCase(category))
                 return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the canonical accepted category string when input matches (case-insensitive),
+     * otherwise returns the original input.
+     */
+    private String normalizeCategory(String category) {
+        for (String c : acceptedCategories) {
+            if (c.equalsIgnoreCase(category)) {
+                return c;
+            }
+        }
+        return category;
     }
 
     /**
@@ -290,6 +321,22 @@ public class Event implements Comparable<Event> {
      */
     public String getName() {
         return this.name;
+    }
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getMaxEntrants() {
+        return maxEntrants;
+    }
+
+    public void setMaxEntrants(int maxEntrants) {
+        if (maxEntrants < 0)
+            this.maxEntrants = maxEntrants;
     }
 
     /**
@@ -571,6 +618,25 @@ public class Event implements Comparable<Event> {
     }
 
     /**
+     * Updates the waitlist limit; values less than zero are treated as zero.
+     *
+     * @param limit desired waitlist maximum
+     */
+    public void setWaitlistLimit(int limit) {
+        if (limit < 0) {
+            limit = 0;
+        }
+        this.waitlistLimit = limit;
+    }
+
+    /**
+     * @return maximum number of entrants allowed on the waitlist (0 means unlimited)
+     */
+    public int getWaitlistLimit() {
+        return waitlistLimit;
+    }
+
+    /**
      * @return defensive copy of the scheduled start date, or null if unset
      */
     public Date getEventStartDate() {
@@ -649,6 +715,49 @@ public class Event implements Comparable<Event> {
     }
 
     /**
+     * Stores the publicly accessible URL to the uploaded event poster.
+     *
+     * @param posterUrl download URL of the poster image (may be null)
+     */
+    public void setPosterUrl(String posterUrl) {
+        if (posterUrl == null) {
+            this.posterUrl = "";
+        } else {
+            this.posterUrl = posterUrl.trim();
+        }
+    }
+
+    /**
+     * @return publicly accessible URL to the uploaded poster image (empty when not set)
+     */
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setDrawComplete(boolean drawComplete) {
+        this.drawComplete = drawComplete;
+    }
+
+    public boolean isDrawComplete() {
+        return drawComplete;
+    }
+
+    public void setDrawTimestamp(long drawTimestamp) {
+        this.drawTimestamp = drawTimestamp;
+    }
+
+    public long getDrawTimestamp() {
+        return drawTimestamp;
+    }
+        /**
+         * Removes all categories from this event.
+         */
+        public void clearCategories() {
+            this.categories.clear();
+        }
+
+
+        /**
      * This class provides an additional method to sort the event by their created date from newest
      * (earliest) to oldest (most recent)
      *

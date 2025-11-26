@@ -23,7 +23,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
  * NOTE: This test requires a running emulator or device with network access to Firebase.
  */
 @RunWith(AndroidJUnit4.class)
-public class EventFullDetailsFragmentTest {
+public class EventForOrgFullDetailsFragmentTest {
 
     @Test
     public void populateFields_fillsUIFromBundleAndFirestore() throws InterruptedException {

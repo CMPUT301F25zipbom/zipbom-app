@@ -45,9 +45,14 @@
     <string name="filter">Filter</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="scan_qr_code">Scan QR Code</string>
+    <string name="notification_title">Notification</string>
+    <string name="notification_default_message">No notifications available.</string>
     <string name="edit_name">Edit Name</string>
     <string name="log_out">Log out</string>
     <string name="leave">Leave</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="poster_content_description">Event poster</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
@@ -66,4 +71,5 @@
     <string name="sign_up_address">Sign up address</string>
     <string name="enter_your_address">Enter your address</string>
     <string name="enter_address">Enter address</string>
+    <string name="notification" />
 </resources>

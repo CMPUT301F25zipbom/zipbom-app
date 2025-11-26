@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * A model class representing an event. This Plain Old Java Object (POJO)
  * is used for direct mapping with Firestore documents.
  */
-public class Event implements Serializable { // Serializable is good practice for passing objects in Bundles
+public class EventForOrg implements Serializable { // Serializable is good practice for passing objects in Bundles
 
     // --- Properties that map directly to Firestore fields ---
     private String Name;
@@ -20,6 +20,9 @@ public class Event implements Serializable { // Serializable is good practice fo
     private String posterUrl;
     private String Max_People;
     private String Wait_List_Maximum;
+    private Boolean qrCodeExists;
+    private Boolean drawComplete;
+    private Long drawTimestamp;
 
     private ArrayList<String> Entrants;
     private ArrayList<String> Cancelled_Entrants;
@@ -35,7 +38,7 @@ public class Event implements Serializable { // Serializable is good practice fo
     // --- Constructors ---
 
     // IMPORTANT: A public no-argument constructor is required for Firestore's automatic data mapping.
-    public Event() {
+    public EventForOrg() {
         Name = "";
         Date = "";
         Deadline = "";
@@ -44,10 +47,13 @@ public class Event implements Serializable { // Serializable is good practice fo
         Description = "";
         Max_People = "0";
         Wait_List_Maximum = "0";
+        qrCodeExists = false;
         Entrants = new ArrayList<>();
         Cancelled_Entrants = new ArrayList<>();
         Accepted_Entrants = new ArrayList<>();
         Lottery_Winners = new ArrayList<>();
+        drawComplete = false;
+        drawTimestamp = 0L;
     }
 
 
@@ -77,6 +83,8 @@ public class Event implements Serializable { // Serializable is good practice fo
 
     public String getMax_People() { return Max_People; }
     public void setMax_People(String max_People) { this.Max_People = max_People; }
+    public Boolean getQrCodeExists() { return qrCodeExists; }
+    public void setQrCodeExists(Boolean qrCodeExists) { this.qrCodeExists = qrCodeExists; }
 
     public String getWait_List_Maximum() { return Wait_List_Maximum; }
     public void setWait_List_Maximum(String wait_List_Maximum) { this.Wait_List_Maximum = wait_List_Maximum; }
@@ -92,6 +100,12 @@ public class Event implements Serializable { // Serializable is good practice fo
 
     public ArrayList<String> getLottery_Winners() { return Lottery_Winners; }
     public void setLottery_Winners(ArrayList<String> lottery_Winners) { this.Lottery_Winners = lottery_Winners; }
+
+    public Boolean getDrawComplete() { return drawComplete; }
+    public void setDrawComplete(Boolean drawComplete) { this.drawComplete = drawComplete; }
+
+    public Long getDrawTimestamp() { return drawTimestamp; }
+    public void setDrawTimestamp(Long drawTimestamp) { this.drawTimestamp = drawTimestamp; }
 
 
     // --- Excluded (local-only) properties ---
@@ -118,30 +132,6 @@ public class Event implements Serializable { // Serializable is good practice fo
             sb.append("Location: ").append(Location);
         }
         return sb.toString();
-    }
-    public void doDraw() {
-        // If there's no one to draw from, or the capacity is invalid, do nothing.
-        if (Entrants == null || Entrants.isEmpty() || Max_People == null) {
-            return;
-        }
-        int maxWinners;
-        try {
-            maxWinners = Integer.parseInt(Max_People);
-        } catch (NumberFormatException e) {
-            // If Max_People is not a valid number (e.g., "abc"), do nothing.
-            return;
-        }
-        for (int i = 0; i < Integer.parseInt(Max_People); i++) {
-            if (Entrants.isEmpty()) {
-                break;
-            }
-            int randomIndex = (int) (Math.random() * Entrants.size());
-            String winner = Entrants.get(randomIndex);
-
-            // Add the winner to the lottery list and remove them from the entrants list.
-            Lottery_Winners.add(winner);
-            Entrants.remove(randomIndex);
-        }
     }
 }
 

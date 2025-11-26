@@ -84,6 +84,7 @@ public class EntrantEventListFragment extends Fragment implements EntrantEventAd
                 viewModel.clearJoinStatusMessage();
             }
         });
+
     }
 
     /**

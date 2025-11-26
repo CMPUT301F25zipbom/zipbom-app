@@ -9,6 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.Helpers.Event.EventService;
+import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -60,9 +63,13 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<Boolean> joinInProgress = new MutableLiveData<>(false);
     /** One-off success/error message that the fragment shows via a toast/snackbar. */
     private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
+    /** Latest notification payload available to the entrant. */
+    private final MutableLiveData<EntrantNotification> entrantNotification = new MutableLiveData<>(null);
 
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private final EventService eventService = new EventService(firestore);
     private ListenerRegistration listenerRegistration;
+    private ListenerRegistration notificationListener;
 
     private String currentQuery = "";
     private FilterSortState currentFilterSortState = new FilterSortState();
@@ -103,6 +110,13 @@ public class EntrantEventListViewModel extends ViewModel {
         joinStatusMessage.setValue(null);
     }
 
+    /**
+     * @return latest notification (null after consumed)
+     */
+    public LiveData<EntrantNotification> getEntrantNotification() {
+        return entrantNotification;
+    }
+
     public void filterEvents(String query) {
         currentQuery = query != null ? query : "";
         recomputeFilteredEvents();
@@ -128,6 +142,7 @@ public class EntrantEventListViewModel extends ViewModel {
      */
     public void setEntrantEmail(@Nullable String email) {
         entrantEmail = email;
+        startNotificationListener();
     }
 
     /**
@@ -153,37 +168,14 @@ public class EntrantEventListViewModel extends ViewModel {
         final String normalizedEmail = entrantEmail.trim();
         joinInProgress.setValue(true);
 
-        DocumentReference docRef = firestore.collection("Events").document(documentId);
-        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-                    // Read the freshest snapshot inside the transaction so the limit check is accurate
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
-                    if (entrants.contains(normalizedEmail)) {
-                        throw new JoinException("You have already joined this waiting list.");
-                    }
-
-                    int waitlistMaximum = extractMaxPeopleLimit(snapshot.get("Max People"));
-                    if (waitlistMaximum > 0 && entrants.size() >= waitlistMaximum) {
-                        throw new JoinException("This waiting list is full.");
-                    }
-
-                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
-                    updatedEntrants.add(normalizedEmail);
-                    transaction.update(docRef, "Entrants", updatedEntrants);
-                    return null;
-                })
+        eventService.addEntrantToWaitlist(documentId, normalizedEmail)
                 .addOnSuccessListener(ignored -> {
                     String eventName = event.getName() == null ? "event" : event.getName();
                     joinStatusMessage.setValue("Joined " + eventName + " waiting list.");
                 })
                 .addOnFailureListener(e -> {
-                    if (e instanceof JoinException) {
-                        joinStatusMessage.setValue(e.getMessage());
-                    } else {
-                        joinStatusMessage.setValue("Couldn't join the waiting list. Please try again.");
-                        Log.e(TAG, "Failed to join event " + documentId, e);
-                    }
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't join the waiting list. Please try again.");
+                    Log.e(TAG, "Failed to join event " + documentId, e);
                 })
                 .addOnCompleteListener(task -> joinInProgress.setValue(false));
     }
@@ -206,31 +198,72 @@ public class EntrantEventListViewModel extends ViewModel {
         final String normalizedEmail = entrantEmail.trim();
         joinInProgress.setValue(true);
 
-        DocumentReference docRef = firestore.collection("Events").document(documentId);
-        firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                    List<String> entrants = extractEntrantEmails(snapshot.get("Entrants"));
-                    if (!entrants.contains(normalizedEmail)) {
-                        throw new LeaveException("You are not on this waiting list.");
-                    }
-
-                    ArrayList<String> updatedEntrants = new ArrayList<>(entrants);
-                    updatedEntrants.remove(normalizedEmail);
-                    transaction.update(docRef, "Entrants", updatedEntrants);
-                    return null;
-                })
+        eventService.removeEntrantFromWaitlist(documentId, normalizedEmail)
                 .addOnSuccessListener(ignored -> {
                     String eventName = event.getName() == null ? "event" : event.getName();
                     joinStatusMessage.setValue("Left " + eventName + " waiting list.");
                 })
                 .addOnFailureListener(e -> {
-                    if (e instanceof LeaveException) {
-                        joinStatusMessage.setValue(e.getMessage());
-                    } else {
-                        joinStatusMessage.setValue("Couldn't leave the waiting list. Please try again.");
-                        Log.e(TAG, "Failed to leave event " + documentId, e);
-                    }
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't leave the waiting list. Please try again.");
+                    Log.e(TAG, "Failed to leave event " + documentId, e);
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
+    }
+
+    /**
+     * Marks the entrant as having accepted their invitation to participate.
+     * Keeps the UI responsive by surfacing success/error back through LiveData.
+     */
+    public void acceptInvitation(@Nullable String eventId, @Nullable String eventName) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before accepting an invitation.");
+            return;
+        }
+        if (eventId == null || eventId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot accept this invitation right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        eventService.acceptInvitation(eventId, normalizedEmail)
+                .addOnSuccessListener(ignored -> {
+                    String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
+                    joinStatusMessage.setValue("Accepted invitation to " + eventLabel + ".");
+                })
+                .addOnFailureListener(e -> {
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't accept the invitation. Please try again.");
+                    Log.e(TAG, "Failed to accept invitation for event " + eventId, e);
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
+    }
+
+    /**
+     * Declines an invitation and removes the entrant from the winners list.
+     * Synchronises Firestore and exposes user-facing feedback to the UI.
+     */
+    public void declineInvitation(@Nullable String eventId, @Nullable String eventName) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before declining an invitation.");
+            return;
+        }
+        if (eventId == null || eventId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot decline this invitation right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        eventService.declineInvitation(eventId, normalizedEmail)
+                .addOnSuccessListener(ignored -> {
+                    String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
+                    joinStatusMessage.setValue("Declined invitation to " + eventLabel + ".");
+                })
+                .addOnFailureListener(e -> {
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't decline the invitation. Please try again.");
+                    Log.e(TAG, "Failed to decline invitation for event " + eventId, e);
                 })
                 .addOnCompleteListener(task -> joinInProgress.setValue(false));
     }
@@ -269,6 +302,119 @@ public class EntrantEventListViewModel extends ViewModel {
                         loading.setValue(false);
                     }
                 });
+    }
+
+    /**
+     * Listens for win/lose notifications addressed to the current entrant using a collection group query.
+     */
+    private void startNotificationListener() {
+        if (notificationListener != null) {
+            notificationListener.remove();
+            notificationListener = null;
+        }
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            return;
+        }
+        final String normalizedEmail = entrantEmail.trim().toLowerCase();
+        notificationListener = firestore.collectionGroup("Notifications")
+                .whereEqualTo("recipientEmail", normalizedEmail)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null || value.isEmpty()) {
+                        return;
+                    }
+                    value.getDocuments().forEach(doc -> {
+                        String type = doc.getString("type");
+                        String eventName = doc.getString("eventName");
+                        String recipient = doc.getString("recipientEmail");
+                        if (recipient != null && !recipient.equalsIgnoreCase(normalizedEmail)) {
+                            return;
+                        }
+                        if (type == null) {
+                            return;
+                        }
+                        String message;
+                        if ("win".equalsIgnoreCase(type)) {
+                            message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
+                        } else if ("lose".equalsIgnoreCase(type)) {
+                            message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
+                        } else {
+                            return;
+                        }
+                        entrantNotification.setValue(new EntrantNotification(doc.getReference().getParent().getParent().getId(), eventName, message, type));
+                    });
+                });
+    }
+
+    /** Notifies Firestore that the entrant saw the latest notification. */
+    public void onNotificationDisplayed() {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            return;
+        }
+        String normalizedEmail = entrantEmail.trim().toLowerCase();
+        firestore.collection("Profiles")
+                .document(entrantEmail)
+                .update("lastNotificationReceived", true);
+    }
+
+    public void loadLatestNotification(@Nullable String eventId, @NonNull NotificationCallback callback) {
+        if (eventId == null || entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            callback.onNotificationLoaded(null);
+            return;
+        }
+        String normalizedEmail = entrantEmail.trim().toLowerCase();
+        firestore.collection("Events")
+                .document(eventId)
+                .collection("Notifications")
+                .whereEqualTo("recipientEmail", normalizedEmail)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot == null || snapshot.isEmpty()) {
+                        callback.onNotificationLoaded(null);
+                        return;
+                    }
+                    DocumentSnapshot doc = null;
+                    for (DocumentSnapshot candidate : snapshot.getDocuments()) {
+                        if (doc == null) {
+                            doc = candidate;
+                            continue;
+                        }
+                        long currentTs = candidate.getLong("createdAt") == null ? 0 : candidate.getLong("createdAt");
+                        long selectedTs = doc.getLong("createdAt") == null ? 0 : doc.getLong("createdAt");
+                        if (currentTs > selectedTs) {
+                            doc = candidate;
+                        }
+                    }
+                    if (doc == null) {
+                        callback.onNotificationLoaded(null);
+                        return;
+                    }
+                    String type = doc.getString("type");
+                    String eventName = doc.getString("eventName");
+                    String message;
+                    if ("win".equalsIgnoreCase(type)) {
+                        message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
+                    } else if ("lose".equalsIgnoreCase(type)) {
+                        message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
+                    } else {
+                        message = doc.getString("message");
+                    }
+                    callback.onNotificationLoaded(new EntrantNotification(eventId, eventName, message, type));
+                })
+                .addOnFailureListener(e -> callback.onNotificationLoaded(null));
+    }
+
+    public static class EntrantNotification {
+        public final String eventId;
+        public final String eventName;
+        public final String message;
+        public final String type;
+
+        public EntrantNotification(String eventId, String eventName, String message, String type) {
+            this.eventId = eventId;
+            this.eventName = eventName;
+            this.message = message;
+            this.type = type;
+        }
     }
 
     private void recomputeFilteredEvents() {
@@ -368,6 +514,16 @@ public class EntrantEventListViewModel extends ViewModel {
      * Converts a Firestore document to the domain {@link Event} instance.
      */
     private Event mapDocumentToEvent(DocumentSnapshot snapshot) {
+        // Prefer the organiser DTO mapping when possible to keep both roles aligned on one model.
+        try {
+            EventForOrg dto = snapshot.toObject(EventForOrg.class);
+            Event mapped = EventMapper.toDomain(dto, snapshot.getId());
+            if (mapped != null) {
+                return mapped;
+            }
+        } catch (Exception ex) {
+            Log.w(TAG, "Fallback to tolerant mapping for document " + snapshot.getId(), ex);
+        }
         // Accept organiser documents that use lowercase or underscored field names for "name".
         String name = getStringField(snapshot, "Name", "Event Name");
         if (name == null || name.trim().isEmpty()) {
@@ -715,5 +871,9 @@ public class EntrantEventListViewModel extends ViewModel {
         if (listenerRegistration != null) {
             listenerRegistration.remove();
         }
+    }
+
+    interface NotificationCallback {
+        void onNotificationLoaded(@Nullable EntrantNotification notification);
     }
 }
