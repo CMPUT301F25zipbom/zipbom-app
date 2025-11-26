@@ -211,4 +211,64 @@ public class EventService {
         payload.put("createdAt", System.currentTimeMillis());
         return payload;
     }
+
+    /**
+     * Records that a chosen entrant has accepted their invitation to participate.
+     * Moves the entrant into the pending list so organisers can see who confirmed.
+     */
+    public Task<Void> acceptInvitation(@NonNull String documentId, @NonNull String entrantEmail) {
+        final String normalizedEmail = entrantEmail.trim();
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
+            if (dto == null) {
+                throw new IllegalStateException("Event not found");
+            }
+            Event event = EventMapper.toDomain(dto, documentId);
+            if (event == null) {
+                throw new IllegalStateException("Invalid event data");
+            }
+
+            if (!event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You were not selected for this event.");
+            }
+            if (event.getPendingList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already accepted this invitation.");
+            }
+
+            event.addPendingEntrant(normalizedEmail);
+            EventForOrg updatedDto = EventMapper.toDto(event);
+            transaction.set(eventRef, updatedDto);
+            return null;
+        });
+    }
+
+    /**
+     * Records that a chosen entrant has declined their invitation; removes them from the winners list.
+     * This keeps the Firestore state accurate so the organiser can re-run the draw if needed.
+     */
+    public Task<Void> declineInvitation(@NonNull String documentId, @NonNull String entrantEmail) {
+        final String normalizedEmail = entrantEmail.trim();
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
+            if (dto == null) {
+                throw new IllegalStateException("Event not found");
+            }
+            Event event = EventMapper.toDomain(dto, documentId);
+            if (event == null) {
+                throw new IllegalStateException("Invalid event data");
+            }
+
+            if (!event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You were not selected for this event.");
+            }
+
+            event.removeChosenEntrant(normalizedEmail);
+            event.removePendingEntrant(normalizedEmail);
+            EventForOrg updatedDto = EventMapper.toDto(event);
+            transaction.set(eventRef, updatedDto);
+            return null;
+        });
+    }
 }
