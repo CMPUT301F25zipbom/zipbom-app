@@ -15,13 +15,17 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.bumptech.glide.Glide;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
+
+import kotlinx.coroutines.scheduling.Task;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -154,7 +158,7 @@ public class EditEventFragment extends BaseEventFragment {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
 
                     // Now we need to notify the users that the event they have joined in has changed
-                    notifyusers();
+                    notifyusers(eventFromUi);
 
                     navigateBack(); // This should now be called correctly
                 })
@@ -168,29 +172,30 @@ public class EditEventFragment extends BaseEventFragment {
                 });
     }
 
-    void notifyusers (){
+    void notifyusers (Event ourevent){
         // We need to loop through the list of people and see if they have notifications turned on.
         // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
 
         // Get this list of entrants and then we loop through
-        //String[] entrants = db.collection("Events").document(originalEventId).get("waitingList");
-        db.collection("Events").document(originalEventId).get().addOnSuccessListener(querySnapshot -> {
-                    // This code runs when the data is successfully retrieved
-                    if (querySnapshot.exists() && isAdded()) {
-                        // --- REFACTORED: Convert document to Event object ---
-                        Event eventnotify = querySnapshot.toObject(Event.class);
-                        if (eventToEdit == null) return;
+        ArrayList<String> people = ourevent.getWaitingList();
+        for (int i = 0; i < people.size(); i++){
+            boolean notifications = true;
+            String phonenum = "stupid"; // Need to access user profile or whatever to fill these two vars
+            int i2 = i;
+            db.collection("Profiles").document(people.get(i)).get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (notifications == true){
+                            sendemail(people.get(i2));
+                            if (phonenum.length() == 9){
+                                try {
+                                    int testcase = Integer.parseInt(phonenum);
+                                    sendsmsmessage(phonenum);
+                                } catch (NumberFormatException ignored){}
+                            }
+                        }
+                    });
 
-                        ArrayList<String> people = eventnotify.getLottery_Winners();
-                        Log.e("Tagsyo", people.get(0));
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Notify", "Error getting waiting list", e);
-                });
-
-        // Make sure to save all of the notifications to the firebase.
-        // We can easily do this by saving a Notification template to the firebase.
+        }
     }
 
     void sendemail(String useremail){
@@ -206,6 +211,9 @@ public class EditEventFragment extends BaseEventFragment {
         mail.putExtra(Intent.EXTRA_SUBJECT, "Zipbomapp event edited");
 
         startActivity(Intent.createChooser(mail, "mailto"));
+
+        //Need to save a notification to the database
+
     }
 
     void sendsmsmessage(String phonenumber){
@@ -218,5 +226,7 @@ public class EditEventFragment extends BaseEventFragment {
         } else {
             Toast.makeText(getContext(), "SMS message fail :(", Toast.LENGTH_SHORT).show();
         }
+        // Need to save a notification to the database
+        
     }
 }

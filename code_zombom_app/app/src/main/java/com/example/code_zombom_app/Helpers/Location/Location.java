@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-import com.google.maps.android.heatmaps.HeatmapTileProvider;
+//import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -247,14 +247,14 @@ public class Location {
         if (latLngList.isEmpty()) return;
 
         // Create the heatmap tile provider
-        HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
-                .data(latLngList)
-                .radius(40)               // adjust the size of the blobs
-                .opacity(0.7)             // transparency of the heatmap layer
-                .build();
+//        HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
+//                .data(latLngList)
+//                .radius(40)               // adjust the size of the blobs
+//                .opacity(0.7)             // transparency of the heatmap layer
+//                .build();
 
         // Add the heatmap overlay to the map
-        TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+        //TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
 
         // Zoom the camera to include all points
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
