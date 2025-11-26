@@ -27,6 +27,8 @@ public class EntrantNotificationFragment extends Fragment {
     private EntrantEventListViewModel viewModel;
     private TextView messageView;
     private TextView titleView;
+    private Button acceptButton;
+    private Button declineButton;
 
     @Nullable
     @Override
@@ -40,6 +42,8 @@ public class EntrantNotificationFragment extends Fragment {
         titleView = view.findViewById(R.id.notification_event_name);
         messageView = view.findViewById(R.id.notification_message);
         Button backButton = view.findViewById(R.id.notification_back_button);
+        acceptButton = view.findViewById(R.id.notification_accept_button);
+        declineButton = view.findViewById(R.id.notification_decline_button);
         viewModel = new ViewModelProvider(requireActivity()).get(EntrantEventListViewModel.class);
         String eventId = getArguments() != null ? getArguments().getString(ARG_EVENT_ID) : null;
         viewModel.loadLatestNotification(eventId, new EntrantEventListViewModel.NotificationCallback() {
@@ -50,15 +54,42 @@ public class EntrantNotificationFragment extends Fragment {
         });
 
         backButton.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+
+        viewModel.getJoinStatusMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                android.widget.Toast.makeText(requireContext(), message, android.widget.Toast.LENGTH_SHORT).show();
+                viewModel.clearJoinStatusMessage();
+            }
+        });
+
+        viewModel.isJoinInProgress().observe(getViewLifecycleOwner(), inProgress -> {
+            if (acceptButton != null) {
+                acceptButton.setEnabled(inProgress == null || !inProgress);
+            }
+            if (declineButton != null) {
+                declineButton.setEnabled(inProgress == null || !inProgress);
+            }
+        });
     }
 
     private void bindNotification(@Nullable EntrantEventListViewModel.EntrantNotification notification) {
+        acceptButton.setVisibility(View.GONE);
+        acceptButton.setOnClickListener(null);
+        declineButton.setVisibility(View.GONE);
+        declineButton.setOnClickListener(null);
+
         if (notification == null) {
             titleView.setText(R.string.notification_title);
             messageView.setText(R.string.notification_default_message);
         } else {
             titleView.setText(notification.eventName == null ? getString(R.string.notification_title) : notification.eventName);
             messageView.setText(notification.message);
+            if ("win".equalsIgnoreCase(notification.type)) {
+                acceptButton.setVisibility(View.VISIBLE);
+                acceptButton.setOnClickListener(v -> viewModel.acceptInvitation(notification.eventId, notification.eventName));
+                declineButton.setVisibility(View.VISIBLE);
+                declineButton.setOnClickListener(v -> viewModel.declineInvitation(notification.eventId, notification.eventName));
+            }
         }
     }
 }

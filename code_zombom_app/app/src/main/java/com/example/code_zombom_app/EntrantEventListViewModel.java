@@ -211,6 +211,64 @@ public class EntrantEventListViewModel extends ViewModel {
     }
 
     /**
+     * Marks the entrant as having accepted their invitation to participate.
+     * Keeps the UI responsive by surfacing success/error back through LiveData.
+     */
+    public void acceptInvitation(@Nullable String eventId, @Nullable String eventName) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before accepting an invitation.");
+            return;
+        }
+        if (eventId == null || eventId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot accept this invitation right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        eventService.acceptInvitation(eventId, normalizedEmail)
+                .addOnSuccessListener(ignored -> {
+                    String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
+                    joinStatusMessage.setValue("Accepted invitation to " + eventLabel + ".");
+                })
+                .addOnFailureListener(e -> {
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't accept the invitation. Please try again.");
+                    Log.e(TAG, "Failed to accept invitation for event " + eventId, e);
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
+    }
+
+    /**
+     * Declines an invitation and removes the entrant from the winners list.
+     * Synchronises Firestore and exposes user-facing feedback to the UI.
+     */
+    public void declineInvitation(@Nullable String eventId, @Nullable String eventName) {
+        if (entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            joinStatusMessage.setValue("Please sign in before declining an invitation.");
+            return;
+        }
+        if (eventId == null || eventId.trim().isEmpty()) {
+            joinStatusMessage.setValue("Cannot decline this invitation right now.");
+            return;
+        }
+
+        final String normalizedEmail = entrantEmail.trim();
+        joinInProgress.setValue(true);
+
+        eventService.declineInvitation(eventId, normalizedEmail)
+                .addOnSuccessListener(ignored -> {
+                    String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
+                    joinStatusMessage.setValue("Declined invitation to " + eventLabel + ".");
+                })
+                .addOnFailureListener(e -> {
+                    joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't decline the invitation. Please try again.");
+                    Log.e(TAG, "Failed to decline invitation for event " + eventId, e);
+                })
+                .addOnCompleteListener(task -> joinInProgress.setValue(false));
+    }
+
+    /**
      * Subscribes to Firestore updates and keeps the view model caches synchronized.
      */
     private void observeEventsFromFirestore() {
