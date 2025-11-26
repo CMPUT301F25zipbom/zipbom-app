@@ -47,24 +47,24 @@ public class AdminFragmentTest {
         event2.put("Location", "Main Auditorium");
         fakeDb.addEvent("event456", event2);
 
-        // 3️⃣ Launch the fragment
+        // Launch the fragment
         FragmentScenario<EventsAdminFragment> scenario =
                 FragmentScenario.launchInContainer(EventsAdminFragment.class);
 
         scenario.onFragment(fragment -> {
-            // 4️⃣ Inject the fake database
+            // Inject the fake database
             fragment.setMockDatabase(null, fakeDb.mockEventsCollection);
 
-            // 5️⃣ Wait for the listener to populate the container
+            // Wait for the listener to populate the container
             fragment.getView().post(() -> {
                 LinearLayout container = fragment.eventsContainer;
 
-                // 6️⃣ Verify two events are displayed
+                // Verify two events are displayed
                 assert(container.getChildCount() == 2);
 
-                // 7️⃣ Verify event details
-                TextView firstEvent = container.getChildAt(0).findViewById(R.id.textView_event_list_items_details);
-                TextView secondEvent = container.getChildAt(1).findViewById(R.id.textView_event_list_items_details);
+                // verify event details
+                TextView firstEvent = container.getChildAt(0).findViewById(R.id.event_item_textview);
+                TextView secondEvent = container.getChildAt(1).findViewById(R.id.event_item_textview);
 
                 String firstText = firstEvent.getText().toString();
                 String secondText = secondEvent.getText().toString();

@@ -50,6 +50,9 @@
     <string name="edit_name">Edit Name</string>
     <string name="log_out">Log out</string>
     <string name="leave">Leave</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="poster_content_description">Event poster</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

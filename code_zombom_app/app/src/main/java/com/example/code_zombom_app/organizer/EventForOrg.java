@@ -20,6 +20,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     private String posterUrl;
     private String Max_People;
     private String Wait_List_Maximum;
+    private Boolean qrCodeExists;
     private Boolean drawComplete;
     private Long drawTimestamp;
 
@@ -46,6 +47,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         Description = "";
         Max_People = "0";
         Wait_List_Maximum = "0";
+        qrCodeExists = false;
         Entrants = new ArrayList<>();
         Cancelled_Entrants = new ArrayList<>();
         Accepted_Entrants = new ArrayList<>();
@@ -81,6 +83,8 @@ public class EventForOrg implements Serializable { // Serializable is good pract
 
     public String getMax_People() { return Max_People; }
     public void setMax_People(String max_People) { this.Max_People = max_People; }
+    public Boolean getQrCodeExists() { return qrCodeExists; }
+    public void setQrCodeExists(Boolean qrCodeExists) { this.qrCodeExists = qrCodeExists; }
 
     public String getWait_List_Maximum() { return Wait_List_Maximum; }
     public void setWait_List_Maximum(String wait_List_Maximum) { this.Wait_List_Maximum = wait_List_Maximum; }
