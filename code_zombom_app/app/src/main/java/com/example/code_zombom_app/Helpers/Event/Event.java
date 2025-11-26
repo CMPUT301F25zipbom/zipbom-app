@@ -66,6 +66,10 @@ public class Event implements Comparable<Event> {
     private String posterUrl;
     private String genre;
     private int maxEntrants;
+    // Marks whether the organiser has run the lottery draw
+    private boolean drawComplete;
+    // Timestamp (ms since epoch) when the draw completed; 0 when not set
+    private long drawTimestamp;
 
         /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
@@ -107,6 +111,8 @@ public class Event implements Comparable<Event> {
         posterUrl = "";
         genre = "";
         maxEntrants = 0;
+        drawComplete = false;
+        drawTimestamp = 0L;
     }
 
     /**
@@ -726,6 +732,22 @@ public class Event implements Comparable<Event> {
      */
     public String getPosterUrl() {
         return posterUrl;
+    }
+
+    public void setDrawComplete(boolean drawComplete) {
+        this.drawComplete = drawComplete;
+    }
+
+    public boolean isDrawComplete() {
+        return drawComplete;
+    }
+
+    public void setDrawTimestamp(long drawTimestamp) {
+        this.drawTimestamp = drawTimestamp;
+    }
+
+    public long getDrawTimestamp() {
+        return drawTimestamp;
     }
         /**
          * Removes all categories from this event.

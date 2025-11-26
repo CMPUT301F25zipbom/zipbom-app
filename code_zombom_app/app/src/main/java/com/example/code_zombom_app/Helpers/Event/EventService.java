@@ -7,9 +7,14 @@ import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.DocumentReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Centralised entry point for persisting and fetching events.
@@ -37,13 +42,17 @@ public class EventService {
     public Task<Void> addEntrantToWaitlist(@NonNull String documentId, @NonNull String entrantEmail) {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
             if (dto == null) {
                 throw new IllegalStateException("Event not found");
             }
             Event event = EventMapper.toDomain(dto, documentId);
             if (event == null) {
                 throw new IllegalStateException("Invalid event data");
+            }
+            if (event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already been selected for this event.");
             }
             if (event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You have already joined this waiting list.");
@@ -57,7 +66,7 @@ public class EventService {
             }
             event.joinWaitingList(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            transaction.set(eventRef, updatedDto);
             return null;
         });
     }
@@ -68,7 +77,8 @@ public class EventService {
     public Task<Void> removeEntrantFromWaitlist(@NonNull String documentId, @NonNull String entrantEmail) {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
             if (dto == null) {
                 throw new IllegalStateException("Event not found");
             }
@@ -81,7 +91,7 @@ public class EventService {
             }
             event.leaveWaitingList(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            transaction.set(eventRef, updatedDto);
             return null;
         });
     }
@@ -128,7 +138,8 @@ public class EventService {
      */
     public Task<Void> runLotteryDraw(@NonNull String documentId) {
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
             if (dto == null) {
                 throw new IllegalStateException("Event not found");
             }
@@ -150,14 +161,36 @@ public class EventService {
             Collections.shuffle(candidates);
 
             int picks = Math.min(slotsRemaining, candidates.size());
+            List<String> winners = new ArrayList<>();
             for (int i = 0; i < picks; i++) {
                 String winner = candidates.get(i);
                 event.addChosenEntrant(winner);
                 event.leaveWaitingList(winner);
+                winners.add(winner);
             }
+            
+            // Mark the draw as complete
+            event.setDrawComplete(true);
+            event.setDrawTimestamp(System.currentTimeMillis()); // current time as draw timestamp
+
+
+            //identify losers
+            Set<String> losers = new HashSet<>(event.getWaitingList());
+            losers.removeAll(event.getChosenList());
+            losers.removeAll(event.getRegisteredList());
 
             EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            transaction.set(eventRef, updatedDto);
+
+            // Write winner/loser notifications under the event for entrant listeners
+            for (String winner : winners) {
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
+            }
+            for (String loser : losers) {
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
+            }
             return null;
         });
     }
@@ -167,5 +200,15 @@ public class EventService {
      */
     public Task<Void> deleteEvent(@NonNull String documentId) {
         return firestore.collection("Events").document(documentId).delete();
+    }
+
+    private Map<String, Object> buildNotification(String recipientEmail, String type, String eventName, long drawTimestamp) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("recipientEmail", recipientEmail == null ? "" : recipientEmail.trim().toLowerCase());
+        payload.put("type", type); // "win" or "lose"
+        payload.put("eventName", eventName != null ? eventName : "");
+        payload.put("drawTimestamp", drawTimestamp);
+        payload.put("createdAt", System.currentTimeMillis());
+        return payload;
     }
 }

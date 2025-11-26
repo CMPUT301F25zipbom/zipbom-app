@@ -21,6 +21,8 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     private String Max_People;
     private String Wait_List_Maximum;
     private Boolean qrCodeExists;
+    private Boolean drawComplete;
+    private Long drawTimestamp;
 
     private ArrayList<String> Entrants;
     private ArrayList<String> Cancelled_Entrants;
@@ -50,6 +52,8 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         Cancelled_Entrants = new ArrayList<>();
         Accepted_Entrants = new ArrayList<>();
         Lottery_Winners = new ArrayList<>();
+        drawComplete = false;
+        drawTimestamp = 0L;
     }
 
 
@@ -96,6 +100,12 @@ public class EventForOrg implements Serializable { // Serializable is good pract
 
     public ArrayList<String> getLottery_Winners() { return Lottery_Winners; }
     public void setLottery_Winners(ArrayList<String> lottery_Winners) { this.Lottery_Winners = lottery_Winners; }
+
+    public Boolean getDrawComplete() { return drawComplete; }
+    public void setDrawComplete(Boolean drawComplete) { this.drawComplete = drawComplete; }
+
+    public Long getDrawTimestamp() { return drawTimestamp; }
+    public void setDrawTimestamp(Long drawTimestamp) { this.drawTimestamp = drawTimestamp; }
 
 
     // --- Excluded (local-only) properties ---

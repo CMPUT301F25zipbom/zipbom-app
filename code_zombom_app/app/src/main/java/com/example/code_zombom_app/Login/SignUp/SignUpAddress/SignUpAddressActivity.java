@@ -22,7 +22,7 @@ public class SignUpAddressActivity extends AppCompatActivity implements TView<Si
         setContentView(R.layout.activity_signup_address);
 
         if (!Places.isInitialized())
-            Places.initialize(getApplicationContext(), Location.GOOGLE_API);
+            Places.initialize(getApplicationContext(), Location.getGoogleApi());
 
         SignUpModel model = (SignUpModel) GModel.getCurrentModel();
 
