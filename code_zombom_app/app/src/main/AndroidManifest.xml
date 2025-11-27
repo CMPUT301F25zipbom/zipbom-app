@@ -48,7 +48,9 @@
 
         <activity android:name=".Login.LoginActivity"/>
         <activity android:name=".Login.SignUp.SignUpActivity"/>
-        <activity android:name=".Entrant.EntrantMainActivity"/>
+        <activity android:name=".Entrant.EntrantMainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity android:name=".FilterSortActivity"
             android:exported="false" />
         <activity android:name=".Entrant.EditProfile.EditProfileActivity"/>

@@ -104,9 +104,26 @@ public class EventModel extends GModel {
                 .get()
                 .addOnSuccessListener(querySnapshot -> {
                     loadedEvents.clear();
+
                     for (QueryDocumentSnapshot doc : querySnapshot) {
-                        loadedEvents.add(doc.toObject(Event.class));
+                        try {
+                            Event event = doc.toObject(Event.class);
+
+                            // Skip if conversion returned null or key fields are missing
+                            if (event == null || event.getEventId() == null) {
+                                Log.w("EventModel",
+                                        "Skipping doc " + doc.getId() + " (null Event or missing eventId)");
+                                continue;
+                            }
+
+                            loadedEvents.add(event);
+                        } catch (Exception ex) {
+                            // Anything that blows up during mapping gets logged & skipped
+                            Log.e("EventModel",
+                                    "Skipping non-convertible document: " + doc.getId(), ex);
+                        }
                     }
+
                     setState(State.LOAD_EVENTS_SUCCESS);
                     notifyViews();
                 })
@@ -117,6 +134,9 @@ public class EventModel extends GModel {
                     notifyViews();
                 });
     }
+
+
+
 
     /**
      * @return The loaded event from the database.

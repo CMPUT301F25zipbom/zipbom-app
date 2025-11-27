@@ -16,7 +16,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 
-import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -34,9 +33,9 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final Event event; // <<< Use the Event object
+    private final EventForOrg eventForOrg; // <<< Use the Event object
     private final NavController navController;
-//    private final View fragmentView;
+    //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
     private final ImageView qrCodeImageView; // Direct reference to the ImageView
     private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
@@ -46,15 +45,13 @@ public class OrganizerDialog extends Dialog {
     /**
      * This method is used to make an organizerdialog object.
      * @param context sets the context
-     * @param event sets the organizerdialog eventid
+     * @param eventForOrg sets the organizerdialog eventid
      * @param navController sets the organizerdialog navController
      * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, Event event, NavController navController,
-                           View fragmentView, Map<String, Bitmap> qrCodeBitmaps) {
     public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, ImageView qrCodeImageView, Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
         super(context);
-        this.event = event; // <<< Store the whole object
+        this.eventForOrg = eventForOrg; // <<< Store the whole object
         this.navController = navController;
         this.qrCodeImageView = qrCodeImageView; // Store the direct reference
         this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
@@ -84,7 +81,7 @@ public class OrganizerDialog extends Dialog {
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
-        if (event.getLotteryWinners() != null && !event.getLotteryWinners().isEmpty()) {
+        if (eventForOrg.getLottery_Winners() != null && !eventForOrg.getLottery_Winners().isEmpty()) {
             viewStartButton.setText("Replacement Draw");
         } else {
             viewStartButton.setText("Start Draw");
@@ -104,7 +101,7 @@ public class OrganizerDialog extends Dialog {
         editEventButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", event.getEventId()); // Get ID from the object
+            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object
 
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
@@ -120,26 +117,13 @@ public class OrganizerDialog extends Dialog {
                 // 5. If something is wrong, show a clear error.
                 Toast.makeText(getContext(), "Error: Could not display QR code.", Toast.LENGTH_SHORT).show();
                 Log.e("OrganizerDialog", "QR Bitmap or ImageView was null. Cannot display.");
-            dismiss();
-            Bitmap qrBitmap = qrCodeBitmaps.get(event.getEventId());
-            // We need the fragment's root view to find the tag
-            ImageView qrToShow = fragmentView.findViewWithTag(event.getEventId());
-
-            if (qrToShow != null) {
-                uploadQrCodeToFirebase(qrBitmap);
-                if (qrToShow.getVisibility() == View.GONE) {
-                    qrToShow.setVisibility(View.VISIBLE);
-                } else {
-                    // If for some reason it's not found, show an error
-                    Toast.makeText(getContext(), "Error: QR Code image not found.", Toast.LENGTH_SHORT).show();
-                }
             }
         });
         //This gets rid of the popup.
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", event.getEventId()); // Get ID from the object    // Navigate to the full details fragment
+            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object    // Navigate to the full details fragment
 
             // Navigate to the full details fragment
             navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
@@ -165,7 +149,7 @@ public class OrganizerDialog extends Dialog {
         byte[] data = baos.toByteArray();
 
         // Define the path in Firebase Storage
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + event.getEventId() + ".png");
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventForOrg.getEventId() + ".png");
 
         // Upload the byte array
         storageRef.putBytes(data)
@@ -194,12 +178,9 @@ public class OrganizerDialog extends Dialog {
                         "qrCodeUrl", url,          // Save the URL
                         "qrCodeExists", true   // --- THIS IS THE CRITICAL FIX ---
                 )
-        FirebaseFirestore.getInstance().collection("Events").document(event.getEventId())
-                .update("qrCodeUrl", url)
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
                     Log.d("Firestore", "QR Code URL and exists flag updated for event: " + eventForOrg.getEventId());
-                    Log.d("Firestore", "QR Code URL updated for event: " + event.getEventId());
                     dismiss(); // Close the dialog on success
                 })
                 .addOnFailureListener(e -> {
@@ -213,7 +194,7 @@ public class OrganizerDialog extends Dialog {
      * Runs a lottery draw via the central EventService and surfaces the outcome to the organiser.
      */
     private void runLottery() {
-        eventService.runLotteryDraw(event.getEventId())
+        eventService.runLotteryDraw(eventForOrg.getEventId())
                 .addOnSuccessListener(ignored -> Toast.makeText(getContext(), "Lottery draw completed.", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> {
                     Toast.makeText(getContext(), e.getMessage() != null ? e.getMessage() : "Lottery draw failed.", Toast.LENGTH_SHORT).show();

@@ -22,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
@@ -175,35 +176,22 @@ public class OrganizerMainFragment extends Fragment {
                         if (event.getLocation() != null)
                             textViewLocation.setText("Location: " + event.getLocation().toString());
 
-
-                        // --- Generate QR Code Data using the canonical mapper ---
-                        String qrCodeData = EventService.buildQrPayload(event, event.getPosterUrl());
-
-                        // Generate and set the QR code
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        // Use the eventName variable as the content for the QR code
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(qrCodeData, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
-                        qrCodeImageView.setImageBitmap(bitmap);
-
-                        // Store the generated bitmap in our map
-                        qrCodeBitmaps.put(event.getEventId(), bitmap);
+                        qrCodeImageView.setImageBitmap(event.getEventIdBitmap());
 
                         // --- Set click listener (pass the object or its properties) ---
                         eventItemView.setOnClickListener(v -> showEventOptionsDialog(event));
                         eventsContainer.addView(eventItemView);
+                        EventForOrg eventForOrg = EventMapper.toDto(event);
                         if (eventForOrg.getQrCodeExists()) {
                             qrCodeImageView.setVisibility(View.VISIBLE);
                         }
 
-                    } catch (WriterException e) {
-                        Log.e("QRCode", "Error generating QR code", e);
-
-                    } catch (Exception e) {
+                    }  catch (Exception e) {
                         // This will catch NullPointerExceptions if a view ID is wrong
                         Log.e("DATA_MAPPING_ERROR", "Error converting document to Event object. Check Firestore field names!", e);
                     }
                 }
-            }else {
+            } else {
                 // If there are no documents, show a "No events" message
                 TextView noEventsTextView = new TextView(getContext());
                 noEventsTextView.setText("No events yet.");
@@ -223,8 +211,7 @@ public class OrganizerMainFragment extends Fragment {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 
-        // Create the dialog by passing the entire Event object.
-        OrganizerDialog dialog = new OrganizerDialog(requireContext(), event, navController, fragmentView, qrCodeBitmaps);
+        EventForOrg eventForOrg = EventMapper.toDto(event);
         // Get the specific bitmap for this event from the map.
         Bitmap qrBitmapForEvent = qrCodeBitmaps.get(eventForOrg.getEventId());
 

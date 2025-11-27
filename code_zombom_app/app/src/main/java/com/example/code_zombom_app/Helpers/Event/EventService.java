@@ -259,7 +259,6 @@ public class EventService {
             return null;
         });
     }
-}
 
     private static String nullToEmpty(@Nullable String value) {
         return value == null ? "" : value;

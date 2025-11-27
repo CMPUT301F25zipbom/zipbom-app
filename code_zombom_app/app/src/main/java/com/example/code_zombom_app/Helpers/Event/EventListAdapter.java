@@ -25,6 +25,9 @@ import java.util.List;
  * @see android.widget.ArrayAdapter
  */
 public class EventListAdapter extends ArrayAdapter<Event> {
+    private String email;
+    private EventService eventService;
+
     private TextView textViewName;
     private TextView textViewGenre;
     private TextView textViewStartDate;
@@ -33,9 +36,6 @@ public class EventListAdapter extends ArrayAdapter<Event> {
     private TextView textViewDetails;
     private Button buttonJoinWaitingList;
     private Button buttonLeaveWaitingList;
-
-    private String email;
-    private EventService eventService;
 
     /**
      *

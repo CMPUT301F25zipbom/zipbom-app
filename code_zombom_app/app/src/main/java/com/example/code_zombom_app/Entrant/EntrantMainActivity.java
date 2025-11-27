@@ -27,11 +27,13 @@ import com.example.code_zombom_app.FilterSortActivity;
 import com.example.code_zombom_app.FilterSortState;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventListAdapter;
+import com.example.code_zombom_app.Helpers.Event.EventModel;
 import com.example.code_zombom_app.Helpers.Filter.EventFilter;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -49,6 +51,29 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
     private ArrayList<Event> events;
     private ListView listViewEvent;
 
+    private boolean isActive = false;
+    private AlertDialog qrDialog;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        isActive = true;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        isActive = false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (qrDialog != null && qrDialog.isShowing()) {
+            qrDialog.dismiss();
+        }
+        super.onDestroy();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,53 +82,54 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
 
         email = getIntent().getStringExtra("Email"); // Get the email address
 
-//        eventViewModel = new ViewModelProvider(this).get(EntrantEventListViewModel.class);
-//        // Share the signed-in entrant address so the event list can perform join mutations
-//        eventViewModel.setEntrantEmail(email);
-//
-//        filterLauncher = registerForActivityResult(
-//                new ActivityResultContracts.StartActivityForResult(),
-//                result -> {
-//                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-//                        FilterSortState state = (FilterSortState) result.getData()
-//                                .getSerializableExtra(FilterSortActivity.EXTRA_RESULT_STATE);
-//                        if (state != null) {
-//                            eventViewModel.setFilterSortState(state);
-//                            boolean reset = result.getData()
-//                                    .getBooleanExtra(FilterSortActivity.EXTRA_RESULT_RESET, false);
-//                            int messageRes = reset
-//                                    ? R.string.filter_sort_reset_summary
-//                                    : R.string.filter_sort_applied_summary;
-//                            Toast.makeText(this, messageRes, Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
+        events = new ArrayList<>();
+        eventListAdapter = new EventListAdapter(this, events, email);
+        listViewEvent = findViewById(R.id.listViewEntrantEvent);
+        listViewEvent.setAdapter(eventListAdapter);
 
-//        ImageButton filterButton = findViewById(R.id.imageButtonFilter);
-//        if (filterButton != null) {
-//            filterButton.setOnClickListener(v -> showFilterActivity());
-//        }
+        EntrantMainModel model = new EntrantMainModel();
+
 
         ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(
                 new ScanContract(),
                 result -> {
-                    if (result != null && result.getContents() != null) {
-                        String qR = result.getContents();
-
-                        /* Show the event in a popup window */
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        builder.setTitle("Event Details");
-                        builder.setMessage(qR);
-                        builder.setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-                        builder.show();
+                    if (result == null || result.getContents() == null) {
+                        Toast.makeText(this, "No QR content detected", Toast.LENGTH_SHORT).show();
+                        return;
                     }
-                });
 
-        EntrantMainModel model = new EntrantMainModel();
-        events = model.getLoadedEvents();
-        eventListAdapter = new EventListAdapter(this, events, email);
-        listViewEvent = findViewById(R.id.listViewEntrantEvent);
-        listViewEvent.setAdapter(eventListAdapter);
+                    String scannedEventId = result.getContents();
+                    android.util.Log.d("QR_SCAN", "Scanned id = " + scannedEventId);
+
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+                    db.collection("Events")
+                            .document(scannedEventId)
+                            .get()
+                            .addOnSuccessListener(snapshot -> {
+                                if (!isActive)
+                                    return;
+
+                                if (!snapshot.exists()) {
+                                    Toast.makeText(this, "Invalid QR code (no such event)", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                Event event = snapshot.toObject(Event.class);
+                                if (event == null) {
+                                    Toast.makeText(this, "Error loading event from QR", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+
+                                // Show the popup with full functionality
+                                openEventPopUpFromEvent(event);
+                            })
+                            .addOnFailureListener(e -> {
+                                android.util.Log.e("QR_SCAN", "Failed to load event by QR", e);
+                                Toast.makeText(this, "Error loading event for QR code", Toast.LENGTH_SHORT).show();
+                            });
+                }
+        );
 
         EntrantMainController controller = new EntrantMainController(model,
                 findViewById(R.id.imageButtonFilter),
@@ -112,7 +138,6 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 listViewEvent,
                 eventListAdapter,
                 barcodeLauncher
-
         );
 
         controller.bindView();
@@ -139,7 +164,12 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
             }
         }
         else if (model.getState() == GModel.State.LOAD_EVENTS_SUCCESS) {
-                eventListAdapter.notifyDataSetChanged();
+            events.clear();
+            events.addAll(model.getLoadedEvents());
+
+            android.util.Log.d("EVENT_LOAD", "Loaded " + events.size() + " events into adapter");
+
+            eventListAdapter.notifyDataSetChanged();
         }
         else if (model.getState() == GModel.State.LOAD_EVENTS_FAILURE) {
             Toast.makeText(this, "Error in loading the events: " + model.getErrorMsg(),
@@ -324,6 +354,36 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         calendar.set(year, month, day);
 
         return calendar.getTime();
+    }
+
+    /**
+     * Open a pop up window that shows a single Event (used by QR scan).
+     */
+    private void openEventPopUpFromEvent(Event event) {
+        // Extra guard in case something slips through
+        if (!isActive) {
+            return;
+        }
+
+        // Reuse the same list item layout + button logic via EventListAdapter
+        ArrayList<Event> single = new ArrayList<>();
+        single.add(event);
+        EventListAdapter tempAdapter = new EventListAdapter(this, single, email);
+
+        View view = tempAdapter.getView(0, null, listViewEvent);
+
+        // If a previous QR dialog is still open, close it first
+        if (qrDialog != null && qrDialog.isShowing()) {
+            qrDialog.dismiss();
+        }
+
+        qrDialog = new AlertDialog.Builder(this)
+                .setTitle("Event")
+                .setView(view)
+                .setNegativeButton("Close", (d, which) -> d.dismiss())
+                .create();
+
+        qrDialog.show();
     }
 
 }
