@@ -62,6 +62,20 @@ public class EntrantNotificationFragment extends Fragment {
             }
         });
 
+        viewModel.getInvitationActionCompleted().observe(getViewLifecycleOwner(), completed -> {
+            if (Boolean.TRUE.equals(completed)) {
+                hideActionButtons();
+                viewModel.clearInvitationActionCompleted();
+            }
+        });
+
+        viewModel.getInvitationActionMessage().observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                messageView.setText(message);
+                viewModel.clearInvitationActionMessage();
+            }
+        });
+
         viewModel.isJoinInProgress().observe(getViewLifecycleOwner(), inProgress -> {
             if (acceptButton != null) {
                 acceptButton.setEnabled(inProgress == null || !inProgress);
@@ -73,10 +87,7 @@ public class EntrantNotificationFragment extends Fragment {
     }
 
     private void bindNotification(@Nullable EntrantEventListViewModel.EntrantNotification notification) {
-        acceptButton.setVisibility(View.GONE);
-        acceptButton.setOnClickListener(null);
-        declineButton.setVisibility(View.GONE);
-        declineButton.setOnClickListener(null);
+        hideActionButtons();
 
         if (notification == null) {
             titleView.setText(R.string.notification_title);
@@ -85,11 +96,24 @@ public class EntrantNotificationFragment extends Fragment {
             titleView.setText(notification.eventName == null ? getString(R.string.notification_title) : notification.eventName);
             messageView.setText(notification.message);
             if ("win".equalsIgnoreCase(notification.type)) {
-                acceptButton.setVisibility(View.VISIBLE);
-                acceptButton.setOnClickListener(v -> viewModel.acceptInvitation(notification.eventId, notification.eventName));
-                declineButton.setVisibility(View.VISIBLE);
-                declineButton.setOnClickListener(v -> viewModel.declineInvitation(notification.eventId, notification.eventName));
+                viewModel.shouldShowInvitationActions(notification.eventId, show -> {
+                    if (show) {
+                        acceptButton.setVisibility(View.VISIBLE);
+                        acceptButton.setOnClickListener(v -> viewModel.acceptInvitation(notification.eventId, notification.eventName));
+                        declineButton.setVisibility(View.VISIBLE);
+                        declineButton.setOnClickListener(v -> viewModel.declineInvitation(notification.eventId, notification.eventName));
+                    } else {
+                        hideActionButtons();
+                    }
+                });
             }
         }
+    }
+
+    private void hideActionButtons() {
+        acceptButton.setVisibility(View.GONE);
+        acceptButton.setOnClickListener(null);
+        declineButton.setVisibility(View.GONE);
+        declineButton.setOnClickListener(null);
     }
 }

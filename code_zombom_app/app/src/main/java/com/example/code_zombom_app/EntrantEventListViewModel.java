@@ -63,6 +63,10 @@ public class EntrantEventListViewModel extends ViewModel {
     private final MutableLiveData<Boolean> joinInProgress = new MutableLiveData<>(false);
     /** One-off success/error message that the fragment shows via a toast/snackbar. */
     private final MutableLiveData<String> joinStatusMessage = new MutableLiveData<>(null);
+    /** Indicates a one-time success of accept/decline actions so UI can react. */
+    private final MutableLiveData<Boolean> invitationActionCompleted = new MutableLiveData<>(false);
+    /** One-off message describing the last invitation action the entrant performed. */
+    private final MutableLiveData<String> invitationActionMessage = new MutableLiveData<>(null);
     /** Latest notification payload available to the entrant. */
     private final MutableLiveData<EntrantNotification> entrantNotification = new MutableLiveData<>(null);
 
@@ -105,9 +109,33 @@ public class EntrantEventListViewModel extends ViewModel {
         return joinStatusMessage;
     }
 
+    /**
+     * @return signals when an invitation accept/decline completed successfully.
+     */
+    public LiveData<Boolean> getInvitationActionCompleted() {
+        return invitationActionCompleted;
+    }
+
+    /**
+     * @return one-off description of the last invitation action.
+     */
+    public LiveData<String> getInvitationActionMessage() {
+        return invitationActionMessage;
+    }
+
     /** Clears the most recent join status so it will not be re-delivered to observers. */
     public void clearJoinStatusMessage() {
         joinStatusMessage.setValue(null);
+    }
+
+    /** Resets the invitation completion flag after it is handled by the UI. */
+    public void clearInvitationActionCompleted() {
+        invitationActionCompleted.setValue(false);
+    }
+
+    /** Clears the last invitation action message after it has been displayed. */
+    public void clearInvitationActionMessage() {
+        invitationActionMessage.setValue(null);
     }
 
     /**
@@ -231,6 +259,8 @@ public class EntrantEventListViewModel extends ViewModel {
                 .addOnSuccessListener(ignored -> {
                     String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
                     joinStatusMessage.setValue("Accepted invitation to " + eventLabel + ".");
+                    invitationActionCompleted.setValue(true);
+                    invitationActionMessage.setValue("You have accepted the invitation.");
                 })
                 .addOnFailureListener(e -> {
                     joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't accept the invitation. Please try again.");
@@ -260,6 +290,8 @@ public class EntrantEventListViewModel extends ViewModel {
                 .addOnSuccessListener(ignored -> {
                     String eventLabel = eventName == null || eventName.trim().isEmpty() ? "event" : eventName;
                     joinStatusMessage.setValue("Declined invitation to " + eventLabel + ".");
+                    invitationActionCompleted.setValue(true);
+                    invitationActionMessage.setValue("You have declined the invitation.");
                 })
                 .addOnFailureListener(e -> {
                     joinStatusMessage.setValue(e.getMessage() != null ? e.getMessage() : "Couldn't decline the invitation. Please try again.");
@@ -362,43 +394,59 @@ public class EntrantEventListViewModel extends ViewModel {
             return;
         }
         String normalizedEmail = entrantEmail.trim().toLowerCase();
+        // First check if the entrant already recorded a response; if so, surface it.
         firestore.collection("Events")
                 .document(eventId)
-                .collection("Notifications")
-                .whereEqualTo("recipientEmail", normalizedEmail)
+                .collection("Responses")
+                .document(normalizedEmail)
                 .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot == null || snapshot.isEmpty()) {
-                        callback.onNotificationLoaded(null);
+                .addOnSuccessListener(responseDoc -> {
+                    if (responseDoc != null && responseDoc.exists()) {
+                        String status = responseDoc.getString("status");
+                        String message = responseDoc.getString("message");
+                        callback.onNotificationLoaded(new EntrantNotification(eventId, null, message, status));
                         return;
                     }
-                    DocumentSnapshot doc = null;
-                    for (DocumentSnapshot candidate : snapshot.getDocuments()) {
-                        if (doc == null) {
-                            doc = candidate;
-                            continue;
-                        }
-                        long currentTs = candidate.getLong("createdAt") == null ? 0 : candidate.getLong("createdAt");
-                        long selectedTs = doc.getLong("createdAt") == null ? 0 : doc.getLong("createdAt");
-                        if (currentTs > selectedTs) {
-                            doc = candidate;
-                        }
-                    }
-                    if (doc == null) {
-                        callback.onNotificationLoaded(null);
-                        return;
-                    }
-                    String type = doc.getString("type");
-                    String eventName = doc.getString("eventName");
-                    String message;
-                    if ("win".equalsIgnoreCase(type)) {
-                        message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
-                    } else if ("lose".equalsIgnoreCase(type)) {
-                        message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
-                    } else {
-                        message = doc.getString("message");
-                    }
-                    callback.onNotificationLoaded(new EntrantNotification(eventId, eventName, message, type));
+                    // Fall back to the latest notification addressed to this entrant.
+                    firestore.collection("Events")
+                            .document(eventId)
+                            .collection("Notifications")
+                            .whereEqualTo("recipientEmail", normalizedEmail)
+                            .get()
+                            .addOnSuccessListener(snapshot -> {
+                                if (snapshot == null || snapshot.isEmpty()) {
+                                    callback.onNotificationLoaded(null);
+                                    return;
+                                }
+                                DocumentSnapshot doc = null;
+                                for (DocumentSnapshot candidate : snapshot.getDocuments()) {
+                                    if (doc == null) {
+                                        doc = candidate;
+                                        continue;
+                                    }
+                                    long currentTs = candidate.getLong("createdAt") == null ? 0 : candidate.getLong("createdAt");
+                                    long selectedTs = doc.getLong("createdAt") == null ? 0 : doc.getLong("createdAt");
+                                    if (currentTs > selectedTs) {
+                                        doc = candidate;
+                                    }
+                                }
+                                if (doc == null) {
+                                    callback.onNotificationLoaded(null);
+                                    return;
+                                }
+                                String type = doc.getString("type");
+                                String eventName = doc.getString("eventName");
+                                String message;
+                                if ("win".equalsIgnoreCase(type)) {
+                                    message = "You were selected for " + (eventName != null ? eventName : "an event") + ".";
+                                } else if ("lose".equalsIgnoreCase(type)) {
+                                    message = "You were not selected for " + (eventName != null ? eventName : "an event") + ".";
+                                } else {
+                                    message = doc.getString("message");
+                                }
+                                callback.onNotificationLoaded(new EntrantNotification(eventId, eventName, message, type));
+                            })
+                            .addOnFailureListener(e -> callback.onNotificationLoaded(null));
                 })
                 .addOnFailureListener(e -> callback.onNotificationLoaded(null));
     }
@@ -875,5 +923,51 @@ public class EntrantEventListViewModel extends ViewModel {
 
     interface NotificationCallback {
         void onNotificationLoaded(@Nullable EntrantNotification notification);
+    }
+
+    /**
+     * Allows UI to decide whether invitation actions should be shown by re-reading the event doc.
+     *
+     * @param eventId Firestore id for the event
+     * @param callback receives true when accept/decline buttons should be visible
+     */
+    public void shouldShowInvitationActions(@Nullable String eventId, @NonNull InvitationVisibilityCallback callback) {
+        if (eventId == null || entrantEmail == null || entrantEmail.trim().isEmpty()) {
+            callback.onResult(false);
+            return;
+        }
+        final String normalizedEmail = entrantEmail.trim();
+        firestore.collection("Events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    EventForOrg dto = snapshot.toObject(EventForOrg.class);
+                    if (dto == null) {
+                        callback.onResult(false);
+                        return;
+                    }
+                    boolean isWinner = containsIgnoreCase(dto.getLottery_Winners(), normalizedEmail);
+                    boolean hasAccepted = containsIgnoreCase(dto.getAccepted_Entrants(), normalizedEmail);
+                    boolean hasCancelled = containsIgnoreCase(dto.getCancelled_Entrants(), normalizedEmail);
+                    // Show actions only while the entrant is still a winner and has not already acted.
+                    callback.onResult(isWinner && !hasAccepted && !hasCancelled);
+                })
+                .addOnFailureListener(e -> callback.onResult(false));
+    }
+
+    private boolean containsIgnoreCase(@Nullable List<String> list, @NonNull String target) {
+        if (list == null || list.isEmpty()) {
+            return false;
+        }
+        for (String item : list) {
+            if (item != null && item.trim().equalsIgnoreCase(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    interface InvitationVisibilityCallback {
+        void onResult(boolean showActions);
     }
 }
