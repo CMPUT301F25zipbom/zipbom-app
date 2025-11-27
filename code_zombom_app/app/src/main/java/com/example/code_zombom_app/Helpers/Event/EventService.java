@@ -58,6 +58,15 @@ public class EventService {
             if (event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You have already joined this waiting list.");
             }
+            // Block entrants who already accepted (pending list) from rejoining the waitlist.
+            if (event.getPendingList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already accepted an invitation for this event.");
+            }
+            // If accepted entrants already meet capacity, block any further joins.
+            int maxPeople = Math.max(0, event.getCapacity());
+            if (maxPeople > 0 && event.getPendingList().size() >= maxPeople) {
+                throw new IllegalArgumentException("This event is full.");
+            }
             int waitlistMaximum = event.getWaitlistLimit();
             if (waitlistMaximum <= 0) {
                 waitlistMaximum = event.getCapacity();
@@ -121,7 +130,13 @@ public class EventService {
             }
 
             int capacity = Math.max(0, event.getCapacity());
-            int alreadyFilled = event.getRegisteredList().size() + event.getChosenList().size();
+            int acceptedCount = event.getPendingList().size();
+            // Prevent drawing when accepted entrants have already filled or exceeded capacity.
+            if (capacity > 0 && acceptedCount >= capacity) {
+                return null;
+            }
+            // Treat accepted entrants as occupying seats when computing remaining capacity.
+            int alreadyFilled = event.getRegisteredList().size() + event.getChosenList().size() + acceptedCount;
             int slotsRemaining = capacity > 0 ? Math.max(0, capacity - alreadyFilled) : event.getWaitingList().size();
             if (slotsRemaining == 0) {
                 return null; // nothing to do
@@ -225,8 +240,19 @@ public class EventService {
             }
 
             event.addPendingEntrant(normalizedEmail);
+            event.removeChosenEntrant(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
+            // Ensure the entrant is no longer marked as cancelled if they accept later
+            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
+                    ? new ArrayList<>(dto.getCancelled_Entrants())
+                    : new ArrayList<>();
+            cancelled.remove(normalizedEmail);
+            updatedDto.setCancelled_Entrants(cancelled);
             transaction.set(eventRef, updatedDto);
+            // Persist the entrant's response so the UI can restore state after navigation/restart.
+            transaction.set(eventRef.collection("Responses").document(normalizedEmail),
+                    buildResponsePayload(normalizedEmail, "accepted",
+                            "You have accepted the invitation" + formatEventSuffix(event.getName())));
             return null;
         });
     }
@@ -255,12 +281,37 @@ public class EventService {
             event.removeChosenEntrant(normalizedEmail);
             event.removePendingEntrant(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
+            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
+                    ? new ArrayList<>(dto.getCancelled_Entrants())
+                    : new ArrayList<>();
+            if (!cancelled.contains(normalizedEmail)) {
+                cancelled.add(normalizedEmail);
+            }
+            updatedDto.setCancelled_Entrants(cancelled);
             transaction.set(eventRef, updatedDto);
+            // Persist the entrant's response so the UI can restore state after navigation/restart.
+            transaction.set(eventRef.collection("Responses").document(normalizedEmail),
+                    buildResponsePayload(normalizedEmail, "declined",
+                            "You have declined the invitation" + formatEventSuffix(event.getName())));
             return null;
         });
     }
 
-    private static String nullToEmpty(@Nullable String value) {
-        return value == null ? "" : value;
+    private Map<String, Object> buildResponsePayload(String email, String status, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("email", email == null ? "" : email.trim());
+        payload.put("status", status);
+        payload.put("message", message);
+        payload.put("updatedAt", System.currentTimeMillis());
+        return payload;
     }
+
+    private String formatEventSuffix(@Nullable String eventName) {
+        if (eventName == null || eventName.trim().isEmpty()) {
+            return ".";
+        }
+        return " to " + eventName + ".";
+    }
+  private static String nullToEmpty( @Nullable String value) {return value == null? "" : value;
+                                                             }
 }
