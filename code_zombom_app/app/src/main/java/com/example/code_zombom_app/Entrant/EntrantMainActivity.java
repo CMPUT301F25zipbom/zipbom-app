@@ -1,38 +1,39 @@
 package com.example.code_zombom_app.Entrant;
 
-import static android.content.Intent.getIntent;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.example.code_zombom_app.Entrant.EditProfile.EditProfileActivity;
 //import com.example.code_zombom_app.EntrantEventListViewModel;
-import com.example.code_zombom_app.FilterSortActivity;
-import com.example.code_zombom_app.FilterSortState;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventListAdapter;
-import com.example.code_zombom_app.Helpers.Event.EventModel;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.Helpers.Filter.EventFilter;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
@@ -53,6 +54,8 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
 
     private boolean isActive = false;
     private AlertDialog qrDialog;
+
+    private Entrant entrant;
 
     @Override
     protected void onStart() {
@@ -87,7 +90,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         listViewEvent = findViewById(R.id.listViewEntrantEvent);
         listViewEvent.setAdapter(eventListAdapter);
 
-        EntrantMainModel model = new EntrantMainModel();
+        EntrantMainModel model = new EntrantMainModel(email);
 
 
         ActivityResultLauncher<ScanOptions> barcodeLauncher = registerForActivityResult(
@@ -143,6 +146,14 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         controller.bindView();
         model.addView(this);
         model.loadEvents();
+
+        listViewEvent.setOnItemClickListener((parent, view,
+                                              position, id) -> {
+            Event event = events.get(position);
+            if (event != null) {
+                openEventPopUpFromEvent(event);
+            }
+        });
     }
 
 //    private void showFilterActivity() {
@@ -167,7 +178,8 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
             events.clear();
             events.addAll(model.getLoadedEvents());
 
-            android.util.Log.d("EVENT_LOAD", "Loaded " + events.size() + " events into adapter");
+            android.util.Log.d("EVENT_LOAD", "Loaded " +
+                    events.size() + " events into adapter");
 
             eventListAdapter.notifyDataSetChanged();
         }
@@ -185,7 +197,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
      *
      * @param model The control model of this view
      */
-    //TODO: Finish the implementation
+    //TODO: Implement a sorting method as well
     private void openFilterPopUpWindow(EntrantMainModel model) {
         EventFilter filter = new EventFilter();
 
@@ -205,7 +217,8 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         spinnerGenre.setAdapter(genreAdapter);
 
         CheckBox checkBoxAvailability = view.findViewById(R.id.checkBox_filter_by_availability);
-        LinearLayout linearLayoutAvailability = view.findViewById(R.id.linearLayout_filter_by_availability);
+        LinearLayout linearLayoutAvailability = view.findViewById(
+                R.id.linearLayout_filter_by_availability);
 
         checkBoxAvailability.setOnCheckedChangeListener((b, checked) -> {
             linearLayoutAvailability.setVisibility(checked ? View.VISIBLE : View.GONE);
@@ -215,8 +228,10 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         Calendar nextDay = Calendar.getInstance();
         nextDay.add(Calendar.DAY_OF_MONTH, 1);
 
-        DatePicker datePickerStartDate = view.findViewById(R.id.datePicker_filter_by_availability_startDate);
-        DatePicker datePickerEndDate = view.findViewById(R.id.datePicker_filter_by_availability_endDate);
+        DatePicker datePickerStartDate = view.findViewById(
+                R.id.datePicker_filter_by_availability_startDate);
+        DatePicker datePickerEndDate = view.findViewById(
+                R.id.datePicker_filter_by_availability_endDate);
 
         datePickerStartDate.updateDate(today.get(Calendar.YEAR), today.get(Calendar.MONTH),
                 today.get(Calendar.DAY_OF_MONTH));
@@ -306,6 +321,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 filter.reset();
 
                 // Set the spinner back to position zero
+                spinnerGenre.setSelection(0);
 
                 checkBoxAvailability.setChecked(false);
                 linearLayoutAvailability.setVisibility(View.GONE);
@@ -324,6 +340,23 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         buttonApply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String selectedGenre = (String) spinnerGenre.getSelectedItem();
+                if (selectedGenre != null && !selectedGenre.equals("Any")) {
+                    filter.setFilterGenre(selectedGenre);
+                } else {
+                    filter.setFilterGenre(null);
+                }
+
+                if (checkBoxAvailability.isChecked()) {
+                    Date startDate = getDateFromDatePicker(datePickerStartDate);
+                    Date endDate = getDateFromDatePicker(datePickerEndDate);
+
+                    filter.setFilterStartDate(startDate);
+                    filter.setFilterEndDate(endDate);
+                } else {
+                    filter.setFilterStartDate(null);
+                    filter.setFilterEndDate(null);
+                }
 
                 model.filterEvent(filter);
                 dialog.dismiss();
@@ -360,19 +393,108 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
      * Open a pop up window that shows a single Event (used by QR scan).
      */
     private void openEventPopUpFromEvent(Event event) {
-        // Extra guard in case something slips through
+        // Extra guard
         if (!isActive) {
             return;
         }
 
-        // Reuse the same list item layout + button logic via EventListAdapter
-        ArrayList<Event> single = new ArrayList<>();
-        single.add(event);
-        EventListAdapter tempAdapter = new EventListAdapter(this, single, email);
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View view = inflater.inflate(R.layout.entrant_full_event_details, null, false);
 
-        View view = tempAdapter.getView(0, null, listViewEvent);
+        // Map Event -> EventForOrg (like you did in adapter)
+        EventForOrg dto = EventMapper.toDto(event);
 
-        // If a previous QR dialog is still open, close it first
+        ImageView posterImageView = view.findViewById(R.id.imageView_entrant_full_details_poster);
+        TextView nameValue = view.findViewById(R.id.textView_entrant_event_full_details_name);
+        TextView dateValue = view.findViewById(R.id.textView_entrant_event_full_details_startDate);
+        TextView deadlineValue = view.findViewById(R.id.textView_entrant_event_full_details_endDate);
+        TextView locationValue = view.findViewById(R.id.textView_entrant_event_full_details_location);
+        TextView genreValue = view.findViewById(R.id.textView_entrant_event_full_details_genre);
+        TextView maxPeopleValue = view.findViewById(
+                R.id.textView_entrant_event_full_details_maxPeople);
+        TextView waitlistMaxValue = view.findViewById(
+                R.id.textView_entrant_event_full_details_maxWaitlist);
+        TextView descriptionValue = view.findViewById(
+                R.id.textView_entrant_event_full_details_description);
+        Button join = view.findViewById(R.id.button_entrant_event_full_details_joinWaitingList);
+        Button leave = view.findViewById(R.id.button_entrant_event_full_details_leaveWaitingList);
+
+        EventService eventService = new EventService();
+
+        if (event != null && event.isInWaitingList(email)) {
+            join.setEnabled(false);
+            leave.setEnabled(true);
+        } else {
+            join.setEnabled(true);
+            leave.setEnabled(false);
+        }
+
+        join.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    assert event != null;
+                    event.joinWaitingList(email);
+                    for (Event e : events) {
+                        if (e.getEventId().equals(event.getEventId())) {
+                            e.joinWaitingList(email);
+                            break;
+                        }
+                    }
+                    eventService.addEntrantToWaitlist(event.getEventId(), email);
+                    leave.setEnabled(true);
+                    join.setEnabled(false);
+                    eventListAdapter.notifyDataSetChanged();
+                    Toast.makeText(v.getContext(), "Join Waiting list successfully",
+                            Toast.LENGTH_SHORT).show();
+                } catch (RuntimeException e) {
+                    Log.e("Join Event Error", "Waiting list is full", e);
+                    Toast.makeText(v.getContext(), "This event waiting list is full!",
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        leave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                assert event != null;
+                event.leaveWaitingList(email);
+                eventService.removeEntrantFromWaitlist(event.getEventId(), email);
+                for (Event e : events) {
+                    if (e.getEventId().equals(event.getEventId())) {
+                        e.leaveWaitingList(email);
+                        break;
+                    }
+                }
+                leave.setEnabled(false);
+                join.setEnabled(true);
+                Toast.makeText(v.getContext(), "Leave waiting list successfully",
+                        Toast.LENGTH_SHORT).show();
+                eventListAdapter.notifyDataSetChanged();
+            }
+        });
+
+        // Fill in values from dto
+        nameValue.setText(dto.getName());
+        dateValue.setText(dto.getDate());
+        deadlineValue.setText(dto.getDeadline());
+        locationValue.setText(dto.getLocation());
+        genreValue.setText(dto.getGenre());
+        maxPeopleValue.setText(dto.getMax_People());
+        waitlistMaxValue.setText(dto.getWait_List_Maximum());
+        descriptionValue.setText(dto.getDescription());
+
+        if (dto.getPosterUrl() != null && !dto.getPosterUrl().isEmpty()) {
+            Glide.with(this)
+                    .load(dto.getPosterUrl())
+                    .into(posterImageView);
+            posterImageView.setVisibility(View.VISIBLE);
+        } else {
+            posterImageView.setVisibility(View.GONE);
+        }
+
+        // Close previous dialog if any
         if (qrDialog != null && qrDialog.isShowing()) {
             qrDialog.dismiss();
         }
@@ -384,6 +506,14 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 .create();
 
         qrDialog.show();
+    }
+
+    // You can reuse this helper from your adapter (or move it here)
+    private String formatListToString(List<String> list) {
+        if (list == null || list.isEmpty()) {
+            return "None";
+        }
+        return TextUtils.join(", ", list);
     }
 
 }

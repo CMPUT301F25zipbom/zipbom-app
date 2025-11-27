@@ -37,6 +37,7 @@ import java.util.Arrays;
 /**
  * An abstract base class for fragments that add or edit events.
  * It handles all shared UI components, input validation, and image handling logic.
+ * @depreciate This class is redundant now. Delete if you feel confident
  */
 public abstract class BaseEventFragment extends Fragment {
 

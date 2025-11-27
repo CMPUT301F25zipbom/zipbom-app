@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black"
+    tools:context=".organizer.EventFullDetailsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/textView_entrant_event_full_details_descriptionTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/event_details"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+
+        <!-- Name row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/name_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/name" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_name"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="Summer Festival" />
+        </LinearLayout>
+
+        <!-- Start date row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/date_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/start_date" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_startDate"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="2024-08-15" />
+        </LinearLayout>
+
+        <!-- End date row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/deadline_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/end_date" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_endDate"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="2024-08-01" />
+        </LinearLayout>
+
+        <!-- Location row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/location_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/location" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_location"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="City Park" />
+        </LinearLayout>
+
+        <!-- Genre row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/genre_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/genre" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_genre"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="Music" />
+        </LinearLayout>
+
+        <!-- Max people row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/max_people_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/max_people" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_maxPeople"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="500" />
+        </LinearLayout>
+
+        <!-- Waitlist max row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <TextView
+                android:id="@+id/waitlist_max_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/waitlist_max" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_maxWaitlist"
+                style="@style/DetailsValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                tools:text="50" />
+        </LinearLayout>
+
+        <!-- Poster row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_posterLabel"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="@string/poster" />
+
+            <ImageView
+                android:id="@+id/imageView_entrant_full_details_poster"
+                android:layout_width="82dp"
+                android:layout_height="73dp"
+                android:layout_marginStart="8dp"
+                android:src="@android:drawable/stat_notify_error" />
+        </LinearLayout>
+
+        <!-- Description row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
+            <TextView
+                android:id="@+id/description_label"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:text="Description:" />
+
+            <TextView
+                android:id="@+id/textView_entrant_event_full_details_description"
+                style="@style/DetailsLabel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:paddingStart="8dp"
+                android:text="descriptions"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+
+        <!-- Footer with buttons -->
+        <LinearLayout
+            android:id="@+id/footer_row"
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/button_entrant_event_full_details_joinWaitingList"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/entrant_event_join_button" />
+
+            <Button
+                android:id="@+id/button_entrant_event_full_details_leaveWaitingList"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="16dp"
+                android:text="@string/leave" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

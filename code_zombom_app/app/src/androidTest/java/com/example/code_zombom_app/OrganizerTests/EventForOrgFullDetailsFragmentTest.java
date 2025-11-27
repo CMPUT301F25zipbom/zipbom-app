@@ -75,6 +75,6 @@ public class EventForOrgFullDetailsFragmentTest {
 
         // We also check that the image view is displayed.
         // This confirms that Glide was likely called with a valid URL.
-        onView(ViewMatchers.withId(R.id.poster_image_view)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.imageView_entrant_full_details_poster)).check(matches(isDisplayed()));
     }
 }

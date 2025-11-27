@@ -25,7 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.code_zombom_app.Helpers.Event.EventModel;
+import com.example.code_zombom_app.Helpers.Models.EventModel;
 import com.example.code_zombom_app.Helpers.Location.Coordinate;
 import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.R;
@@ -309,7 +309,8 @@ public class AddEventFragment extends Fragment {
         // --- REFACTORED: Create or update the canonical Event object ---
         Event event = gatherEventData();
         if (event == null) {
-            Toast.makeText(getContext(), "Invalid event details. Please check your input.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Invalid event details. Please check your input.",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -321,8 +322,9 @@ public class AddEventFragment extends Fragment {
         }
     }
 
-    private void uploadImageAndProcessEvent(Event event) {
-        StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
+    protected void uploadImageAndProcessEvent(Event event) {
+        StorageReference storageRef = storage.getReference().child("posters/" +
+                event.getEventId() + ".jpg");
         storageRef.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
@@ -331,7 +333,8 @@ public class AddEventFragment extends Fragment {
                             processEvent(event); // Process the fully updated event
                         })
                         .addOnFailureListener(e -> {
-                            Toast.makeText(getContext(), "Failed to get poster URL.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getContext(), "Failed to get poster URL.",
+                                    Toast.LENGTH_SHORT).show();
                             processEvent(event); // Process without the poster URL
                         }))
                 .addOnFailureListener(e -> {
@@ -346,7 +349,7 @@ public class AddEventFragment extends Fragment {
      * the baseEvent (loaded from Firestore) is mutated to preserve waitlist and lottery lists.
      * @return A populated Event object or null when input is invalid.
      */
-    private Event gatherEventData() {
+    protected Event gatherEventData() {
         String name = eventNameEditText.getText().toString();
         try {
             event = new Event(name);
@@ -385,7 +388,7 @@ public class AddEventFragment extends Fragment {
     }
 
     // region Input Validation
-    private boolean validateAllInput() {
+    protected boolean validateAllInput() {
         String name = eventNameEditText.getText().toString();
         String maxPeople = maxPeopleEditText.getText().toString();
 
@@ -420,7 +423,7 @@ public class AddEventFragment extends Fragment {
      *                   have selected
      * @return A Date that have been selected by the users
      */
-    private Date getDateFromDatePicker(DatePicker datePicker) {
+    protected Date getDateFromDatePicker(DatePicker datePicker) {
         int day = datePicker.getDayOfMonth();
         int month = datePicker.getMonth();            // 0-based (January = 0)
         int year = datePicker.getYear();
