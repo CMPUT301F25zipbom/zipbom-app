@@ -8,17 +8,32 @@
     tools:context=".organizer.OrganizerMainFragment">
 
     <Button
-        android:id="@+id/add_event_button"
+        android:id="@+id/button_organizer_main_fragment_add_event"
         android:layout_width="186dp"
         android:layout_height="64dp"
         android:layout_marginTop="32dp"
         android:backgroundTint="#2E2E2E"
-        android:text="Add Event"
+        android:text="@string/add_event"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@+id/button_organizer_main_fragment_logout"
+        app:layout_constraintHorizontal_bias="0.4"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button_organizer_main_fragment_logout"
+        android:layout_width="186dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="#2E2E2E"
+        android:text="@string/log_out"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+
 
     <ScrollView
         android:layout_width="0dp"
@@ -27,7 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/add_event_button">
+        app:layout_constraintTop_toBottomOf="@+id/button_organizer_main_fragment_add_event">
         <LinearLayout
             android:id="@+id/events_container_linearlayout"
             android:layout_width="match_parent"

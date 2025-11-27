@@ -134,4 +134,3 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         return sb.toString();
     }
 }
-
