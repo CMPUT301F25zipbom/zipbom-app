@@ -50,7 +50,7 @@
         <TextView
             android:id="@+id/date_label"
             style="@style/DetailsLabel"
-            android:text="Date:"
+            android:text="@string/start_date"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/name_value" />
 
@@ -64,7 +64,7 @@
         <TextView
             android:id="@+id/deadline_label"
             style="@style/DetailsLabel"
-            android:text="Deadline:"
+            android:text="@string/end_date"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/date_value" />
 
@@ -78,7 +78,7 @@
         <TextView
             android:id="@+id/location_label"
             style="@style/DetailsLabel"
-            android:text="Location:"
+            android:text="@string/location"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/deadline_value" />
 
@@ -92,7 +92,7 @@
         <TextView
             android:id="@+id/genre_label"
             style="@style/DetailsLabel"
-            android:text="Genre:"
+            android:text="@string/genre"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/location_value" />
 

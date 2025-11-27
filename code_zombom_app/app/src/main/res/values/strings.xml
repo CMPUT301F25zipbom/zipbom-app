@@ -72,4 +72,18 @@
     <string name="enter_your_address">Enter your address</string>
     <string name="enter_address">Enter address</string>
     <string name="notification" />
+    <string name="event_name">Event Name</string>
+    <string name="max_amount_of_people">Max Amount Of People</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_the_event_location">Enter the event location</string>
+    <string name="genre">Genre</string>
+    <string name="location">Location</string>
+    <string name="details">Details</string>
+    <string name="event_qr_code">Event QR Code</string>
+    <string name="add_event">Add Event</string>
+    <string name="filter_by_genre">Filter by genre</string>
+    <string name="filter_by_availability">Filter by availability</string>
+    <string name="apply">Apply</string>
 </resources>
