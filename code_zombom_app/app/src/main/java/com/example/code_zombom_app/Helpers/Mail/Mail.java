@@ -5,6 +5,8 @@ import android.util.Log;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.UUID;
+
 /**
  * A class that represents a "mail" that can be sent and received.
  *
@@ -15,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  */
 public class Mail {
 
-    private String id;          // Firestore document id (set when loading)
+    private String id;          // Unique mail's id
     private String sender;      // sender email
     private String receiver;    // receiver email
     private String header;      // mail subject
@@ -50,6 +52,7 @@ public class Mail {
     public Mail(MailType type) {
         this.mailType = type;
         this.read = false;
+        this.id = UUID.randomUUID().toString();
     }
 
     public Mail(String sender, String receiver, MailType type) {
@@ -198,9 +201,10 @@ public class Mail {
         this.read = false;
 
         db.collection("Mails")
-                .add(this)
+                .document(receiver)
+                .set(this)
                 .addOnSuccessListener(ref -> {
-                    Log.i("Mail", "Mail sent successfully: " + ref.getId());
+                    Log.i("Mail", "Mail sent successfully: ");
                 })
                 .addOnFailureListener(e -> {
                     Log.e("Mail", "Cannot send this mail", e);
