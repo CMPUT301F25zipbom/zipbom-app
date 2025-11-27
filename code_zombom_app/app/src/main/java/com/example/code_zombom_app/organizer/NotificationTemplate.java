@@ -10,4 +10,28 @@ public class NotificationTemplate {
         this.reciever = reciever;
         this.time = time;
     }
+
+    public String getNotificationtype() {
+        return notificationtype;
+    }
+
+    public void setNotificationtype(String notificationtype) {
+        this.notificationtype = notificationtype;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getReciever() {
+        return reciever;
+    }
+
+    public void setReciever(String reciever) {
+        this.reciever = reciever;
+    }
 }

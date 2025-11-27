@@ -21,9 +21,14 @@ import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import kotlinx.coroutines.scheduling.Task;
 
@@ -138,6 +143,9 @@ public class EditEventFragment extends BaseEventFragment {
             return;
         }
 
+        // Now we need to notify the users that the event they have joined in has changed
+        notifyusers(eventFromUi);
+
         // Merge editable fields into the canonical event while keeping waitlist/lottery data.
         domainEventToEdit.setName(eventFromUi.getName());
         domainEventToEdit.setCapacity(eventFromUi.getCapacity());
@@ -157,9 +165,6 @@ public class EditEventFragment extends BaseEventFragment {
                 .addOnSuccessListener(aVoid -> {
                     Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
 
-                    // Now we need to notify the users that the event they have joined in has changed
-                    notifyusers(eventFromUi);
-
                     navigateBack(); // This should now be called correctly
                 })
                 .addOnFailureListener(e -> {
@@ -178,55 +183,11 @@ public class EditEventFragment extends BaseEventFragment {
 
         // Get this list of entrants and then we loop through
         ArrayList<String> people = ourevent.getWaitingList();
+        if (people == null){return;}
         for (int i = 0; i < people.size(); i++){
-            boolean notifications = true;
-            String phonenum = "stupid"; // Need to access user profile or whatever to fill these two vars
-            int i2 = i;
-            db.collection("Profiles").document(people.get(i)).get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (notifications == true){
-                            sendemail(people.get(i2));
-                            if (phonenum.length() == 9){
-                                try {
-                                    int testcase = Integer.parseInt(phonenum);
-                                    sendsmsmessage(phonenum);
-                                } catch (NumberFormatException ignored){}
-                            }
-                        }
-                    });
-
+            NotificationTemplate noti = new NotificationTemplate("email", people.get(i), Calendar.getInstance().getTime().toString());
+            DocumentReference docref = db.collection("Notifications").document(noti.getReciever());
+            docref.set(noti);
         }
-    }
-
-    void sendemail(String useremail){
-
-        String[] to = {useremail};
-        String[] cc = {"zipbomapp@gmail.com"};
-
-        Intent mail = new Intent(Intent.ACTION_SEND);
-        mail.setData(Uri.parse("mailto:"));
-        mail.putExtra(Intent.EXTRA_EMAIL, to);
-        mail.putExtra(Intent.EXTRA_CC, cc);
-        mail.putExtra(Intent.EXTRA_TEXT, "The event you have signed up for has been edited.");
-        mail.putExtra(Intent.EXTRA_SUBJECT, "Zipbomapp event edited");
-
-        startActivity(Intent.createChooser(mail, "mailto"));
-
-        //Need to save a notification to the database
-
-    }
-
-    void sendsmsmessage(String phonenumber){
-        Intent intent = new Intent(Intent.ACTION_SENDTO);
-        intent.setData(Uri.parse("smsto:" + phonenumber));
-        intent.putExtra("sms_body", "An event you have signed up for has been edited.");
-
-        if (intent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            startActivity(intent);
-        } else {
-            Toast.makeText(getContext(), "SMS message fail :(", Toast.LENGTH_SHORT).show();
-        }
-        // Need to save a notification to the database
-        
     }
 }
