@@ -28,6 +28,9 @@ public class Event implements Comparable<Event> {
 
     // List of selected Entrant's email addresses that have registered (officially participate in) the event
     private final ArrayList<String> registeredList;
+    // List of selected Entrant's email addresses that have canceled
+    private final ArrayList<String> cancelledList;
+
 
     // List of all restrictions the event may have
     private final ArrayList<String> restrictions;
@@ -91,6 +94,7 @@ public class Event implements Comparable<Event> {
         chosenList = new ArrayList<>();
         pendingList = new ArrayList<>();
         registeredList = new ArrayList<>();
+        cancelledList = new ArrayList<>();
         restrictions = new ArrayList<>();
         categories = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
@@ -494,6 +498,10 @@ public class Event implements Comparable<Event> {
      */
     public ArrayList<String> getRegisteredList() {
         return new ArrayList<String>(this.registeredList);
+    }
+
+    public ArrayList<String> getCancelledList() {
+        return new ArrayList<String>(this.cancelledList);
     }
 
     /**

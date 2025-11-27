@@ -35,7 +35,7 @@ public class EventFullDetailsFragment extends Fragment {
 
     // UI Elements
     private TextView nameValue, dateValue, deadlineValue, locationValue, genreValue,
-            maxPeopleValue, waitlistMaxValue, entrantsValue,
+            maxPeopleValue, waitlistMaxValue, entrantsValue, registeredEntrantsValue,
             acceptedEntrantsValue, cancelledEntrantsValue, descriptionValue;
 
     private FirebaseFirestore db;
@@ -121,6 +121,7 @@ public class EventFullDetailsFragment extends Fragment {
         cancelledEntrantsValue = view.findViewById(R.id.cancelled_entrants_value);
         posterImageView = view.findViewById(R.id.poster_image_view);
         descriptionValue = view.findViewById(R.id.description_value);
+        registeredEntrantsValue = view.findViewById(R.id.registered_entrants_value);
     }
 
     /**
@@ -169,6 +170,9 @@ public class EventFullDetailsFragment extends Fragment {
         entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
         acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getLottery_Winners()));
         cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
+        registeredEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
+
+
 
         if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
             Glide.with(this)
