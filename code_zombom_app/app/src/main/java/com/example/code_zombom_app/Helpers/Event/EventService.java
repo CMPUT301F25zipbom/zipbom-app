@@ -159,22 +159,22 @@ public class EventService {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
 
-                Mail mail = new Mail(event.getName(), winner, Mail.MailType.INVITE_LOTTERY_WINNER);
-                mail.setHeader("Invitation to register for event: " + event.getName());
-                mail.setContent("Congratulation " + winner + "! You have been selected! To accept " +
-                        "the invitation, pressed Accept. To decline, press Decline");
-                MailService.sendMail(mail);
+//                Mail mail = new Mail(event.getName(), winner, Mail.MailType.INVITE_LOTTERY_WINNER);
+//                mail.setHeader("Invitation to register for event: " + event.getName());
+//                mail.setContent("Congratulation " + winner + "! You have been selected! To accept " +
+//                        "the invitation, pressed Accept. To decline, press Decline");
+//                MailService.sendMail(mail);
             }
 
             for (String loser : losers) {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
 
-                Mail mail = new Mail(event.getName(), loser, Mail.MailType.DECLINE_LOTTERY_LOSER);
-                mail.setHeader("Better luck next time");
-                mail.setContent("We regret to inform that you have not been selected for the event: "
-                + event.getName() + "!");
-                MailService.sendMail(mail);
+//                Mail mail = new Mail(event.getName(), loser, Mail.MailType.DECLINE_LOTTERY_LOSER);
+//                mail.setHeader("Better luck next time");
+//                mail.setContent("We regret to inform that you have not been selected for the event: "
+//                + event.getName() + "!");
+//                MailService.sendMail(mail);
             }
             return null;
         });
