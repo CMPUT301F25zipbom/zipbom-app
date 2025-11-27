@@ -194,8 +194,8 @@
 
         <ImageView
             android:id="@+id/poster_image_view"
-            android:layout_width="82dp"
-            android:layout_height="73dp"
+            android:layout_width="89dp"
+            android:layout_height="109dp"
             android:src="@android:drawable/stat_notify_error"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
