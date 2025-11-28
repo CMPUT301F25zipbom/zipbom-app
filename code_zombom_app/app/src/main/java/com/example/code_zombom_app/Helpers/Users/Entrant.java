@@ -8,6 +8,7 @@ import com.example.code_zombom_app.Helpers.Event.Event;
 import com.google.firebase.firestore.PropertyName;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Represents an entrant using the application. Stores notification preferences,
@@ -24,7 +25,17 @@ public class Entrant extends Profile {
 
     /* We keep the event's ID instead of the actual Event object to avoid overhead */
     private ArrayList<String> waitingEvents;
-    private ArrayList<String> eventHistory;
+    private HashMap<String, Status> eventHistory;
+
+    public enum Status {
+        WAITLISTED,
+        NOT_SELECTED,
+        LEAVE,
+        SELECTED,
+        CONFIRMED,
+        DECLINED,
+
+    }
 
     public Entrant() {}
 
@@ -36,7 +47,7 @@ public class Entrant extends Profile {
     public Entrant(String email) {
         super(email);
         this.waitingEvents = new ArrayList<>();
-        this.eventHistory = new ArrayList<>();
+        this.eventHistory = new HashMap<>();
         this.type = "Entrant";
     }
 
@@ -50,7 +61,7 @@ public class Entrant extends Profile {
     public Entrant(String name, String email, String phone) {
         super(name, email, phone);
         this.waitingEvents = new ArrayList<>();
-        this.eventHistory = new ArrayList<>();
+        this.eventHistory = new HashMap<>();
         this.type = "Entrant";
     }
 
@@ -64,10 +75,10 @@ public class Entrant extends Profile {
      */
     public Entrant(String name, String email, String phone,
                    @NonNull ArrayList<String> waitingEvents,
-                   @NonNull ArrayList<String> eventHistory) {
+                   @NonNull HashMap<String, Status> eventHistory) {
         super(name, email, phone);
         this.waitingEvents = new ArrayList<>(waitingEvents); // Deep-copy
-        this.eventHistory = new ArrayList<>(eventHistory);
+        this.eventHistory = new HashMap<>(eventHistory);
         this.type = "Entrant";
     }
 
@@ -188,99 +199,40 @@ public class Entrant extends Profile {
 
     /**
      * Stores historical participation metadata for the entrant.
+     *
+     * @param eventId The event id to add to the evnet history
+     * @param status The status of that event
      */
-    public void addEventToHistory(EventParticipation participation) {
-        if (participation != null) {
-            eventHistory.add(participation.getEventId());
+    public void addEventToHistory(String eventId, Status status) {
+        if (eventHistory.containsKey(eventId)) {
+            eventHistory.replace(eventId, status);
+        } else {
+            eventHistory.put(eventId, status);
         }
-    }
-
-    /**
-     * Convenience helper to log a participation outcome using an Event object.
-     */
-    public void addEventToHistory(Event event, EventParticipation.Outcome outcome) {
-        if (event == null || outcome == null) {
-            return;
-        }
-        eventHistory.add((new EventParticipation(event.getEventId(), event.getName(), outcome)).getEventId());
     }
 
     /**
      * Removes a participation record. Useful when organisers delete an event.
+     *
+     * @param eventId The event Id to be removed fron the history
      */
-    public void removeEventFromHistory(EventParticipation participation) {
-        eventHistory.remove(participation.getEventId());
+    public void removeEventFromHistory(String eventId) {
+        eventHistory.remove(eventId);
     }
 
     /**
      * @return immutable or unmodifiable view of historic participation outcomes
      */
-    public ArrayList<String> getEventHistory() {
-        return new ArrayList<String>(eventHistory);
+    public HashMap<String, Status> getEventHistory() {
+        return eventHistory;
     }
 
     /**
-     * Value object describing an entrant's outcome for a given event.
+     * Set the event history
+     *
+     * @param eventHistory The event history to set
      */
-    public static class EventParticipation {
-        public enum Outcome {
-            WAITLISTED,
-            SELECTED,
-            CONFIRMED,
-            DECLINED,
-            NOT_SELECTED
-        }
-
-        private final String eventId;
-        private String eventName;
-        private Outcome outcome;
-        private long decisionTimestamp;
-
-        public EventParticipation(String eventId, String eventName, Outcome outcome) {
-            this.eventId = eventId;
-            this.eventName = eventName;
-            this.outcome = outcome;
-            this.decisionTimestamp = System.currentTimeMillis();
-        }
-
-        /**
-         * @return event identifier backing this participation record
-         */
-        public String getEventId() {
-            return eventId;
-        }
-
-        /**
-         * @return human-readable event name cached at the time of logging
-         */
-        public String getEventName() {
-            return eventName;
-        }
-
-        public void setEventName(String eventName) {
-            this.eventName = eventName;
-        }
-
-        /**
-         * @return current outcome/state for the entrant in this event
-         */
-        public Outcome getOutcome() {
-            return outcome;
-        }
-
-        /**
-         * Updates the outcome and resets the decision timestamp.
-         */
-        public void setOutcome(Outcome outcome) {
-            this.outcome = outcome;
-            this.decisionTimestamp = System.currentTimeMillis();
-        }
-
-        /**
-         * @return epoch milliseconds of the last outcome change
-         */
-        public long getDecisionTimestamp() {
-            return decisionTimestamp;
-        }
+    public void setEventHistory(HashMap<String, Status> eventHistory) {
+        this.eventHistory = eventHistory;
     }
 }

@@ -60,9 +60,41 @@ public class EventFilter {
      * @see com.example.code_zombom_app.Helpers.Event.Event
      */
     public boolean passFilter(Event event) {
-        return (filterGenre == null || filterGenre.equals(event.getGenre()))
-                && (filterStartDate == null || filterStartDate.before(event.getEventEndDate()))
-                && (filterEndDate == null || filterEndDate.after(event.getEventStartDate()));
+        if (filterGenre != null) {
+            String eventGenre = event.getGenre();
+            if (eventGenre == null || !filterGenre.equals(eventGenre)) {
+                return false;
+            }
+        }
+
+        Date eventStart = event.getEventStartDate();
+        Date eventEnd   = event.getEventEndDate();
+
+        // If no availability filter set, only genre matters
+        if (filterStartDate == null && filterEndDate == null) {
+            return true;
+        }
+
+        // If we want to filter by availability but event has no dates, reject
+        if (eventStart == null || eventEnd == null) {
+            return false;
+        }
+
+        if (filterStartDate != null && filterEndDate != null) {
+            boolean overlap =
+                    !filterStartDate.after(eventEnd) &&  // filterStart <= eventEnd
+                            !filterEndDate.before(eventStart);   // filterEnd >= eventStart
+
+            return overlap;
+        }
+
+        // If only start is set: available from filterStart onwards
+        if (filterStartDate != null) {
+            return !eventEnd.before(filterStartDate);
+        }
+
+        // If only end is set: available until filterEnd
+        return !eventStart.after(filterEndDate);
     }
 
 

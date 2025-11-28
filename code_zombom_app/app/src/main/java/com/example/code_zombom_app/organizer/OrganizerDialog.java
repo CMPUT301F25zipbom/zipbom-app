@@ -77,7 +77,6 @@ public class OrganizerDialog extends Dialog {
         Button viewStartButton = findViewById(R.id.button_start_draw);
         Button messageButton = findViewById(R.id.button_message_participants);
         Button editEventButton = findViewById(R.id.button_edit_event);
-        Button genQRButton = findViewById(R.id.genQRButton);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
 
@@ -106,19 +105,6 @@ public class OrganizerDialog extends Dialog {
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
-        //This makes the QR code visible when the user clicks generate QR code
-        genQRButton.setOnClickListener(v -> {
-            if (qrCodeImageView != null && qrCodeBitmap != null) {
-                qrCodeImageView.setImageBitmap(qrCodeBitmap);
-                qrCodeImageView.setVisibility(View.VISIBLE);
-                eventForOrg.setQrCodeExists(true); // Update the state
-                uploadQrCodeToFirebase(qrCodeBitmap);
-            } else {
-                // 5. If something is wrong, show a clear error.
-                Toast.makeText(getContext(), "Error: Could not display QR code.", Toast.LENGTH_SHORT).show();
-                Log.e("OrganizerDialog", "QR Bitmap or ImageView was null. Cannot display.");
-            }
-        });
         //This gets rid of the popup.
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
@@ -136,68 +122,18 @@ public class OrganizerDialog extends Dialog {
             getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
     }
-    /**
-     * Uploads the provided QR code Bitmap to Firebase Storage and saves the URL to Firestore.
-     * @param bitmap The QR code bitmap to upload.
-     */
-    private void uploadQrCodeToFirebase(Bitmap bitmap) {
-        Toast.makeText(getContext(), "Saving QR Code...", Toast.LENGTH_SHORT).show();
-
-        // Convert Bitmap to byte array for upload
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        // Define the path in Firebase Storage
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventForOrg.getEventId() + ".png");
-
-        // Upload the byte array
-        storageRef.putBytes(data)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Get the public download URL
-                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        // Save the URL to the event's document in Firestore
-                        saveQrUrlToFirestore(uri.toString());
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Upload to firebase failed. Please try again.", Toast.LENGTH_SHORT).show();
-                    Log.e("FirebaseStorage", "QR code upload to firebase failed", e);
-                });
-    }
-    /**
-     * Saves the QR code's download URL to a 'qrCodeUrl' field in the event's document.
-     * @param url The public URL of the uploaded image.
-     */
-    private void saveQrUrlToFirestore(String url) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Get the reference to the specific event document
-        db.collection("Events").document(eventForOrg.getEventId())
-                .update(
-                        "qrCodeUrl", url,          // Save the URL
-                        "qrCodeExists", true   // --- THIS IS THE CRITICAL FIX ---
-                )
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "QR Code URL and exists flag updated for event: " + eventForOrg.getEventId());
-                    dismiss(); // Close the dialog on success
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to save QR code details.", Toast.LENGTH_SHORT).show();
-                    Log.e("Firestore", "Error updating event with QR details", e);
-                    dismiss();
-                });
-    }
 
     /**
      * Runs a lottery draw via the central EventService and surfaces the outcome to the organiser.
      */
     private void runLottery() {
         eventService.runLotteryDraw(eventForOrg.getEventId())
-                .addOnSuccessListener(ignored -> Toast.makeText(getContext(), "Lottery draw completed.", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                        "Lottery draw completed.", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), e.getMessage() != null ? e.getMessage() : "Lottery draw failed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),
+                            e.getMessage() != null ? e.getMessage() : "Lottery draw failed.",
+                            Toast.LENGTH_SHORT).show();
                     Log.e("OrganizerDialog", "Lottery draw failed", e);
                 });
     }

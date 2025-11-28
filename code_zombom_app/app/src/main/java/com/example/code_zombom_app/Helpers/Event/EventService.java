@@ -3,6 +3,8 @@ package com.example.code_zombom_app.Helpers.Event;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.code_zombom_app.Helpers.Mail.Mail;
+import com.example.code_zombom_app.Helpers.Mail.MailService;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -119,7 +121,7 @@ public class EventService {
      * Runs a simple lottery: randomly choose up to the remaining capacity from the waiting list.
      * Selected entrants are moved to the chosen list and removed from the waiting list.
      *
-     * @param documentId Firestore document id for the event
+     * @param documentId The event's document id
      */
     public Task<Void> runLotteryDraw(@NonNull String documentId) {
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
@@ -160,7 +162,6 @@ public class EventService {
             event.setDrawComplete(true);
             event.setDrawTimestamp(System.currentTimeMillis()); // current time as draw timestamp
 
-
             //identify losers
             Set<String> losers = new HashSet<>(event.getWaitingList());
             losers.removeAll(event.getChosenList());
@@ -172,10 +173,23 @@ public class EventService {
             for (String winner : winners) {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
+
+                Mail mail = new Mail(event.getName(), winner, Mail.MailType.INVITE_LOTTERY_WINNER);
+                mail.setHeader("Invitation to register for event: " + event.getName());
+                mail.setContent("Congratulation " + winner + "! You have been selected! To accept " +
+                        "the invitation, pressed Accept. To decline, press Decline");
+                MailService.sendMail(mail);
             }
+
             for (String loser : losers) {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
+
+                Mail mail = new Mail(event.getName(), loser, Mail.MailType.DECLINE_LOTTERY_LOSER);
+                mail.setHeader("Better luck next time");
+                mail.setContent("We regret to inform that you have not been selected for the event: "
+                + event.getName() + "!");
+                MailService.sendMail(mail);
             }
             return null;
         });

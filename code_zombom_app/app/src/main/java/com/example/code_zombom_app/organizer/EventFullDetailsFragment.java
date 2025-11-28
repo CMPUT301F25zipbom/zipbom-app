@@ -91,7 +91,7 @@ public class EventFullDetailsFragment extends Fragment {
         initializeViews(view);
 
         // Find the back button and set its click listener
-        Button returnButton = view.findViewById(R.id.returnButton);
+        returnButton = view.findViewById(R.id.returnButton);
         returnButton.setOnClickListener(v -> {
             // Use the NavController to navigate back to the previous screen
             NavHostFragment.findNavController(EventFullDetailsFragment.this).popBackStack();
@@ -111,18 +111,18 @@ public class EventFullDetailsFragment extends Fragment {
      * @param view
      */
     private void initializeViews(View view) {
-        nameValue = view.findViewById(R.id.name_value);
-        dateValue = view.findViewById(R.id.date_value);
-        deadlineValue = view.findViewById(R.id.deadline_value);
-        locationValue = view.findViewById(R.id.location_value);
-        genreValue = view.findViewById(R.id.genre_value);
-        maxPeopleValue = view.findViewById(R.id.max_people_value);
-        waitlistMaxValue = view.findViewById(R.id.waitlist_max_value);
+        nameValue = view.findViewById(R.id.textView_entrant_event_full_details_name);
+        dateValue = view.findViewById(R.id.textView_entrant_event_full_details_startDate);
+        deadlineValue = view.findViewById(R.id.textView_entrant_event_full_details_endDate);
+        locationValue = view.findViewById(R.id.textView_entrant_event_full_details_location);
+        genreValue = view.findViewById(R.id.textView_entrant_event_full_details_genre);
+        maxPeopleValue = view.findViewById(R.id.textView_entrant_event_full_details_maxPeople);
+        waitlistMaxValue = view.findViewById(R.id.textView_entrant_event_full_details_maxWaitlist);
         entrantsValue = view.findViewById(R.id.entrants_value);
         acceptedEntrantsValue = view.findViewById(R.id.accepted_entrants_value);
         cancelledEntrantsValue = view.findViewById(R.id.cancelled_entrants_value);
-        posterImageView = view.findViewById(R.id.poster_image_view);
-        descriptionValue = view.findViewById(R.id.description_value);
+        posterImageView = view.findViewById(R.id.imageView_entrant_full_details_poster);
+        descriptionValue = view.findViewById(R.id.textView_entrant_event_full_details_description);
     }
 
     /**
