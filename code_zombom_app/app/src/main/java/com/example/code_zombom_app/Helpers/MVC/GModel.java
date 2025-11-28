@@ -57,6 +57,8 @@ public abstract class GModel extends TModel<TView> {
         LOAD_EVENTS_SUCCESS,
         LOAD_EVENTS_FAILURE,
 
+        LOAD_PROFILE_SUCCESS,
+
         REQUEST_FILTER_EVENT,
 
 

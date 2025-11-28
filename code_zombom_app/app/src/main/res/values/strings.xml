@@ -86,4 +86,15 @@
     <string name="filter_by_genre">Filter by genre</string>
     <string name="filter_by_availability">Filter by availability</string>
     <string name="apply">Apply</string>
+    <string name="current_events">Current Events</string>
+    <string name="event_details">Event Details</string>
+    <string name="poster">Poster:</string>
+    <string name="max_people">Max People:</string>
+    <string name="waitlist_max">Waitlist Max:</string>
+    <string name="waiting">Waiting:</string>
+    <string name="accepted">Accepted:</string>
+    <string name="cancelled">Cancelled:</string>
+    <string name="header">Header</string>
+    <string name="sender">Sender</string>
+    <string name="content">Content</string>
 </resources>
