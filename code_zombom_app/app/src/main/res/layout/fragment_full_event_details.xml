@@ -18,6 +18,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
+            android:text="Poster:"
             android:text="@string/poster"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_entrant_event_full_details_description" />
@@ -169,11 +171,31 @@
             app:layout_constraintTop_toBottomOf="@id/accepted_entrants_value" />
 
         <TextView
+            android:id="@+id/registered_entrants_label"
+            style="@style/DetailsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="Registered:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
+
+        <TextView
             android:id="@+id/cancelled_entrants_value"
             style="@style/DetailsValue"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/cancelled_entrants_label"
+            tools:text="User3" />
+
+        <TextView
+            android:id="@+id/registered_entrants_value"
+            style="@style/DetailsValue"
+            android:layout_width="219dp"
+            android:layout_height="25dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/registered_entrants_label"
             tools:text="User3" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -214,7 +236,7 @@
             style="@style/DetailsLabel"
             android:text="Description: "
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
+            app:layout_constraintTop_toBottomOf="@+id/registered_entrants_value" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

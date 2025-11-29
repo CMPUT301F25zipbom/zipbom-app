@@ -39,6 +39,9 @@ public class Event implements Comparable<Event> {
 
     // List of selected Entrant's email addresses that have registered (officially participate in) the event
     private ArrayList<String> registeredList;
+    // List of selected Entrant's email addresses that have canceled
+    private ArrayList<String> cancelledList;
+
 
     // List of all restrictions the event may have
     private ArrayList<String> restrictions;
@@ -46,8 +49,6 @@ public class Event implements Comparable<Event> {
     // List of guidelines for the lottery selection process that the event may have
     private ArrayList<String> lotterySelectionGuidelines;
 
-    // List of cancelled entrants
-    private ArrayList<String> cancelledList;
 
     private ArrayList<String> lotteryWinners;
 
@@ -71,6 +72,8 @@ public class Event implements Comparable<Event> {
 
     // Optional limit for how many entrants can join the waitlist (0 = unlimited)
     private int waitlistLimit;
+    private String eventDateText;
+    private String registrationClosesAtText;
     private String description;
 
     // URL of the uploaded event poster stored in Firebase Storage

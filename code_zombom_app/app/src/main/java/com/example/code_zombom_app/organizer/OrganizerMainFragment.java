@@ -1,8 +1,13 @@
 package com.example.code_zombom_app.organizer;
 
+import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +16,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -28,6 +39,7 @@ import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -50,16 +62,30 @@ public class OrganizerMainFragment extends Fragment {
 
     // This map will store the generated QR code bitmaps with the eventId as the key.
     private Map<String, Bitmap> qrCodeBitmaps = new HashMap<>();
+    private ActivityResultLauncher<String> requestPermissionLauncher;
+    private EventForOrg eventToExport; // Temporarily store the event that needs exporting
 
 
     /**
      * This function gets the model and saves it to eventViewModel
+     *
      * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.
+     *                           a previous saved state, this is the state.
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestPermissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+            if (isGranted) {
+                // Permission was granted, now we can export.
+                if (eventToExport != null) {
+                    exportEntrantsToCsv(eventToExport);
+                }
+            } else {
+                // Permission was denied.
+                Toast.makeText(getContext(), "Storage permission is required to save the CSV file.", Toast.LENGTH_LONG).show();
+            }
+        });
         // Get the same shared ViewModel instance
         eventViewModel = new ViewModelProvider(requireActivity()).get(EventViewModel.class);
     }
@@ -222,16 +248,65 @@ public class OrganizerMainFragment extends Fragment {
             qrImageViewForEvent = fragmentView.findViewWithTag(eventForOrg.getEventId());
         }
 
+        // This is a "task" we will give to the dialog.
+        Runnable requestExportPermissionTask = () -> {
+            this.eventToExport = eventForOrg; // Store the event we're working on
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                // Only launch if permission is actually needed.
+                requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            } else {
+                // For modern Android, no permission is needed, just export.
+                exportEntrantsToCsv(eventForOrg);
+            }
+        };
         // Create the dialog with the direct references.
         // This now matches the new constructor you will create in OrganizerDialog.
         OrganizerDialog dialog = new OrganizerDialog(
                 requireContext(),
                 eventForOrg,
                 navController,
-                qrImageViewForEvent, // Pass the specific ImageView
-                qrBitmapForEvent     // Pass the specific Bitmap
+                qrImageViewForEvent,
+                qrBitmapForEvent,
+                requestExportPermissionTask // <-- Pass the task to the dialog
         );
 
         dialog.show();
+    }
+
+    private void exportEntrantsToCsv(EventForOrg event) {
+        // This is the exact same logic from your dialog, now moved here.
+        ArrayList<String> entrants = event.getAccepted_Entrants();
+
+        if (entrants == null || entrants.isEmpty()) {
+            Toast.makeText(getContext(), "No entrants to export.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String fileName = "entrants_" + event.getName().replaceAll("[^a-zA-Z0-9_.]", "_") + ".csv";
+        StringBuilder csvContent = new StringBuilder();
+        csvContent.append("Accepted Entrants\n");
+        for (String entrantId : entrants) {
+            csvContent.append(entrantId).append("\n");
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");
+
+        Uri uri = requireContext().getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+        if (uri != null) {
+            try (OutputStream outputStream = requireContext().getContentResolver().openOutputStream(uri)) {
+                if (outputStream != null) {
+                    outputStream.write(csvContent.toString().getBytes());
+                    Toast.makeText(getContext(), "Exported to Downloads folder!", Toast.LENGTH_LONG).show();
+                }
+            } catch (Exception e) {
+                Log.e("CSV_EXPORT", "Error writing to file", e);
+                Toast.makeText(getContext(), "Failed to export file.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Failed to create file in Downloads.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

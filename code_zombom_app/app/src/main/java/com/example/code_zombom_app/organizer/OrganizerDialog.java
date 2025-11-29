@@ -1,6 +1,12 @@
 package com.example.code_zombom_app.organizer;
 
+import android.Manifest;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 import android.app.Dialog;
@@ -13,7 +19,10 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 
 import com.example.code_zombom_app.Helpers.Event.EventService;
@@ -24,6 +33,8 @@ import java.io.ByteArrayOutputStream;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -39,6 +50,7 @@ public class OrganizerDialog extends Dialog {
 //    private final Map<String, Bitmap> qrCodeBitmaps;
     private final ImageView qrCodeImageView; // Direct reference to the ImageView
     private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
+    private final Runnable requestExportPermissionTask; // <-- Add this property
 
     private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
@@ -49,12 +61,14 @@ public class OrganizerDialog extends Dialog {
      * @param navController sets the organizerdialog navController
      * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, ImageView qrCodeImageView, Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController,
+                           ImageView qrCodeImageView, Bitmap qrCodeBitmap, Runnable requestExportPermissionTask) {
         super(context);
         this.eventForOrg = eventForOrg; // <<< Store the whole object
         this.navController = navController;
         this.qrCodeImageView = qrCodeImageView; // Store the direct reference
         this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
+        this.requestExportPermissionTask = requestExportPermissionTask; // <-- Store the task
     }
 
     /**
@@ -79,6 +93,7 @@ public class OrganizerDialog extends Dialog {
         Button editEventButton = findViewById(R.id.button_edit_event);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
+        Button exportButton = findViewById(R.id.exportCSVButton);
 
         if (eventForOrg.getLottery_Winners() != null && !eventForOrg.getLottery_Winners().isEmpty()) {
             viewStartButton.setText("Replacement Draw");
@@ -115,6 +130,11 @@ public class OrganizerDialog extends Dialog {
             navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
         });
 
+        exportButton.setOnClickListener(v -> {
+            requestExportPermissionTask.run();
+            dismiss();
+        });
+
         cancelButton.setOnClickListener(v -> dismiss());
 
         // Make the dialog's background transparent
@@ -136,5 +156,47 @@ public class OrganizerDialog extends Dialog {
                             Toast.LENGTH_SHORT).show();
                     Log.e("OrganizerDialog", "Lottery draw failed", e);
                 });
+    }
+    private void exportEntrantsToCsv() {
+        ArrayList<String> entrants = eventForOrg.getAccepted_Entrants();
+
+        if (entrants == null || entrants.isEmpty()) {
+            Toast.makeText(getContext(), "No entrants to export.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a unique filename based on event name and date
+        String fileName = "entrants_" + eventForOrg.getName().replaceAll("\\s+", "_") + ".csv";
+
+        // Use StringBuilder to efficiently build the CSV content
+        StringBuilder csvContent = new StringBuilder();
+        csvContent.append("Accepted Entrants\n"); // CSV Header
+        for (String entrantId : entrants) {
+            csvContent.append(entrantId).append("\n");
+        }
+
+        // Use MediaStore to save the file to the public "Downloads" directory
+        // This is the modern, recommended way to handle file saving.
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");
+
+        Uri uri = getContext().getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+
+        if (uri != null) {
+            try (OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri)) {
+                if (outputStream != null) {
+                    outputStream.write(csvContent.toString().getBytes());
+                    Toast.makeText(getContext(), "Exported to Downloads folder!", Toast.LENGTH_LONG).show();
+                    dismiss(); // Close dialog on success
+                }
+            } catch (Exception e) {
+                Log.e("CSV_EXPORT", "Error writing to file", e);
+                Toast.makeText(getContext(), "Failed to export file.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Failed to create file in Downloads.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
