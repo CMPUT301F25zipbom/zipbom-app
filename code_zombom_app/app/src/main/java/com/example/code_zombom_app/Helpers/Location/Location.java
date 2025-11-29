@@ -2,6 +2,14 @@ package com.example.code_zombom_app.Helpers.Location;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,6 +20,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -29,7 +39,12 @@ public class Location {
     private String postalCode;
     private Coordinate coordinate;
 
-    public static final String GOOGLE_API = "AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs";
+    private static final String GOOGLE_API = "AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs";
+
+    /**
+     * No-arg constructor to allow deserializable by Firebase
+     */
+    public Location() {}
 
     /**
      * Constructor:
@@ -147,6 +162,13 @@ public class Location {
     }
 
     /**
+     * @return The Google API key
+     */
+    public static String getGoogleApi() {
+        return GOOGLE_API;
+    }
+
+    /**
      * Set the name of the location
      *
      * @param name The name of the location
@@ -200,6 +222,53 @@ public class Location {
                     postalCode, coordinate);
         } catch (IOException | JSONException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Generate a heatmap that pins all the registered locations on a Google Map.
+     *
+     * @param map The GoogleMap object where the heatmap will be drawn
+     * @param locations The array of locations to be put on the heatmap
+     */
+    public static void generateHeatMap(GoogleMap map, Location[] locations) {
+        if (map == null || locations == null || locations.length == 0) {
+            return;
+        }
+
+        List<LatLng> latLngList = new ArrayList<>();
+
+        for (Location loc : locations) {
+            if (loc != null && loc.getCoordinate() != null) {
+                latLngList.add(
+                        new LatLng(
+                                loc.getCoordinate().getLatitude(),
+                                loc.getCoordinate().getLongitude()
+                        )
+                );
+            }
+        }
+
+        if (latLngList.isEmpty()) return;
+
+        // Create the heatmap tile provider
+        HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
+                .data(latLngList)
+                .radius(40)               // adjust the size of the blobs
+                .opacity(0.7)             // transparency of the heatmap layer
+                .build();
+
+        // Add the heatmap overlay to the map
+        TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+
+        // Zoom the camera to include all points
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng pos : latLngList) builder.include(pos);
+
+        if (latLngList.size() > 1) {
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+        } else {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLngList.get(0), 15));
         }
     }
 

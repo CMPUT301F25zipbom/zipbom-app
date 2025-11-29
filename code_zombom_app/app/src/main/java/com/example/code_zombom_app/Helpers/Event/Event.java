@@ -1,53 +1,62 @@
 package com.example.code_zombom_app.Helpers.Event;
 
-import com.example.code_zombom_app.Helpers.Users.Entrant;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
+import com.example.code_zombom_app.Helpers.Users.Entrant;
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.IgnoreExtraProperties;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
+
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.UUID;
 
-    /**
-     * An Event that can be created by Organizers and participated/interacted with by the entrants
-     *
-     * @author Dang Nguyen
-     * @version 1.0.0, 11/3/2025
-     * @see Entrant
-     * @see Comparable
-     */
+/**
+ * An Event that can be created by Organizers and participated/interacted with by the entrants
+ *
+ * @author Dang Nguyen
+ * @version 1.0.0, 11/3/2025
+ * @see Entrant
+ * @see Comparable
+ */
+@IgnoreExtraProperties
 public class Event implements Comparable<Event> {
     // List of Entrants' email addresses that joined the waiting list
-    private final ArrayList<String> waitingList;
-    private int waitingEntrantCount = -1;
+    private ArrayList<String> waitingList;
+    private int waitingEntrantCount;
 
     // List of selected Entrants's email addresses from the waiting list after the lottery process
-    private  final ArrayList<String> chosenList;
+    private ArrayList<String> chosenList;
 
     // List of selected Entrant's email addresses that have accepted the invitation but not yet registered
-    private final ArrayList<String> pendingList;
+    private ArrayList<String> pendingList;
 
     // List of selected Entrant's email addresses that have registered (officially participate in) the event
-    private final ArrayList<String> registeredList;
+    private ArrayList<String> registeredList;
     // List of selected Entrant's email addresses that have canceled
-    private final ArrayList<String> cancelledList;
+    private ArrayList<String> cancelledList;
 
 
     // List of all restrictions the event may have
-    private final ArrayList<String> restrictions;
-
-    /* List of categories that the event may belong to. This includes:  Sport, eSport, Food, Music,
-     * and Engineering (for now)
-     */
-    private final ArrayList<String> categories;
+    private ArrayList<String> restrictions;
 
     // List of guidelines for the lottery selection process that the event may have
-    private final ArrayList<String> lotterySelectionGuidelines;
+    private ArrayList<String> lotterySelectionGuidelines;
+
+
+    private ArrayList<String> lotteryWinners;
 
     // Name of the event: MUST HAVE
     private String name;
 
     // Created date of the event: Will be automatically assigned when an event is created
-    private final Date createdDate;
+    private Date createdDate;
 
     // Scheduled start date/time for an event. Null when not provided.
     private Date eventStartDate;
@@ -56,7 +65,7 @@ public class Event implements Comparable<Event> {
     private Date eventEndDate;
 
     // Optional additional metadata exposed to entrants
-    private String location;
+    private Location location;
 
     // Set the maximum number of entrants that can join the waiting list
     private int capacity;
@@ -67,26 +76,32 @@ public class Event implements Comparable<Event> {
     private String description;
     // URL of the uploaded event poster stored in Firebase Storage
     private String posterUrl;
+
+    /**
+     * NOTE: To make our life easier I have deleted the attribute categories. From now on this define
+     * the genre of an event and each event has ONLY ONE genre.
+     */
     private String genre;
     private int maxEntrants;
+    // Marks whether the organiser has run the lottery draw
+    private boolean drawComplete;
+    // Timestamp (ms since epoch) when the draw completed; 0 when not set
+    private long drawTimestamp;
 
-        /* Expand this if you want to add more category */
+    /* Expand this if you want to add more category */
     private static final String[] acceptedCategories = {
             "Sport", "eSport", "Food", "Music", "Engineering"
     };
 
-    // An unique identifier of each event
-    private final String eventId;
+    // A unique identifier of each event
+    private String eventId;
 
-    // Firestore document id to allow round-tripping between UI models and the backend
-    private String firestoreDocumentId;
+    // Store the QR code that represents the unique id of an event (Base64-encoded PNG)
+    private String eventIdQRcode;
 
     /**
-     * Private constructor for class Event. This means an event cannot be created with new Event()
-     * since every event must have a name. An event will be assigned with an unique Id whenever
-     * they are created successfully.
-     *
-     * @since 1.0.0
+     * Public no-arg constructor required by Firestore.
+     * We also initialize sensible defaults here so objects created in code are usable.
      */
     public Event() {
         name = "";
@@ -94,23 +109,31 @@ public class Event implements Comparable<Event> {
         chosenList = new ArrayList<>();
         pendingList = new ArrayList<>();
         registeredList = new ArrayList<>();
-        cancelledList = new ArrayList<>();
         restrictions = new ArrayList<>();
-        categories = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
+        cancelledList = new ArrayList<>();
+        lotteryWinners = new ArrayList<>();
         createdDate = new Date(); // Get the current (created) date
         eventStartDate = null;
         eventEndDate = null;
         eventId = UUID.randomUUID().toString();
-        location = "";
+        location = null;
         capacity = 0;
         waitlistLimit = 0;
-        eventDateText = "";
-        registrationClosesAtText = "";
         description = "";
         posterUrl = "";
         genre = "";
         maxEntrants = 0;
+        drawComplete = false;
+        drawTimestamp = 0L;
+        waitingEntrantCount = 0;
+
+        // Generate QR code, but never crash if it fails (important for Firestore deserialization)
+        try {
+            generateQRcode();
+        } catch (WriterException e) {
+            eventIdQRcode = null;
+        }
     }
 
     /**
@@ -151,15 +174,26 @@ public class Event implements Comparable<Event> {
      * @see Entrant
      */
     public ArrayList<String> getWaitingList() {
-        return new ArrayList<String>(this.waitingList);
+        return new ArrayList<>(this.waitingList);
+    }
+
+    /**
+     * Firestore setter for waiting list (needed if using automatic mapping).
+     */
+    @SuppressWarnings("unused")
+    public void setWaitingList(ArrayList<String> waitingList) {
+        this.waitingList = (waitingList == null) ? new ArrayList<>() : waitingList;
     }
 
     /**
      * Get the current total number of entrants in the waiting list.
      *
+     * We mark this as @Exclude so Firestore won't try to store this computed property directly.
+     *
      * @return The total number of entrants that are currently in the waiting list
      * @since 1.0.0
      */
+    @Exclude
     public int getNumberOfWaiting() {
         if (waitingEntrantCount >= 0) {
             return waitingEntrantCount;
@@ -185,7 +219,7 @@ public class Event implements Comparable<Event> {
      */
     public void joinWaitingList(String entrant) {
         this.waitingList.add(entrant);
-        waitingEntrantCount = -1;
+        waitingEntrantCount++;
     }
 
     /**
@@ -198,7 +232,17 @@ public class Event implements Comparable<Event> {
      */
     public void leaveWaitingList(String entrant) {
         this.waitingList.remove(entrant);
-        waitingEntrantCount = -1;
+        waitingEntrantCount--;
+    }
+
+    /**
+     * Check if an entrant is in the waiting list.
+     *
+     * @param entrant The entrant's email address to check
+     * @return true if the entrant is in the waiting list, false otherwise
+     */
+    public boolean isInWaitingList(String entrant) {
+        return waitingList.contains(entrant);
     }
 
     /**
@@ -229,44 +273,12 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public ArrayList<String> getRestrictions() {
-        return new ArrayList<String>(this.restrictions);
+        return new ArrayList<>(this.restrictions);
     }
 
-    /**
-     * Add a new category to the category list.
-     *
-     * @param category A new category to add to the category list
-     * @throws IllegalArgumentException When the added category is not Sport, eSport, Food, Music,
-     *                                  or Engineering
-     * @since 1.0.0
-     */
-    public void addCategory(String category) {
-        if (!checkCategory(category))
-            throw new IllegalArgumentException("Unrecognized category");
-        else {
-            this.categories.add(normalizeCategory(category));
-        }
-    }
-
-    /**
-     * Remove a category from the categories list. No need for exception handling in this method
-     * i.e., if the removed category is not in the list or is illegal, simply do nothing
-     *
-     * @param category The category to be removed
-     * @since 1.0.0
-     */
-    public void removeCategory(String category) {
-        this.categories.remove(category);
-    }
-
-    /**
-     * Get the categories list.
-     *
-     * @return A deep-copy of the categories list
-     * @since 1.0.0
-     */
-    public ArrayList<String> getCategories() {
-        return new ArrayList<String>(this.categories);
+    @SuppressWarnings("unused")
+    public void setRestrictions(ArrayList<String> restrictions) {
+        this.restrictions = (restrictions == null) ? new ArrayList<>() : restrictions;
     }
 
     /**
@@ -320,11 +332,13 @@ public class Event implements Comparable<Event> {
     public String getName() {
         return this.name;
     }
+
     public String getGenre() {
         return genre;
     }
 
     public void setGenre(String genre) {
+        // Optional: enforce checkCategory/normalizeCategory here if you want.
         this.genre = genre;
     }
 
@@ -333,19 +347,29 @@ public class Event implements Comparable<Event> {
     }
 
     public void setMaxEntrants(int maxEntrants) {
-        if (maxEntrants < 0)
-            this.maxEntrants = maxEntrants;
+        if (maxEntrants < 0) {
+            maxEntrants = 0;
+        }
+        this.maxEntrants = maxEntrants;
     }
 
     /**
      * Get the created date of the event
      *
-     * @return The deep-copy of the created-date of the event
+     * @return A deep-copy of the created-date of the event (or null if unset)
      * @see Date
      * @since 1.0.0
      */
     public Date getCreatedDate() {
+        if (this.createdDate == null) {
+            return null;
+        }
         return new Date(this.createdDate.getTime());
+    }
+
+    @SuppressWarnings("unused")
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
     }
 
     /**
@@ -382,7 +406,8 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public void setEventEndDate(Date endDate) {
-        if (endDate != null && (endDate.before(this.createdDate) || endDate.before(new Date()))) {
+        if (endDate != null && (createdDate != null) &&
+                (endDate.before(this.createdDate) || endDate.before(new Date()))) {
             throw new IllegalArgumentException("End-date cannot be earlier than created-date or today");
         }
 
@@ -425,7 +450,12 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public ArrayList<String> getChosenList() {
-        return new ArrayList<String>(this.chosenList);
+        return new ArrayList<>(this.chosenList);
+    }
+
+    @SuppressWarnings("unused")
+    public void setChosenList(ArrayList<String> chosenList) {
+        this.chosenList = (chosenList == null) ? new ArrayList<>() : chosenList;
     }
 
     /**
@@ -461,7 +491,12 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public ArrayList<String> getPendingList() {
-        return new ArrayList<String>(this.pendingList);
+        return new ArrayList<>(this.pendingList);
+    }
+
+    @SuppressWarnings("unused")
+    public void setPendingList(ArrayList<String> pendingList) {
+        this.pendingList = (pendingList == null) ? new ArrayList<>() : pendingList;
     }
 
     /**
@@ -491,17 +526,18 @@ public class Event implements Comparable<Event> {
     /**
      * Return a list of registered entrants
      *
-     * @return A deep-copy of the lsit of registered entrants
+     * @return A deep-copy of the list of registered entrants
      * @see ArrayList
      * @see Entrant
      * @since 1.0.0
      */
     public ArrayList<String> getRegisteredList() {
-        return new ArrayList<String>(this.registeredList);
+        return new ArrayList<>(this.registeredList);
     }
 
-    public ArrayList<String> getCancelledList() {
-        return new ArrayList<String>(this.cancelledList);
+    @SuppressWarnings("unused")
+    public void setRegisteredList(ArrayList<String> registeredList) {
+        this.registeredList = (registeredList == null) ? new ArrayList<>() : registeredList;
     }
 
     /**
@@ -533,7 +569,13 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public ArrayList<String> getLotterySelectionGuidelines() {
-        return new ArrayList<String>(this.lotterySelectionGuidelines);
+        return new ArrayList<>(this.lotterySelectionGuidelines);
+    }
+
+    @SuppressWarnings("unused")
+    public void setLotterySelectionGuidelines(ArrayList<String> lotterySelectionGuidelines) {
+        this.lotterySelectionGuidelines =
+                (lotterySelectionGuidelines == null) ? new ArrayList<>() : lotterySelectionGuidelines;
     }
 
     /**
@@ -546,20 +588,25 @@ public class Event implements Comparable<Event> {
         return this.eventId;
     }
 
-    /**
-     * Stores the Firestore document id so UI gestures can reference the backing record.
-     *
-     * @param firestoreDocumentId document key from the "Events" collection
-     */
-    public void setFirestoreDocumentId(String firestoreDocumentId) {
-        this.firestoreDocumentId = firestoreDocumentId;
+    @SuppressWarnings("unused")
+    public void setEventId(String eventId) {
+        this.eventId = eventId;
     }
 
-    /**
-     * @return Firestore document key associated with this event instance.
-     */
-    public String getFirestoreDocumentId() {
-        return firestoreDocumentId;
+    public ArrayList<String> getLotteryWinners() {
+        return lotteryWinners;
+    }
+
+    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
+        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
+    }
+
+    public ArrayList<String> getCancelledList() {
+        return cancelledList;
+    }
+
+    public void setCancelledList(ArrayList<String> cancelledList) {
+        this.cancelledList = (cancelledList == null) ? new ArrayList<>() : cancelledList;
     }
 
     /**
@@ -581,22 +628,18 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Updates the event location. Blank inputs are treated as no location.
+     * Updates the event location. Null inputs are treated as no location.
      *
-     * @param location user supplied location (may be null)
+     * @param location The location to add to an event
      */
-    public void setLocation(String location) {
-        if (location == null) {
-            this.location = "";
-        } else {
-            this.location = location.trim();
-        }
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     /**
-     * @return user facing location string, or empty if not provided
+     * @return The event's location
      */
-    public String getLocation() {
+    public Location getLocation() {
         return location;
     }
 
@@ -659,46 +702,6 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * Stores a human-readable event date/time string (organizer supplied).
-     *
-     * @param eventDate formatted date/time string
-     */
-    public void setEventDate(String eventDate) {
-        if (eventDate == null) {
-            this.eventDateText = "";
-        } else {
-            this.eventDateText = eventDate.trim();
-        }
-    }
-
-    /**
-     * @return formatted event date/time string
-     */
-    public String getEventDateText() {
-        return eventDateText;
-    }
-
-    /**
-     * Stores a human-readable registration deadline string.
-     *
-     * @param deadline formatted deadline value (may be null)
-     */
-    public void setRegistrationClosesAt(String deadline) {
-        if (deadline == null) {
-            this.registrationClosesAtText = "";
-        } else {
-            this.registrationClosesAtText = deadline.trim();
-        }
-    }
-
-    /**
-     * @return formatted registration closing time
-     */
-    public String getRegistrationClosesAtText() {
-        return registrationClosesAtText;
-    }
-
-    /**
      * Stores the organiser-authored description text.
      */
     public void setDescription(String description) {
@@ -735,15 +738,76 @@ public class Event implements Comparable<Event> {
     public String getPosterUrl() {
         return posterUrl;
     }
-        /**
-         * Removes all categories from this event.
-         */
-        public void clearCategories() {
-            this.categories.clear();
+
+    public void setDrawComplete(boolean drawComplete) {
+        this.drawComplete = drawComplete;
+    }
+
+    public boolean isDrawComplete() {
+        return drawComplete;
+    }
+
+    public void setDrawTimestamp(long drawTimestamp) {
+        this.drawTimestamp = drawTimestamp;
+    }
+
+    public long getDrawTimestamp() {
+        return drawTimestamp;
+    }
+
+    /**
+     * @return The accepted categories
+     */
+    public static String[] getAcceptedCategories() {
+        return acceptedCategories;
+    }
+
+    /**
+     * @return The eventId's QR code (Base64-encoded PNG)
+     */
+    public String getEventIdQRcode() {
+        return eventIdQRcode;
+    }
+
+    @SuppressWarnings("unused")
+    public void setEventIdQRcode(String eventIdQRcode) {
+        this.eventIdQRcode = eventIdQRcode;
+    }
+
+    /**
+     * @return The Bitmap for the eventId's QR code (not serializable to Firestore)
+     */
+    @Exclude
+    public Bitmap getEventIdBitmap() {
+        if (eventIdQRcode == null || eventIdQRcode.isEmpty()) {
+            return null;
         }
+        byte[] data = Base64.decode(eventIdQRcode, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(data, 0, data.length);
+    }
 
+    /**
+     * Generate a QR code for the event's id and store it as a String
+     *
+     * @throws WriterException If the QR code generation fails
+     */
+    private void generateQRcode() throws WriterException {
+        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+        Bitmap bitmap = barcodeEncoder.encodeBitmap(
+                eventId,
+                com.google.zxing.BarcodeFormat.QR_CODE,
+                200,
+                200
+        );
 
-        /**
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        byte[] bytes = baos.toByteArray();
+
+        eventIdQRcode = Base64.encodeToString(bytes, Base64.DEFAULT);
+    }
+
+    /**
      * This class provides an additional method to sort the event by their created date from newest
      * (earliest) to oldest (most recent)
      *
@@ -755,7 +819,12 @@ public class Event implements Comparable<Event> {
     public static class SortEventNewestToOldest implements Comparator<Event> {
         @Override
         public int compare(Event o1, Event o2) {
-            return o2.getCreatedDate().compareTo(o1.getCreatedDate());
+            Date d1 = o1.getCreatedDate();
+            Date d2 = o2.getCreatedDate();
+            if (d1 == null && d2 == null) return 0;
+            if (d1 == null) return 1;
+            if (d2 == null) return -1;
+            return d2.compareTo(d1);
         }
     }
 
@@ -771,7 +840,12 @@ public class Event implements Comparable<Event> {
     public static class SortEventOldestToNewest implements Comparator<Event> {
         @Override
         public int compare(Event o1, Event o2) {
-            return o1.getCreatedDate().compareTo(o2.getCreatedDate());
+            Date d1 = o1.getCreatedDate();
+            Date d2 = o2.getCreatedDate();
+            if (d1 == null && d2 == null) return 0;
+            if (d1 == null) return 1;
+            if (d2 == null) return -1;
+            return d1.compareTo(d2);
         }
     }
 

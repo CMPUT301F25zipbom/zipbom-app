@@ -2,6 +2,7 @@ package com.example.code_zombom_app.organizer;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -32,6 +33,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.Helpers.Event.EventService;
+import com.example.code_zombom_app.Login.LoginActivity;
+import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
@@ -87,14 +92,14 @@ public class OrganizerMainFragment extends Fragment {
 
     /**
      * Gets the inflated view of the main organizer and returns it.
-     *
-     * @param inflater           The LayoutInflater object that can be used to inflate
-     *                           any views in the fragment,
-     * @param container          If non-null, this is the parent view that the fragment's
-     *                           UI should be attached to.  The fragment should not add the view itself,
-     *                           but this can be used to generate the LayoutParams of the view.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
-     *                           from a previous saved state as given here.
+     * from a previous saved state as given here.
+     *
      * @return This function returns the inflated view of the 'main' ui page for the organizer
      */
     @Override
@@ -107,10 +112,9 @@ public class OrganizerMainFragment extends Fragment {
     /**
      * This function links the buttons to their respective variables. It also sets up firebase and calls setupFirestoreListener()
      * to fill the organizer ui with wuth all of the events from the database.
-     *
-     * @param view               The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
      * @param savedInstanceState If non-null, this fragment is being re-constructed
-     *                           from a previous saved state as given here.
+     * from a previous saved state as given here.
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -125,13 +129,24 @@ public class OrganizerMainFragment extends Fragment {
 
         setupFirestoreListener();
         // Find the add event button
-        Button addButton = view.findViewById(R.id.add_event_button);
+        Button addButton = view.findViewById(R.id.button_organizer_main_fragment_add_event);
 
         // Set the click listener to navigate to the next fragment.
         addButton.setOnClickListener(v -> {
             // Use NavController to navigate to the AddEventFragment.
             NavHostFragment.findNavController(OrganizerMainFragment.this)
                     .navigate(R.id.action_organizerMainFragment_to_addEventFragment);
+        });
+
+        Button buttonLogOut = view.findViewById(R.id.button_organizer_main_fragment_logout);
+        buttonLogOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent main = new Intent(requireActivity(), MainActivity.class);
+                main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(main);
+                requireActivity().finish();
+            }
         });
     }
 
@@ -153,55 +168,51 @@ public class OrganizerMainFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
                         // --- NEW: Automatically convert the document to an Event object ---
-                        EventForOrg eventForOrg = snapshot.toObject(EventForOrg.class);
+                        Event event = snapshot.toObject(Event.class);
                         // If toObject returns null, something is wrong with the data mapping (e.g., field name mismatch)
-                        if (eventForOrg == null) {
-                            Log.e("DATA_MAPPING_ERROR", "Event object is null for document: " + snapshot.getId() + ". Check Firestore fields against the organizer.Event class.");
+                        if (event == null) {
+                            Log.e("DATA_MAPPING_ERROR", "Event object is null for document: "
+                                    + snapshot.getId() +
+                                    ". Check Firestore fields against the organizer.Event class.");
                             continue; // Skip this document and move to the next
-                        }
-                        eventForOrg.setEventId(snapshot.getId()); // Manually set the document ID
-                        Event mappedEvent = EventMapper.toDomain(eventForOrg, snapshot.getId());
-                        if (mappedEvent == null) {
-                            Log.e("DATA_MAPPING_ERROR", "Mapped event is null for document: " + snapshot.getId());
-                            continue;
                         }
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
-                        // String eventId = snapshot.getId(); // <<< GET THE DOCUMENT ID HERE
                         View eventItemView = LayoutInflater.from(getContext()).inflate(R.layout.event_list_item, eventsContainer, false);
-                        TextView eventDetailsTextView = eventItemView.findViewById(R.id.event_item_textview);
+                        TextView eventDetailsTextView = eventItemView.findViewById(R.id.textView_event_list_items_details);
                         ImageView qrCodeImageView = eventItemView.findViewById(R.id.event_qr_code_imageview);
 
-                        qrCodeImageView.setTag(eventForOrg.getEventId());
+                        TextView textViewName = eventItemView.findViewById(R.id.textView_event_list_item_name);
+                        TextView textViewGenre = eventItemView.findViewById(R.id.textView_event_list_item_genre);
+                        TextView textViewStartDate = eventItemView.findViewById(R.id.textView_event_list_item_startDate);
+                        TextView textViewEndDate = eventItemView.findViewById(R.id.textView_event_list_item_endDate);
+                        TextView textViewLocation = eventItemView.findViewById(R.id.textView_event_list_item_location);
+
+                        qrCodeImageView.setTag(event.getEventId());
 
                         // --- Use the convenience method from the Event class ---
-                        String eventText = eventForOrg.getEventListDisplayText();
-                        eventDetailsTextView.setText(eventText);
+                        String eventText = event.getDescription();
+                        eventDetailsTextView.setText("Details: " + eventText);
+                        textViewName.setText("Name: " + event.getName());
+                        textViewGenre.setText("Genre: " + event.getGenre());
+                        if (event.getEventStartDate() != null)
+                            textViewStartDate.setText("Start Date: " + event.getEventStartDate().toString());
+                        if (event.getEventEndDate() != null)
+                            textViewEndDate.setText("End Date: " + event.getEventEndDate());
+                        if (event.getLocation() != null)
+                            textViewLocation.setText("Location: " + event.getLocation().toString());
 
-
-                        // --- Generate QR Code Data using the canonical mapper ---
-                        String qrCodeData = EventMapper.buildQrPayload(mappedEvent, eventForOrg.getPosterUrl());
-
-                        // Generate and set the QR code
-                        BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
-                        // Use the eventName variable as the content for the QR code
-                        Bitmap bitmap = barcodeEncoder.encodeBitmap(qrCodeData, com.google.zxing.BarcodeFormat.QR_CODE, 200, 200);
-                        qrCodeImageView.setImageBitmap(bitmap);
-
-                        // Store the generated bitmap in our map
-                        qrCodeBitmaps.put(eventForOrg.getEventId(), bitmap);
+                        qrCodeImageView.setImageBitmap(event.getEventIdBitmap());
 
                         // --- Set click listener (pass the object or its properties) ---
-                        eventItemView.setOnClickListener(v -> showEventOptionsDialog(eventForOrg));
+                        eventItemView.setOnClickListener(v -> showEventOptionsDialog(event));
                         eventsContainer.addView(eventItemView);
+                        EventForOrg eventForOrg = EventMapper.toDto(event);
                         if (eventForOrg.getQrCodeExists()) {
                             qrCodeImageView.setVisibility(View.VISIBLE);
                         }
 
-                    } catch (WriterException e) {
-                        Log.e("QRCode", "Error generating QR code", e);
-
-                    } catch (Exception e) {
+                    }  catch (Exception e) {
                         // This will catch NullPointerExceptions if a view ID is wrong
                         Log.e("DATA_MAPPING_ERROR", "Error converting document to Event object. Check Firestore field names!", e);
                     }
@@ -220,13 +231,13 @@ public class OrganizerMainFragment extends Fragment {
 
     /**
      * Makes the Organizer Dialog pop-up.
-     *
-     * @param eventForOrg The event that the user clicked on
+     * @param event The event that the user clicked on
      */
-    private void showEventOptionsDialog(EventForOrg eventForOrg) {
+    private void showEventOptionsDialog(Event event) {
         NavController navController = NavHostFragment.findNavController(this);
         View fragmentView = getView();
 
+        EventForOrg eventForOrg = EventMapper.toDto(event);
         // Get the specific bitmap for this event from the map.
         Bitmap qrBitmapForEvent = qrCodeBitmaps.get(eventForOrg.getEventId());
 
@@ -258,6 +269,7 @@ public class OrganizerMainFragment extends Fragment {
                 qrBitmapForEvent,
                 requestExportPermissionTask // <-- Pass the task to the dialog
         );
+
         dialog.show();
     }
 

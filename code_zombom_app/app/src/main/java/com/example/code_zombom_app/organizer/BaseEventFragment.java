@@ -94,7 +94,7 @@ public abstract class BaseEventFragment extends Fragment {
         dateEditText = view.findViewById(R.id.editTextDate);
         deadlineEditText = view.findViewById(R.id.editTextDeadline);
         genreEditText = view.findViewById(R.id.editTextGenre);
-        locationEditText = view.findViewById(R.id.editTextLocation);
+        locationEditText = view.findViewById(R.id.fragment_autoComplete_event_address);
         maxentrantEditText = view.findViewById(R.id.maxamountofentrants);
         descriptionEditText = view.findViewById(R.id.editTextDescription);
         buttonUploadPhoto = view.findViewById(R.id.buttonUploadPhoto2);
@@ -189,7 +189,7 @@ public abstract class BaseEventFragment extends Fragment {
     }
 
     private void uploadImageAndProcessEvent(Event event) {
-        StorageReference storageRef = storage.getReference().child("posters/" + event.getFirestoreDocumentId() + ".jpg");
+        StorageReference storageRef = storage.getReference().child("posters/" + event.getEventId() + ".jpg");
         if (isPosterUploaded) {
             // If we are "updating", we first delete the old poster.
             // this is to prevents orphaned files.
@@ -235,24 +235,14 @@ public abstract class BaseEventFragment extends Fragment {
             return null;
         }
 
-        event.setFirestoreDocumentId(eventId);
-        event.setEventDate(dateEditText.getText().toString());
-        event.setRegistrationClosesAt(deadlineEditText.getText().toString());
-        event.setLocation(locationEditText.getText().toString());
+        //event.setEventDate(dateEditText.getText().toString());
+        //event.setRegistrationClosesAt(deadlineEditText.getText().toString());
+        //event.setLocation(locationEditText.getText().toString());
         event.setDescription(descriptionEditText.getText().toString());
         // Poster URL is set later when an image is uploaded
 
-        // Replace any previous genre with the current input
-        event.clearCategories();
         String genre = genreEditText.getText().toString();
-        if (!genre.trim().isEmpty()) {
-            try {
-                event.addCategory(genre);
-            } catch (IllegalArgumentException ignored) {
-                Toast.makeText(getContext(), "Genre must be one of: Sport, eSport, Food, Music, Engineering.", Toast.LENGTH_SHORT).show();
-                return null;
-            }
-        }
+        event.setGenre(genre);
 
         try {
             int capacity = Integer.parseInt(maxPeopleEditText.getText().toString());

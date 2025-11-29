@@ -68,6 +68,7 @@ dependencies {
 //    androidTestImplementation(libs.espresso.core)
 //    androidTestImplementation("androidx.test.espresso:espresso-intents:3.5.1")
 //    androidTestImplementation("org.mockito:mockito-android:5.5.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
@@ -128,5 +129,9 @@ dependencies {
 
         // Autofill address
         implementation("com.google.android.libraries.places:places:3.4.0")
+
+        // Generate heat map
+        implementation("com.google.android.gms:play-services-maps:18.1.0")
+        implementation("com.google.maps.android:android-maps-utils:3.4.0")
 
 }

@@ -46,7 +46,7 @@ import java.util.Map;
 public class OrganizerDialog extends Dialog {
     private final EventForOrg eventForOrg; // <<< Use the Event object
     private final NavController navController;
-//    private final View fragmentView;
+    //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
     private final ImageView qrCodeImageView; // Direct reference to the ImageView
     private final Bitmap qrCodeBitmap;       // The specific bitmap for this event

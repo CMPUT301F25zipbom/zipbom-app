@@ -11,6 +11,11 @@ public class Coordinate {
     private double longitude;
 
     /**
+     * No-arg constructor to allow deserialization by Firebase
+     */
+    public Coordinate() {}
+
+    /**
      * The only constructor for this class. Set the latitude and longitude for a coordinate. Throws
      * an exception if the latitude or longitude are invalid.
      *

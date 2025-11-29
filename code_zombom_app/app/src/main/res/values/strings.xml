@@ -45,9 +45,14 @@
     <string name="filter">Filter</string>
     <string name="edit_profile">Edit Profile</string>
     <string name="scan_qr_code">Scan QR Code</string>
+    <string name="notification_title">Notification</string>
+    <string name="notification_default_message">No notifications available.</string>
     <string name="edit_name">Edit Name</string>
     <string name="log_out">Log out</string>
     <string name="leave">Leave</string>
+    <string name="accept">Accept</string>
+    <string name="decline">Decline</string>
+    <string name="poster_content_description">Event poster</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
@@ -66,4 +71,19 @@
     <string name="sign_up_address">Sign up address</string>
     <string name="enter_your_address">Enter your address</string>
     <string name="enter_address">Enter address</string>
+    <string name="notification" />
+    <string name="event_name">Event Name</string>
+    <string name="max_amount_of_people">Max Amount Of People</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_the_event_location">Enter the event location</string>
+    <string name="genre">Genre</string>
+    <string name="location">Location</string>
+    <string name="details">Details</string>
+    <string name="event_qr_code">Event QR Code</string>
+    <string name="add_event">Add Event</string>
+    <string name="filter_by_genre">Filter by genre</string>
+    <string name="filter_by_availability">Filter by availability</string>
+    <string name="apply">Apply</string>
 </resources>

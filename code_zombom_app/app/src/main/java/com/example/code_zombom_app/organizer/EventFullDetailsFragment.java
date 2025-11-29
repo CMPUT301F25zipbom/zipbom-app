@@ -16,6 +16,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -132,7 +134,8 @@ public class EventFullDetailsFragment extends Fragment {
                 .addOnSuccessListener(documentSnapshot -> {
                     if (isAdded() && documentSnapshot.exists()) {
                         // --- REFACTORED: Convert the document directly to an Event object ---
-                        EventForOrg eventForOrg = documentSnapshot.toObject(EventForOrg.class);
+                        Event event = documentSnapshot.toObject(Event.class);
+                        EventForOrg eventForOrg = EventMapper.toDto(event);
                         if (eventForOrg != null) {
                             populateUi(eventForOrg);
                         } else {
@@ -168,7 +171,7 @@ public class EventFullDetailsFragment extends Fragment {
 
         // Set array values
         entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getLottery_Winners()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
         cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
         registeredEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
 

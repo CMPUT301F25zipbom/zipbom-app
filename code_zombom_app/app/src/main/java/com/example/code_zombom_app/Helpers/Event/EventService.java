@@ -7,9 +7,14 @@ import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
+import com.google.firebase.firestore.DocumentReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Centralised entry point for persisting and fetching events.
@@ -30,20 +35,25 @@ public class EventService {
     /**
      * Adds an entrant email to the waiting list transactionally.
      *
-     * @param documentId Firestore document id for the event
+     * @param eventId The event's unique id
      * @param entrantEmail entrant email to add
      * @return Task representing completion (success/failure will surface to listeners)
+     * @throws IllegalStateException If the event cannot be found in the database
+     * @throws IllegalArgumentException If the entrant has already been selected or joined the
+     *                                  waiting list or the maximum capacity for the waiting list
+     *                                  has been reached
      */
-    public Task<Void> addEntrantToWaitlist(@NonNull String documentId, @NonNull String entrantEmail) {
+    public Task<Void> addEntrantToWaitlist(@NonNull String eventId, @NonNull String entrantEmail) {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
-            if (dto == null) {
-                throw new IllegalStateException("Event not found");
-            }
-            Event event = EventMapper.toDomain(dto, documentId);
+            DocumentReference eventRef = firestore.collection("Events").document(eventId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+
             if (event == null) {
-                throw new IllegalStateException("Invalid event data");
+                throw new IllegalStateException("Event not found!");
+            }
+            if (event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already been selected for this event.");
             }
             if (event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You have already joined this waiting list.");
@@ -56,8 +66,7 @@ public class EventService {
                 throw new IllegalArgumentException("This waiting list is full.");
             }
             event.joinWaitingList(normalizedEmail);
-            EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            transaction.set(eventRef, event);
             return null;
         });
     }
@@ -65,59 +74,36 @@ public class EventService {
     /**
      * Removes an entrant email from the waiting list transactionally.
      */
-    public Task<Void> removeEntrantFromWaitlist(@NonNull String documentId, @NonNull String entrantEmail) {
+    public Task<Void> removeEntrantFromWaitlist(@NonNull String eventId, @NonNull String entrantEmail) {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
-            if (dto == null) {
+            DocumentReference eventRef = firestore.collection("Events").document(eventId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
                 throw new IllegalStateException("Event not found");
             }
-            Event event = EventMapper.toDomain(dto, documentId);
-            if (event == null) {
-                throw new IllegalStateException("Invalid event data");
-            }
+
             if (!event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You are not on this waiting list.");
             }
             event.leaveWaitingList(normalizedEmail);
-            EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            transaction.set(eventRef, event);
             return null;
         });
     }
 
     /**
      * Creates or updates the backing Firestore document for the supplied event.
-     * If {@link Event#getFirestoreDocumentId()} is empty a new document will be created.
      *
      * @param event canonical domain event to persist
      * @return Task representing the asynchronous save
      */
-    public Task<Void> saveEvent(@NonNull Event event) {
-        EventForOrg dto = EventMapper.toDto(event);
-
-        String documentId = event.getFirestoreDocumentId();
-        if (documentId == null || documentId.trim().isEmpty()) {
-            documentId = firestore.collection("Events").document().getId();
-            event.setFirestoreDocumentId(documentId);
-            dto.setEventId(documentId);
-        }
+    public Task<Void> saveEvent(@NonNull com.example.code_zombom_app.Helpers.Event.Event event) {
+        String documentId = event.getEventId();
 
         return firestore.collection("Events")
                 .document(documentId)
-                .set(dto);
-    }
-
-    /**
-     * Builds a canonical domain event from the organiser DTO.
-     *
-     * @param dto organiser model (typically from Firestore)
-     * @param firestoreId document id to attach to the domain event
-     * @return mapped domain event or null when the DTO is incomplete
-     */
-    @Nullable
-    public Event mapToDomain(@Nullable EventForOrg dto, @Nullable String firestoreId) {
-        return EventMapper.toDomain(dto, firestoreId);
+                .set(event);
     }
 
     /**
@@ -128,13 +114,10 @@ public class EventService {
      */
     public Task<Void> runLotteryDraw(@NonNull String documentId) {
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
-            EventForOrg dto = transaction.get(firestore.collection("Events").document(documentId)).toObject(EventForOrg.class);
-            if (dto == null) {
-                throw new IllegalStateException("Event not found");
-            }
-            Event event = EventMapper.toDomain(dto, documentId);
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
             if (event == null) {
-                throw new IllegalStateException("Invalid event data");
+                throw new IllegalStateException("Event not found");
             }
 
             int capacity = Math.max(0, event.getCapacity());
@@ -150,14 +133,35 @@ public class EventService {
             Collections.shuffle(candidates);
 
             int picks = Math.min(slotsRemaining, candidates.size());
+            List<String> winners = new ArrayList<>();
             for (int i = 0; i < picks; i++) {
                 String winner = candidates.get(i);
                 event.addChosenEntrant(winner);
                 event.leaveWaitingList(winner);
+                winners.add(winner);
             }
 
-            EventForOrg updatedDto = EventMapper.toDto(event);
-            transaction.set(firestore.collection("Events").document(documentId), updatedDto);
+            // Mark the draw as complete
+            event.setDrawComplete(true);
+            event.setDrawTimestamp(System.currentTimeMillis()); // current time as draw timestamp
+
+
+            //identify losers
+            Set<String> losers = new HashSet<>(event.getWaitingList());
+            losers.removeAll(event.getChosenList());
+            losers.removeAll(event.getRegisteredList());
+
+            transaction.set(eventRef, event);
+
+            // Write winner/loser notifications under the event for entrant listeners
+            for (String winner : winners) {
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
+            }
+            for (String loser : losers) {
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
+            }
             return null;
         });
     }
@@ -167,5 +171,96 @@ public class EventService {
      */
     public Task<Void> deleteEvent(@NonNull String documentId) {
         return firestore.collection("Events").document(documentId).delete();
+    }
+
+    private Map<String, Object> buildNotification(String recipientEmail, String type, String eventName, long drawTimestamp) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("recipientEmail", recipientEmail == null ? "" : recipientEmail.trim().toLowerCase());
+        payload.put("type", type); // "win" or "lose"
+        payload.put("eventName", eventName != null ? eventName : "");
+        payload.put("drawTimestamp", drawTimestamp);
+        payload.put("createdAt", System.currentTimeMillis());
+        return payload;
+    }
+
+    /**
+     * Builds a QR payload string from the canonical event state, falling back to poster URL when available.
+     * //TODO: Maybe in the future build a QR code that when scanned take the entrant to the event in the app ONLY
+     */
+    public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
+        StringBuilder qrDataBuilder = new StringBuilder();
+        qrDataBuilder.append("Event: ").append(event != null ? nullToEmpty(event.getName()) : "").append("\n");
+        qrDataBuilder.append("Location: ").append(event != null ? nullToEmpty(event.getLocation().toString()) : "").append("\n");
+        qrDataBuilder.append("Date: ").append(event != null ? nullToEmpty(event.getEventStartDate().toString()) : "").append("\n");
+        qrDataBuilder.append("Deadline: ").append(event != null ? nullToEmpty(event.getEventEndDate().toString()) : "").append("\n");
+        qrDataBuilder.append("Description: ").append(event != null ? nullToEmpty(event.getDescription()) : "").append("\n");
+        if (posterUrl != null && !posterUrl.isEmpty()) {
+            qrDataBuilder.append("Poster: ").append(posterUrl);
+        }
+        return qrDataBuilder.toString();
+    }
+
+    /**
+     * Records that a chosen entrant has accepted their invitation to participate.
+     * Moves the entrant into the pending list so organisers can see who confirmed.
+     */
+    public Task<Void> acceptInvitation(@NonNull String documentId, @NonNull String entrantEmail) {
+        final String normalizedEmail = entrantEmail.trim();
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
+            if (dto == null) {
+                throw new IllegalStateException("Event not found");
+            }
+            Event event = EventMapper.toDomain(dto, documentId);
+            if (event == null) {
+                throw new IllegalStateException("Invalid event data");
+            }
+
+            if (!event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You were not selected for this event.");
+            }
+            if (event.getPendingList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already accepted this invitation.");
+            }
+
+            event.addPendingEntrant(normalizedEmail);
+            EventForOrg updatedDto = EventMapper.toDto(event);
+            transaction.set(eventRef, updatedDto);
+            return null;
+        });
+    }
+
+    /**
+     * Records that a chosen entrant has declined their invitation; removes them from the winners list.
+     * This keeps the Firestore state accurate so the organiser can re-run the draw if needed.
+     */
+    public Task<Void> declineInvitation(@NonNull String documentId, @NonNull String entrantEmail) {
+        final String normalizedEmail = entrantEmail.trim();
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
+            if (dto == null) {
+                throw new IllegalStateException("Event not found");
+            }
+            Event event = EventMapper.toDomain(dto, documentId);
+            if (event == null) {
+                throw new IllegalStateException("Invalid event data");
+            }
+
+            if (!event.getChosenList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You were not selected for this event.");
+            }
+
+            event.removeChosenEntrant(normalizedEmail);
+            event.removePendingEntrant(normalizedEmail);
+            EventForOrg updatedDto = EventMapper.toDto(event);
+            transaction.set(eventRef, updatedDto);
+            return null;
+        });
+    }
+
+    private static String nullToEmpty(@Nullable String value) {
+        return value == null ? "" : value;
     }
 }

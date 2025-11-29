@@ -13,7 +13,13 @@ import java.util.HashMap;
  */
 public abstract class GModel extends TModel<TView> {
     protected String errorMsg; // Used to display the error message
+
+    /**
+     * @deprecated For simplicity, in the future just create a getters to retrieve an elements from
+     *             the model. This sh*t has become stupid and redundant
+     */
     private final HashMap<String, Object> interMsg; // Used to store the intermediate message (information)
+
     private final String[] allowedKeys = {
             "Profile", "Request", "Message", "Extra"
     };
@@ -42,6 +48,16 @@ public abstract class GModel extends TModel<TView> {
         ADD_DEVICE_ID_SUCCESS,
         ADD_DEVICE_ID_FAILURE,
         REMOVE_DEVICE_ID,
+
+
+        UPLOAD_EVENT_SUCESS,
+        UPLOAD_EVENT_FAILURE,
+        LOAD_EVENT_SUCCESS,
+        LOAD_EVENT_FAILURE,
+        LOAD_EVENTS_SUCCESS,
+        LOAD_EVENTS_FAILURE,
+
+        REQUEST_FILTER_EVENT,
 
 
         INTERNAL_ERROR,
