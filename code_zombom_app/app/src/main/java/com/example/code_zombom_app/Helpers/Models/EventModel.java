@@ -1,7 +1,8 @@
-package com.example.code_zombom_app.Helpers.Event;
+package com.example.code_zombom_app.Helpers.Models;
 
 import android.util.Log;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;

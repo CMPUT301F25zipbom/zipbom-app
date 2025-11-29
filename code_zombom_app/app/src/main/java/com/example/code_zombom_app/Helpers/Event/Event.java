@@ -67,13 +67,15 @@ public class Event implements Comparable<Event> {
     // Optional additional metadata exposed to entrants
     private Location location;
 
-    // Set the maximum number of entrants that can join the waiting list
+    // Set the maximum number of entrants that can join the event
     private int capacity;
+
     // Optional limit for how many entrants can join the waitlist (0 = unlimited)
     private int waitlistLimit;
     private String eventDateText;
     private String registrationClosesAtText;
     private String description;
+
     // URL of the uploaded event poster stored in Firebase Storage
     private String posterUrl;
 
@@ -187,7 +189,6 @@ public class Event implements Comparable<Event> {
 
     /**
      * Get the current total number of entrants in the waiting list.
-     *
      * We mark this as @Exclude so Firestore won't try to store this computed property directly.
      *
      * @return The total number of entrants that are currently in the waiting list
@@ -195,9 +196,6 @@ public class Event implements Comparable<Event> {
      */
     @Exclude
     public int getNumberOfWaiting() {
-        if (waitingEntrantCount >= 0) {
-            return waitingEntrantCount;
-        }
         return this.waitingList.size();
     }
 
@@ -214,12 +212,18 @@ public class Event implements Comparable<Event> {
      * Add an entrant to the waiting list. An entrant can call this method to join the waiting list
      *
      * @param entrant The entrant's email address that wishes to join the waiting list
+     * @throws RuntimeException If the number of people in the waiting list reached is maximum
      * @see Entrant
      * @since 1.0.0
      */
     public void joinWaitingList(String entrant) {
-        this.waitingList.add(entrant);
-        waitingEntrantCount++;
+        if (waitingEntrantCount == waitlistLimit)
+            throw new RuntimeException("Wait list is full");
+
+        if (!waitingList.contains(entrant)) {
+            this.waitingList.add(entrant);
+            waitingEntrantCount++;
+        }
     }
 
     /**
@@ -402,15 +406,9 @@ public class Event implements Comparable<Event> {
      * Set the end date/time for the event schedule.
      *
      * @param endDate desired end date (may be null to clear)
-     * @throws IllegalArgumentException when the supplied end date is earlier than the created date or today
      * @since 1.0.0
      */
     public void setEventEndDate(Date endDate) {
-        if (endDate != null && (createdDate != null) &&
-                (endDate.before(this.createdDate) || endDate.before(new Date()))) {
-            throw new IllegalArgumentException("End-date cannot be earlier than created-date or today");
-        }
-
         if (endDate == null) {
             this.eventEndDate = null;
         } else {
@@ -675,7 +673,7 @@ public class Event implements Comparable<Event> {
     }
 
     /**
-     * @return maximum number of entrants allowed on the waitlist (0 means unlimited)
+     * @return maximum number of entrants allowed on the waitlist (negative means unlimited)
      */
     public int getWaitlistLimit() {
         return waitlistLimit;

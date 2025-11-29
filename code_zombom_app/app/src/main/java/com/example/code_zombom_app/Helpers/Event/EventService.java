@@ -3,6 +3,8 @@ package com.example.code_zombom_app.Helpers.Event;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.code_zombom_app.Helpers.Mail.Mail;
+import com.example.code_zombom_app.Helpers.Mail.MailService;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,6 +60,15 @@ public class EventService {
             if (event.getWaitingList().contains(normalizedEmail)) {
                 throw new IllegalArgumentException("You have already joined this waiting list.");
             }
+            // Block entrants who already accepted (pending list) from rejoining the waitlist.
+            if (event.getPendingList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already accepted an invitation for this event.");
+            }
+            // If accepted entrants already meet capacity, block any further joins.
+            int maxPeople = Math.max(0, event.getCapacity());
+            if (maxPeople > 0 && event.getPendingList().size() >= maxPeople) {
+                throw new IllegalArgumentException("This event is full.");
+            }
             int waitlistMaximum = event.getWaitlistLimit();
             if (waitlistMaximum <= 0) {
                 waitlistMaximum = event.getCapacity();
@@ -110,7 +121,7 @@ public class EventService {
      * Runs a simple lottery: randomly choose up to the remaining capacity from the waiting list.
      * Selected entrants are moved to the chosen list and removed from the waiting list.
      *
-     * @param documentId Firestore document id for the event
+     * @param documentId The event's document id
      */
     public Task<Void> runLotteryDraw(@NonNull String documentId) {
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
@@ -121,7 +132,13 @@ public class EventService {
             }
 
             int capacity = Math.max(0, event.getCapacity());
-            int alreadyFilled = event.getRegisteredList().size() + event.getChosenList().size();
+            int acceptedCount = event.getPendingList().size();
+            // Prevent drawing when accepted entrants have already filled or exceeded capacity.
+            if (capacity > 0 && acceptedCount >= capacity) {
+                return null;
+            }
+            // Treat accepted entrants as occupying seats when computing remaining capacity.
+            int alreadyFilled = event.getRegisteredList().size() + event.getChosenList().size() + acceptedCount;
             int slotsRemaining = capacity > 0 ? Math.max(0, capacity - alreadyFilled) : event.getWaitingList().size();
             if (slotsRemaining == 0) {
                 return null; // nothing to do
@@ -145,7 +162,6 @@ public class EventService {
             event.setDrawComplete(true);
             event.setDrawTimestamp(System.currentTimeMillis()); // current time as draw timestamp
 
-
             //identify losers
             Set<String> losers = new HashSet<>(event.getWaitingList());
             losers.removeAll(event.getChosenList());
@@ -157,10 +173,23 @@ public class EventService {
             for (String winner : winners) {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
+
+                Mail mail = new Mail(event.getName(), winner, Mail.MailType.INVITE_LOTTERY_WINNER);
+                mail.setHeader("Invitation to register for event: " + event.getName());
+                mail.setContent("Congratulation " + winner + "! You have been selected! To accept " +
+                        "the invitation, pressed Accept. To decline, press Decline");
+                MailService.sendMail(mail);
             }
+
             for (String loser : losers) {
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
+
+                Mail mail = new Mail(event.getName(), loser, Mail.MailType.DECLINE_LOTTERY_LOSER);
+                mail.setHeader("Better luck next time");
+                mail.setContent("We regret to inform that you have not been selected for the event: "
+                + event.getName() + "!");
+                MailService.sendMail(mail);
             }
             return null;
         });
@@ -225,8 +254,19 @@ public class EventService {
             }
 
             event.addPendingEntrant(normalizedEmail);
+            event.removeChosenEntrant(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
+            // Ensure the entrant is no longer marked as cancelled if they accept later
+            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
+                    ? new ArrayList<>(dto.getCancelled_Entrants())
+                    : new ArrayList<>();
+            cancelled.remove(normalizedEmail);
+            updatedDto.setCancelled_Entrants(cancelled);
             transaction.set(eventRef, updatedDto);
+            // Persist the entrant's response so the UI can restore state after navigation/restart.
+            transaction.set(eventRef.collection("Responses").document(normalizedEmail),
+                    buildResponsePayload(normalizedEmail, "accepted",
+                            "You have accepted the invitation" + formatEventSuffix(event.getName())));
             return null;
         });
     }
@@ -255,12 +295,37 @@ public class EventService {
             event.removeChosenEntrant(normalizedEmail);
             event.removePendingEntrant(normalizedEmail);
             EventForOrg updatedDto = EventMapper.toDto(event);
+            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
+                    ? new ArrayList<>(dto.getCancelled_Entrants())
+                    : new ArrayList<>();
+            if (!cancelled.contains(normalizedEmail)) {
+                cancelled.add(normalizedEmail);
+            }
+            updatedDto.setCancelled_Entrants(cancelled);
             transaction.set(eventRef, updatedDto);
+            // Persist the entrant's response so the UI can restore state after navigation/restart.
+            transaction.set(eventRef.collection("Responses").document(normalizedEmail),
+                    buildResponsePayload(normalizedEmail, "declined",
+                            "You have declined the invitation" + formatEventSuffix(event.getName())));
             return null;
         });
     }
 
-    private static String nullToEmpty(@Nullable String value) {
-        return value == null ? "" : value;
+    private Map<String, Object> buildResponsePayload(String email, String status, String message) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("email", email == null ? "" : email.trim());
+        payload.put("status", status);
+        payload.put("message", message);
+        payload.put("updatedAt", System.currentTimeMillis());
+        return payload;
     }
+
+    private String formatEventSuffix(@Nullable String eventName) {
+        if (eventName == null || eventName.trim().isEmpty()) {
+            return ".";
+        }
+        return " to " + eventName + ".";
+    }
+  private static String nullToEmpty( @Nullable String value) {return value == null? "" : value;
+                                                             }
 }
