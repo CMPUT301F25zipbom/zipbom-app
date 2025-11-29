@@ -3,10 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 'maxSdkVersion' ensures this permission is only requested on older devices where it's needed -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <!--
-      THIS IS THE FIX:
-      This tells the system that your app intends to interact with
+      This tells the system that the app intends to interact with
       other apps that can handle the ACTION_GET_CONTENT or
       ACTION_OPEN_DOCUMENT intents, like the system's file picker.
     -->
