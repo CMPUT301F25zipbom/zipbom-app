@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#49317C"
+    android:background="#00FFB0"
     tools:context=".organizer.AddEventFragment"> <!-- can change context to .EditEventFragment -->
 
     <Button
@@ -63,7 +63,7 @@
         android:ems="10"
         android:hint="Event Name"
         android:inputType="text"
-        android:textColor="#FFFFFF"
+        android:textColor="#B1B0B0"
         android:textColorHint="#BCBCBC"
         app:layout_constraintBottom_toTopOf="@+id/editTextMaxPeople"
         app:layout_constraintEnd_toEndOf="parent"
