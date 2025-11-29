@@ -37,7 +37,7 @@ public class EventFullDetailsFragment extends Fragment {
 
     // UI Elements
     private TextView nameValue, dateValue, deadlineValue, locationValue, genreValue,
-            maxPeopleValue, waitlistMaxValue, entrantsValue,
+            maxPeopleValue, waitlistMaxValue, entrantsValue, registeredEntrantsValue,
             acceptedEntrantsValue, cancelledEntrantsValue, descriptionValue;
 
     private FirebaseFirestore db;
@@ -121,6 +121,7 @@ public class EventFullDetailsFragment extends Fragment {
         entrantsValue = view.findViewById(R.id.entrants_value);
         acceptedEntrantsValue = view.findViewById(R.id.accepted_entrants_value);
         cancelledEntrantsValue = view.findViewById(R.id.cancelled_entrants_value);
+        registeredEntrantsValue = view.findViewById(R.id.registered_entrants_value);
         posterImageView = view.findViewById(R.id.imageView_entrant_full_details_poster);
         descriptionValue = view.findViewById(R.id.textView_entrant_event_full_details_description);
     }
@@ -161,7 +162,9 @@ public class EventFullDetailsFragment extends Fragment {
         nameValue.setText(eventForOrg.getName());
         dateValue.setText(eventForOrg.getDate());
         deadlineValue.setText(eventForOrg.getDeadline());
-        locationValue.setText(eventForOrg.getLocation());
+        locationValue.setText(eventForOrg.getLocation() != null
+                ? eventForOrg.getLocation().toString()
+                : "-");
         genreValue.setText(eventForOrg.getGenre());
         maxPeopleValue.setText(eventForOrg.getMax_People());
         waitlistMaxValue.setText(eventForOrg.getWait_List_Maximum());
@@ -172,6 +175,9 @@ public class EventFullDetailsFragment extends Fragment {
         entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
         acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
         cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
+        registeredEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
+
+
 
         if (eventForOrg.getPosterUrl() != null && !eventForOrg.getPosterUrl().isEmpty()) {
             Glide.with(this)

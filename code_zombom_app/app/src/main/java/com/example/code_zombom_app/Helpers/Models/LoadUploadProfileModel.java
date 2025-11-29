@@ -47,11 +47,16 @@ public class LoadUploadProfileModel extends GModel {
                     if (snapshot.exists()) {
                         state = State.LOGIN_SUCCESS;
 
-                        Profile profile;
+                        Profile profile = null;
                         String type = snapshot.getString("type");
                         if ("Entrant".equals(type)) {
                             // Keep entrant-specific fields intact by deserializing into Entrant
-                            profile = snapshot.toObject(Entrant.class);
+                            try {
+                                profile = snapshot.toObject(Entrant.class);
+                            } catch (RuntimeException e) {
+                                Log.e("Loading Profile Error", "Silently ignoring documents" +
+                                        "that not convertible to type Entrant", e);
+                            }
                         } else {
                             profile = snapshot.toObject(Profile.class);
                         }

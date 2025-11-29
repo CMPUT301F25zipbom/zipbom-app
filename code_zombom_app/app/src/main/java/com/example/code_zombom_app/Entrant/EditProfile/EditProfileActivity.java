@@ -21,6 +21,8 @@ import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Entrant.EntrantHistoryActivity;
+import com.example.code_zombom_app.Entrant.EntrantNotificationsActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditProfileActivity extends AppCompatActivity implements TView<EditProfileModel> {
@@ -58,10 +60,22 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 editName, editEmail, editPhone,
                 findViewById(R.id.buttonEntrantProfileBack),
                 findViewById(R.id.buttonEntrantProfileSave),
-                findViewById(R.id.buttonEntrantProfileDelete),
-                findViewById(R.id.buttonEntrantLogOut),
-                toggleNotification, toggleLinkDevice);
+        findViewById(R.id.buttonEntrantProfileDelete),
+        findViewById(R.id.buttonEntrantLogOut),
+        toggleNotification, toggleLinkDevice);
          controller.bindView();
+
+        findViewById(R.id.buttonEntrantViewHistory).setOnClickListener(v -> {
+            Intent history = new Intent(this, EntrantHistoryActivity.class);
+            history.putExtra(EntrantHistoryActivity.EXTRA_EMAIL, email);
+            startActivity(history);
+        });
+
+        findViewById(R.id.buttonEntrantViewNotifications).setOnClickListener(v -> {
+            Intent notifications = new Intent(this, EntrantNotificationsActivity.class);
+            notifications.putExtra(EntrantNotificationsActivity.EXTRA_EMAIL, email);
+            startActivity(notifications);
+        });
 
         model.addView(this);
         id = model.getDeviceId(this);

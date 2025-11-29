@@ -45,7 +45,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * @author Robert Enstrom, Tejwinder Johal, Dang Nguyen
+ * @author Robert Enstrom, Tejwinder Johal
  * @version 1.0
  * This class is responsible for creating a new event, making sure the event is valid and saving it to firebase
  */

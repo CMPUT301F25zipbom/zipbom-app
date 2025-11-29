@@ -45,6 +45,19 @@
         android:text="See Event Details" />
 
     <Button
+        android:id="@+id/exportCSVButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Export CSV" />
+    <Button
+        android:id="@+id/button_dialog_event_options_showLocationHeatMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="See Entrant's Locations Heatmap" />
+
+    <Button
         android:id="@+id/button_cancel"
         android:layout_width="match_parent"
         android:layout_height="60dp"

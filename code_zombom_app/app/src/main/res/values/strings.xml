@@ -10,7 +10,7 @@
     <string name="entrant_event_catalog_title">Events</string>
     <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
     <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
-    <string name="entrant_event_join_button">Join Waiting List</string>
+    <string name="entrant_event_join_button">Join</string>
     <string name="entrant_event_list_error">Unable to load events. Please try again.</string>
     <string name="no_categories_assigned">General</string>
     <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
@@ -53,6 +53,14 @@
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="poster_content_description">Event poster</string>
+    <string name="history_empty">No history yet.</string>
+    <string name="history_missing_email">Unable to load history (no email provided).</string>
+    <string name="history_load_error">Could not load history right now.</string>
+    <string name="history_unknown_event">Unknown event</string>
+    <string name="history_unknown_date">Unknown date</string>
+    <string name="history_status_format">%1$s • %2$s</string>
+    <string name="view_history">History</string>
+    <string name="view_notifications">Notifications</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
@@ -97,4 +105,5 @@
     <string name="header">Header</string>
     <string name="sender">Sender</string>
     <string name="content">Content</string>
+    <string name="google_api_key">AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs</string>
 </resources>

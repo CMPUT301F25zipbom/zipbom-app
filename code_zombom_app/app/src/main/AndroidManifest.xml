@@ -7,11 +7,12 @@
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <!-- 'maxSdkVersion' ensures this permission is only requested on older devices where it's needed -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <!--
-      THIS IS THE FIX:
-      This tells the system that your app intends to interact with
+      This tells the system that the app intends to interact with
       other apps that can handle the ACTION_GET_CONTENT or
       ACTION_OPEN_DOCUMENT intents, like the system's file picker.
     -->
@@ -35,6 +36,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Code_zombom_app">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBKDwGbjNLMqiL7ep4MZn6hbjvS-lN1_cA"/>
+<!--        Yes, I know it is unsafe, but I will delete this key in the future-->
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -55,6 +66,11 @@
             android:exported="false" />
         <activity android:name=".Entrant.EditProfile.EditProfileActivity"/>
         <activity android:name=".Login.SignUp.SignUpAddress.SignUpAddressActivity"/>
+        <activity android:name=".Entrant.EntrantHistoryActivity"
+            android:exported="false"/>
+        <activity android:name=".Helpers.Location.EventHeatMapActivity"/>
+        <activity android:name=".Entrant.EntrantNotificationsActivity"
+            android:exported="false"/>
 
     </application>
 
