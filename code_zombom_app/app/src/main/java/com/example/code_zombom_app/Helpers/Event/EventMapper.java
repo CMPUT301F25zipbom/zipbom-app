@@ -35,7 +35,9 @@ public final class EventMapper {
         Event event = new Event(name);
 
         // Basic text fields
-        //event.setLocation(source.getLocation());
+        if (source.getLocation() != null) {
+            event.setLocation(source.getLocation());
+        }
         event.setMaxEntrants(Integer.parseInt(source.getMax_People()));
         //event.setEventDate(source.getDate());
         //event.setRegistrationClosesAt(source.getDeadline());
@@ -95,7 +97,7 @@ public final class EventMapper {
         dto.setDeadline(event.getEventEndDate().toString());
         dto.setGenre(event.getGenre());
         if (event.getLocation() != null)
-            dto.setLocation(event.getLocation().toString());
+            dto.setLocation(event.getLocation());
         dto.setDescription(event.getDescription());
         dto.setMax_People(String.valueOf(event.getCapacity()));
         dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
@@ -115,9 +117,14 @@ public final class EventMapper {
     public static String buildQrPayload(Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
         qrDataBuilder.append("Event: ").append(event != null ? nullToEmpty(event.getName()) : "").append("\n");
-        qrDataBuilder.append("Location: ").append(event != null ? nullToEmpty(event.getLocation().toString()) : "").append("\n");
-        qrDataBuilder.append("Date: ").append(event != null ? nullToEmpty(event.getEventStartDate().toString()) : "").append("\n");
-        qrDataBuilder.append("Deadline: ").append(event != null ? nullToEmpty(event.getEventEndDate().toString()) : "").append("\n");
+        String locationText = (event != null && event.getLocation() != null)
+                ? event.getLocation().toString()
+                : "";
+        qrDataBuilder.append("Location: ").append(locationText).append("\n");
+        qrDataBuilder.append("Date: ").append(event != null && event.getEventStartDate() != null
+                ? event.getEventStartDate().toString() : "").append("\n");
+        qrDataBuilder.append("Deadline: ").append(event != null && event.getEventEndDate() != null
+                ? event.getEventEndDate().toString() : "").append("\n");
         qrDataBuilder.append("Description: ").append(event != null ? nullToEmpty(event.getDescription()) : "").append("\n");
         if (posterUrl != null && !posterUrl.isEmpty()) {
             qrDataBuilder.append("Poster: ").append(posterUrl);

@@ -1,5 +1,6 @@
 package com.example.code_zombom_app.organizer;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
 import com.google.firebase.firestore.Exclude;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     private String Date;
     private String Deadline;
     private String Genre;
-    private String Location;
+    private Location Location;
     private String Description;
     private String posterUrl;
     private String Max_People;
@@ -43,7 +44,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         Date = "";
         Deadline = "";
         Genre = "";
-        Location = "";
+        Location = null;
         Description = "";
         Max_People = "0";
         Wait_List_Maximum = "0";
@@ -72,8 +73,8 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     public String getGenre() { return Genre; }
     public void setGenre(String genre) { this.Genre = genre; }
 
-    public String getLocation() { return Location; }
-    public void setLocation(String location) { this.Location = location; }
+    public Location getLocation() { return Location; }
+    public void setLocation(Location location) { this.Location = location; }
 
     public String getDescription() { return Description; }
     public void setDescription(String description) { this.Description = description; }
@@ -129,7 +130,7 @@ public class EventForOrg implements Serializable { // Serializable is good pract
         sb.append("Deadline: ").append(Deadline != null ? Deadline : "").append("\n");
         sb.append("Genre: ").append(Genre != null ? Genre : "").append("\n");
         if (Location != null) {
-            sb.append("Location: ").append(Location);
+            sb.append("Location: ").append(Location.toString());
         }
         return sb.toString();
     }

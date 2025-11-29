@@ -108,8 +108,7 @@ public class OrganizerDialog extends Dialog {
         });
         // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
         messageButton.setOnClickListener(v -> {
-            // TODO: Implement Message Entrants
-            dismiss();
+            showBroadcastOptions();
         });
         //This will send the user to EditEventFragment along with the event's id and the events text.
         editEventButton.setOnClickListener(v -> {
@@ -155,7 +154,62 @@ public class OrganizerDialog extends Dialog {
                             e.getMessage() != null ? e.getMessage() : "Lottery draw failed.",
                             Toast.LENGTH_SHORT).show();
                     Log.e("OrganizerDialog", "Lottery draw failed", e);
-                });
+        });
+    }
+
+    private void showBroadcastOptions() {
+        final CharSequence[] options = {"Waitlist", "Selected", "Cancelled"};
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Send update to:")
+                .setItems(options, (dialog, which) -> {
+                    promptForCustomMessage(which);
+                })
+                .show();
+    }
+
+    private void promptForCustomMessage(int optionIndex) {
+        final android.widget.EditText input = new android.widget.EditText(getContext());
+        input.setHint("Enter message (optional)");
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Custom message")
+                .setView(input)
+                .setPositiveButton("Send", (d, w) -> {
+                    String message = input.getText().toString().trim();
+                    if (message.isEmpty()) {
+                        message = "Update for " + (eventForOrg.getName() != null ? eventForOrg.getName() : "this event");
+                    }
+                    sendNotification(optionIndex, message);
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void sendNotification(int optionIndex, String message) {
+        switch (optionIndex) {
+            case 0:
+                eventService.notifyWaitlistEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified waitlist entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify waitlist.", Toast.LENGTH_SHORT).show());
+                break;
+            case 1:
+                eventService.notifySelectedEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified selected entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify selected entrants.", Toast.LENGTH_SHORT).show());
+                break;
+            case 2:
+                eventService.notifyCancelledEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified cancelled entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify cancelled entrants.", Toast.LENGTH_SHORT).show());
+                break;
+            default:
+                break;
+        }
     }
     private void exportEntrantsToCsv() {
         ArrayList<String> entrants = eventForOrg.getAccepted_Entrants();
