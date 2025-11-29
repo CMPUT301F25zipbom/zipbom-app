@@ -21,6 +21,7 @@ import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
+import com.example.code_zombom_app.Entrant.EntrantHistoryActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class EditProfileActivity extends AppCompatActivity implements TView<EditProfileModel> {
@@ -62,6 +63,12 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
                 findViewById(R.id.buttonEntrantLogOut),
                 toggleNotification, toggleLinkDevice);
          controller.bindView();
+
+        findViewById(R.id.buttonEntrantViewHistory).setOnClickListener(v -> {
+            Intent history = new Intent(this, EntrantHistoryActivity.class);
+            history.putExtra(EntrantHistoryActivity.EXTRA_EMAIL, email);
+            startActivity(history);
+        });
 
         model.addView(this);
         id = model.getDeviceId(this);

@@ -5,13 +5,16 @@ import androidx.annotation.Nullable;
 
 import com.example.code_zombom_app.Helpers.Mail.Mail;
 import com.example.code_zombom_app.Helpers.Mail.MailService;
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -77,6 +80,7 @@ public class EventService {
                 throw new IllegalArgumentException("This waiting list is full.");
             }
             event.joinWaitingList(normalizedEmail);
+            recordHistory(transaction, event, normalizedEmail, Entrant.Status.WAITLISTED);
             transaction.set(eventRef, event);
             return null;
         });
@@ -98,6 +102,7 @@ public class EventService {
                 throw new IllegalArgumentException("You are not on this waiting list.");
             }
             event.leaveWaitingList(normalizedEmail);
+            recordHistory(transaction, event, normalizedEmail, Entrant.Status.LEAVE);
             transaction.set(eventRef, event);
             return null;
         });
@@ -155,6 +160,7 @@ public class EventService {
                 String winner = candidates.get(i);
                 event.addChosenEntrant(winner);
                 event.leaveWaitingList(winner);
+                recordHistory(transaction, event, winner, Entrant.Status.SELECTED);
                 winners.add(winner);
             }
 
@@ -182,6 +188,7 @@ public class EventService {
             }
 
             for (String loser : losers) {
+                recordHistory(transaction, event, loser, Entrant.Status.NOT_SELECTED);
                 transaction.set(eventRef.collection("Notifications").document(),
                         buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
 
@@ -255,6 +262,7 @@ public class EventService {
 
             event.addPendingEntrant(normalizedEmail);
             event.removeChosenEntrant(normalizedEmail);
+            recordHistory(transaction, event, normalizedEmail, Entrant.Status.CONFIRMED);
             EventForOrg updatedDto = EventMapper.toDto(event);
             // Ensure the entrant is no longer marked as cancelled if they accept later
             ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
@@ -294,6 +302,7 @@ public class EventService {
 
             event.removeChosenEntrant(normalizedEmail);
             event.removePendingEntrant(normalizedEmail);
+            recordHistory(transaction, event, normalizedEmail, Entrant.Status.DECLINED);
             EventForOrg updatedDto = EventMapper.toDto(event);
             ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
                     ? new ArrayList<>(dto.getCancelled_Entrants())
@@ -325,6 +334,48 @@ public class EventService {
             return ".";
         }
         return " to " + eventName + ".";
+    }
+
+    /**
+     * Writes/updates a history record for an entrant inside the current transaction so that
+     * their timeline reflects the latest interaction with this event (waitlisted, selected,
+     * confirmed, declined, etc.). Also mirrors the status into the profile's eventHistory map
+     * for quick lookup without an additional read.
+     *
+     * @param transaction active Firestore transaction
+     * @param event       canonical event state involved in the update
+     * @param entrantEmail entrant identifier (email)
+     * @param status      latest status to record
+     */
+    private void recordHistory(@NonNull Transaction transaction,
+                               @Nullable Event event,
+                               @NonNull String entrantEmail,
+                               @NonNull Entrant.Status status) {
+        if (event == null) {
+            return;
+        }
+        String normalizedEmail = entrantEmail.trim();
+        DocumentReference historyRef = firestore.collection("Profiles")
+                .document(normalizedEmail)
+                .collection("History")
+                .document(event.getEventId());
+
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("eventId", event.getEventId());
+        payload.put("eventName", event.getName() == null ? "" : event.getName());
+        payload.put("status", status.name());
+        payload.put("updatedAt", new Date());
+        payload.put("startDate", event.getEventStartDate());
+        payload.put("endDate", event.getEventEndDate());
+        payload.put("location", event.getLocation() != null ? event.getLocation().toString() : "");
+
+        transaction.set(historyRef, payload);
+
+        // Also reflect the latest status in the profile map for quick lookups.
+        DocumentReference profileRef = firestore.collection("Profiles").document(normalizedEmail);
+        Map<String, Object> historyMapUpdate = new HashMap<>();
+        historyMapUpdate.put("eventHistory." + event.getEventId(), status.name());
+        transaction.set(profileRef, historyMapUpdate, SetOptions.merge());
     }
   private static String nullToEmpty( @Nullable String value) {return value == null? "" : value;
                                                              }

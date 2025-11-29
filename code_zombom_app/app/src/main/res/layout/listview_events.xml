@@ -89,11 +89,11 @@
             <Button
                 android:id="@+id/button_listView_event_join_waitingList"
                 android:layout_width="178dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:backgroundTint="#4CAF50"
-                android:text="@string/entrant_event_join_button"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
+                android:text="@string/entrant_event_join_button"
                 android:textAllCaps="false" />
 
             <Button

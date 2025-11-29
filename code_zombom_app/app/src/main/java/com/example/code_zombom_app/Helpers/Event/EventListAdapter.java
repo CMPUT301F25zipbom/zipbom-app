@@ -87,9 +87,13 @@ public class EventListAdapter extends ArrayAdapter<Event> {
         }
 
         holder.name.setText("Name: " + event.getName());
-        holder.genre.setText(event.getGenre());
-        holder.genre.setText("Waiting list: " + event.getNumberOfWaiting() + "/" +
-                event.getWaitlistLimit());
+        holder.genre.setText(event.getGenre() == null ? "Genre: -" : "Genre: " + event.getGenre());
+
+        int waitLimit = event.getWaitlistLimit();
+        String waitlistLabel = (waitLimit > 0)
+                ? "Waiting list: " + event.getNumberOfWaiting() + "/" + waitLimit
+                : "Waiting list: " + event.getNumberOfWaiting();
+        holder.numWaitList.setText(waitlistLabel);
 
         if (event.getEventStartDate() != null) {
             holder.startDate.setText("Start date: " + event.getEventStartDate().toString());
