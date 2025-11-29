@@ -5,7 +5,9 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.R;
+import com.google.android.libraries.places.api.Places;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -23,6 +25,10 @@ public class OrganizerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_organizer_main);
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), Location.getGoogleApi());
+        }
 
         if(savedInstanceState == null){
             OrganizerMainFragment fragment = new OrganizerMainFragment();

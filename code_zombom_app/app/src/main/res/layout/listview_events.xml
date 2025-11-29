@@ -17,29 +17,65 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/item_event_name"
+            android:id="@+id/textView_listView_event_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Event Name"
+            android:text="@string/event_name"
             android:textAppearance="?attr/textAppearanceHeadline6"
             android:textColor="@android:color/white"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/item_event_category"
+            android:id="@+id/textView_listView_event_genre"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Categories"
+            android:text="@string/genre"
             android:textColor="#A9A9A9"
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/item_event_details"
+            android:id="@+id/textView_listView_event_numWaitList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/genre"
+            android:textColor="#A9A9A9"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView_listView_event_startDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/start_date"
+            android:textColor="#A9A9A9"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView_listView_event_endDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/end_date"
+            android:textColor="#A9A9A9"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView_listView_event_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/location"
+            android:textColor="#A9A9A9"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/textView_listView_event_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Details"
+            android:text="@string/details"
             android:textColor="@android:color/white"
             android:textSize="14sp" />
 
@@ -51,22 +87,26 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/item_event_join_button"
+                android:id="@+id/button_listView_event_join_waitingList"
                 android:layout_width="178dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:backgroundTint="#4CAF50"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:text="@string/entrant_event_join_button"
                 android:textAllCaps="false" />
 
             <Button
-                android:id="@+id/btn_leave"
+                android:id="@+id/button_listView_event_leave_waitingList"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0"
                 android:backgroundTint="#E91E63"
                 android:text="@string/leave"
                 android:textAllCaps="false"
-                android:textAlignment="center" />
+                android:textAlignment="center"
+                android:focusable="false"
+                android:focusableInTouchMode="false"/>
         </LinearLayout>
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

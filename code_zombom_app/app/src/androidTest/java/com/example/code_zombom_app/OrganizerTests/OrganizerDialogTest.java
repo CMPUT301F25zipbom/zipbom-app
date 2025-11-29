@@ -3,14 +3,10 @@ package com.example.code_zombom_app.OrganizerTests;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Intent;
-import android.view.View;
 
 import androidx.test.espresso.intent.rule.IntentsTestRule;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.espresso.intent.Intents;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-
 
 
 import com.example.code_zombom_app.R;
@@ -21,7 +17,6 @@ import org.hamcrest.Description;
 import org.hamcrest.Matcher;import org.junit.Rule;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -156,6 +151,6 @@ public class OrganizerDialogTest {
         onView(withId(R.id.cancelButton)).perform(click());
 
         // Verify the dialog is gone by checking that a view from the previous screen is visible again
-        onView(withId(R.id.add_event_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.button_organizer_main_fragment_add_event)).check(matches(isDisplayed()));
     }
 }

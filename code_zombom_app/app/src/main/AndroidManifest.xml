@@ -3,15 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-feature
-        android:name="android.hardware.telephony"
+        android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SEND_SMS" />
+    <!-- 'maxSdkVersion' ensures this permission is only requested on older devices where it's needed -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
 
     <!--
-      THIS IS THE FIX:
-      This tells the system that your app intends to interact with
+      This tells the system that the app intends to interact with
       other apps that can handle the ACTION_GET_CONTENT or
       ACTION_OPEN_DOCUMENT intents, like the system's file picker.
     -->
@@ -48,11 +49,15 @@
 
         <activity android:name=".Login.LoginActivity"/>
         <activity android:name=".Login.SignUp.SignUpActivity"/>
-        <activity android:name=".Entrant.EntrantMainActivity"/>
+        <activity android:name=".Entrant.EntrantMainActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"/>
         <activity android:name=".FilterSortActivity"
             android:exported="false" />
         <activity android:name=".Entrant.EditProfile.EditProfileActivity"/>
         <activity android:name=".Login.SignUp.SignUpAddress.SignUpAddressActivity"/>
+        <activity android:name=".Entrant.EntrantHistoryActivity"
+            android:exported="false"/>
 
     </application>
 

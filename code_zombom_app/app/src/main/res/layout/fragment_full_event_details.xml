@@ -13,20 +13,22 @@
         android:padding="16dp">
 
         <TextView
-            android:id="@+id/poster_label"
+            android:id="@+id/textView_entrant_event_full_details_posterLabel"
             style="@style/DetailsLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
+            android:layout_marginTop="8dp"
             android:text="Poster:"
+            android:text="@string/poster"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/description_value" />
+            app:layout_constraintTop_toBottomOf="@+id/textView_entrant_event_full_details_description" />
 
         <TextView
-            android:id="@+id/details_title"
+            android:id="@+id/textView_entrant_event_full_details_descriptionTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Event Details"
+            android:text="@string/event_details"
             android:textColor="@android:color/white"
             android:textSize="24sp"
             android:textStyle="bold"
@@ -36,12 +38,12 @@
         <TextView
             android:id="@+id/name_label"
             style="@style/DetailsLabel"
-            android:text="Name:"
+            android:text="@string/name"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/details_title" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_descriptionTitle" />
 
         <TextView
-            android:id="@+id/name_value"
+            android:id="@+id/textView_entrant_event_full_details_name"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/name_label"
@@ -50,12 +52,12 @@
         <TextView
             android:id="@+id/date_label"
             style="@style/DetailsLabel"
-            android:text="Date:"
+            android:text="@string/start_date"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/name_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_name" />
 
         <TextView
-            android:id="@+id/date_value"
+            android:id="@+id/textView_entrant_event_full_details_startDate"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/date_label"
@@ -64,12 +66,12 @@
         <TextView
             android:id="@+id/deadline_label"
             style="@style/DetailsLabel"
-            android:text="Deadline:"
+            android:text="@string/end_date"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/date_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_startDate" />
 
         <TextView
-            android:id="@+id/deadline_value"
+            android:id="@+id/textView_entrant_event_full_details_endDate"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/deadline_label"
@@ -78,12 +80,12 @@
         <TextView
             android:id="@+id/location_label"
             style="@style/DetailsLabel"
-            android:text="Location:"
+            android:text="@string/location"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/deadline_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_endDate" />
 
         <TextView
-            android:id="@+id/location_value"
+            android:id="@+id/textView_entrant_event_full_details_location"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/location_label"
@@ -92,12 +94,12 @@
         <TextView
             android:id="@+id/genre_label"
             style="@style/DetailsLabel"
-            android:text="Genre:"
+            android:text="@string/genre"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/location_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_location" />
 
         <TextView
-            android:id="@+id/genre_value"
+            android:id="@+id/textView_entrant_event_full_details_genre"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/genre_label"
@@ -106,12 +108,12 @@
         <TextView
             android:id="@+id/max_people_label"
             style="@style/DetailsLabel"
-            android:text="Max People:"
+            android:text="@string/max_people"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/genre_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_genre" />
 
         <TextView
-            android:id="@+id/max_people_value"
+            android:id="@+id/textView_entrant_event_full_details_maxPeople"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/max_people_label"
@@ -120,12 +122,12 @@
         <TextView
             android:id="@+id/waitlist_max_label"
             style="@style/DetailsLabel"
-            android:text="Waitlist Max:"
+            android:text="@string/waitlist_max"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/max_people_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_maxPeople" />
 
         <TextView
-            android:id="@+id/waitlist_max_value"
+            android:id="@+id/textView_entrant_event_full_details_maxWaitlist"
             style="@style/DetailsValue"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/waitlist_max_label"
@@ -134,9 +136,9 @@
         <TextView
             android:id="@+id/entrants_label"
             style="@style/DetailsLabel"
-            android:text="Waiting:"
+            android:text="@string/waiting"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/waitlist_max_value" />
+            app:layout_constraintTop_toBottomOf="@id/textView_entrant_event_full_details_maxWaitlist" />
 
         <TextView
             android:id="@+id/entrants_value"
@@ -149,7 +151,7 @@
         <TextView
             android:id="@+id/accepted_entrants_label"
             style="@style/DetailsLabel"
-            android:text="Accepted:"
+            android:text="@string/accepted"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/entrants_value" />
 
@@ -164,9 +166,19 @@
         <TextView
             android:id="@+id/cancelled_entrants_label"
             style="@style/DetailsLabel"
-            android:text="Cancelled:"
+            android:text="@string/cancelled"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/accepted_entrants_value" />
+
+        <TextView
+            android:id="@+id/registered_entrants_label"
+            style="@style/DetailsLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="Registered:"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
 
         <TextView
             android:id="@+id/cancelled_entrants_value"
@@ -174,6 +186,16 @@
             android:layout_height="wrap_content"
             app:layout_constraintStart_toEndOf="@id/guideline"
             app:layout_constraintTop_toTopOf="@id/cancelled_entrants_label"
+            tools:text="User3" />
+
+        <TextView
+            android:id="@+id/registered_entrants_value"
+            style="@style/DetailsValue"
+            android:layout_width="219dp"
+            android:layout_height="25dp"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@id/guideline"
+            app:layout_constraintTop_toTopOf="@+id/registered_entrants_label"
             tools:text="User3" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -186,25 +208,25 @@
         <Button
             android:id="@+id/returnButton"
             style="@style/DetailsLabel"
-            android:text="Return"
+            android:text="@string/back"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/poster_image_view" />
+            app:layout_constraintTop_toBottomOf="@+id/imageView_entrant_full_details_poster" />
 
         <ImageView
-            android:id="@+id/poster_image_view"
+            android:id="@+id/imageView_entrant_full_details_poster"
             android:layout_width="82dp"
             android:layout_height="73dp"
             android:src="@android:drawable/stat_notify_error"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
-            app:layout_constraintTop_toTopOf="@+id/poster_label" />
+            app:layout_constraintTop_toTopOf="@+id/textView_entrant_event_full_details_posterLabel" />
 
         <TextView
-            android:id="@+id/description_value"
+            android:id="@+id/textView_entrant_event_full_details_description"
             style="@style/DetailsLabel"
-            android:text="Description"
+            android:text="descriptions"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/guideline"
             app:layout_constraintTop_toTopOf="@+id/description_label" />
@@ -212,9 +234,9 @@
         <TextView
             android:id="@+id/description_label"
             style="@style/DetailsLabel"
-            android:text="Description:"
+            android:text="Description: "
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cancelled_entrants_value" />
+            app:layout_constraintTop_toBottomOf="@+id/registered_entrants_value" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

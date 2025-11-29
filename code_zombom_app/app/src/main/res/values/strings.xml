@@ -10,7 +10,7 @@
     <string name="entrant_event_catalog_title">Events</string>
     <string name="entrant_event_catalog_search_hint">Search events by name or category</string>
     <string name="entrant_event_catalog_empty">No events available right now. Check back soon!</string>
-    <string name="entrant_event_join_button">Join Waiting List</string>
+    <string name="entrant_event_join_button">Join</string>
     <string name="entrant_event_list_error">Unable to load events. Please try again.</string>
     <string name="no_categories_assigned">General</string>
     <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
@@ -53,6 +53,13 @@
     <string name="accept">Accept</string>
     <string name="decline">Decline</string>
     <string name="poster_content_description">Event poster</string>
+    <string name="history_empty">No history yet.</string>
+    <string name="history_missing_email">Unable to load history (no email provided).</string>
+    <string name="history_load_error">Could not load history right now.</string>
+    <string name="history_unknown_event">Unknown event</string>
+    <string name="history_unknown_date">Unknown date</string>
+    <string name="history_status_format">%1$s • %2$s</string>
+    <string name="view_history">History</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
@@ -72,4 +79,29 @@
     <string name="enter_your_address">Enter your address</string>
     <string name="enter_address">Enter address</string>
     <string name="notification" />
+    <string name="event_name">Event Name</string>
+    <string name="max_amount_of_people">Max Amount Of People</string>
+    <string name="start_date">Start Date</string>
+    <string name="end_date">End Date</string>
+    <string name="cancel">Cancel</string>
+    <string name="enter_the_event_location">Enter the event location</string>
+    <string name="genre">Genre</string>
+    <string name="location">Location</string>
+    <string name="details">Details</string>
+    <string name="event_qr_code">Event QR Code</string>
+    <string name="add_event">Add Event</string>
+    <string name="filter_by_genre">Filter by genre</string>
+    <string name="filter_by_availability">Filter by availability</string>
+    <string name="apply">Apply</string>
+    <string name="current_events">Current Events</string>
+    <string name="event_details">Event Details</string>
+    <string name="poster">Poster:</string>
+    <string name="max_people">Max People:</string>
+    <string name="waitlist_max">Waitlist Max:</string>
+    <string name="waiting">Waiting:</string>
+    <string name="accepted">Accepted:</string>
+    <string name="cancelled">Cancelled:</string>
+    <string name="header">Header</string>
+    <string name="sender">Sender</string>
+    <string name="content">Content</string>
 </resources>

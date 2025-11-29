@@ -144,14 +144,14 @@ public class EventsAdminFragment extends Fragment {
                         if (event != null) {
                             eventText.append("Name: ").append(event.getName()).append("\n")
                                     .append("Max People: ").append(event.getCapacity()).append("\n")
-                                    .append("Date: ").append(event.getEventDateText()).append("\n")
-                                    .append("Deadline: ").append(event.getRegistrationClosesAtText()).append("\n")
+                                    .append("Date: ").append(event.getEventStartDate().toString()).append("\n")
+                                    .append("Deadline: ").append(event.getEventEndDate().toString()).append("\n")
                                     .append("Genre: ");
-                            if (!event.getCategories().isEmpty()) {
-                                eventText.append(event.getCategories().get(0));
+                            if (!event.getGenre().trim().isEmpty()) {
+                                eventText.append(event.getGenre());
                             }
-                            if (event.getLocation() != null && !event.getLocation().isEmpty()) {
-                                eventText.append("\nLocation: ").append(event.getLocation());
+                            if (event.getLocation() != null && !event.getLocation().toString().trim().isEmpty()) {
+                                eventText.append("\nLocation: ").append(event.getLocation().toString());
                             }
                         } else {
                             appendRawFields(snapshot, eventText);
@@ -165,7 +165,7 @@ public class EventsAdminFragment extends Fragment {
                             .inflate(R.layout.event_admin_list_item, eventsContainer, false);
 
                     // get text and delete button views
-                    TextView eventTextView = eventView.findViewById(R.id.event_item_textview);
+                    TextView eventTextView = eventView.findViewById(R.id.textView_event_list_items_details);
                     ImageButton deleteButton = eventView.findViewById(R.id.button_delete_event);
 
                     // display event information

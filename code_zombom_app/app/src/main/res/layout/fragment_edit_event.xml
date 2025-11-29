@@ -125,13 +125,13 @@
         android:inputType="text"
         android:textColor="#FFFFFF"
         android:textColorHint="#BCBCBC"
-        app:layout_constraintBottom_toTopOf="@+id/editTextLocation"
+        app:layout_constraintBottom_toTopOf="@+id/fragment_autoComplete_event_address"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
-        android:id="@+id/editTextLocation"
+        android:id="@+id/fragment_autoComplete_event_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"

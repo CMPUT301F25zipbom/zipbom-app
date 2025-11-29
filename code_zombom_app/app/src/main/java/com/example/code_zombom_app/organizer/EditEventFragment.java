@@ -1,22 +1,26 @@
 package com.example.code_zombom_app.organizer;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import com.example.code_zombom_app.Helpers.Users.Entrant;
+import com.bumptech.glide.Glide;
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.R;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.Date;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.example.code_zombom_app.organizer.EventForOrg;
@@ -33,153 +37,223 @@ import java.util.Calendar;
 import kotlinx.coroutines.scheduling.Task;
 
 /**
- * @author Robert Enstrom, Tejwinder Johal
- * @version 2.0
- * This class is used when the user wants to edit an event.
+ * Fragment that allows an organizer to edit an existing Event.
+ *
+ * @author Dang Nguyen, Teji
+ * @version 11/27/2025
  */
-public class EditEventFragment extends BaseEventFragment {
-    private String originalEventId;
-    private EventForOrg eventForOrgToEdit;
-    private Event domainEventToEdit;
-    private Button updateButton;
+public class EditEventFragment extends AddEventFragment {
 
-    /**
-     * This sets up the eventViewModel, database and catches the arguments.
-     * @param savedInstanceState If the fragment is being re-created from
-     * a previous saved state, this is the state.  Also Initialize the
-     * image picker launcher to get a image for the poster.
-     */
+    private static final String TAG = "EditEventFragment";
+
+    private String eventId;
+    private Event baseEvent;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Get the event ID passed into this fragment
         if (getArguments() != null) {
-            originalEventId = getArguments().getString("eventId");
+            eventId = getArguments().getString("eventId");
         }
     }
 
-    /**
-     * This function sets the buttons and textviews to variables. It then calls populate fields to fill in the textboxes
-     * @param view The View returned by {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}.
-     * @param savedInstanceState If non-null, this fragment is being re-constructed
-     * from a previous saved state as given here.
-     */
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view,
+                              @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        updateButton = view.findViewById(R.id.saveEventButton);
-        updateButton.setText("Update Event");
-        updateButton.setEnabled(false); // Disable the button by default
-        updateButton.setOnClickListener(v -> onSaveOrUpdateButtonClicked(originalEventId));
 
-        populateFields();
-    }
+        Button saveButton = view.findViewById(R.id.saveEventButton);
+        saveButton.setText("Update Event");
+        saveButton.setOnClickListener(v -> onSaveOrUpdateButtonClicked());
 
-    /**
-     * REFACTORED: This function gets the event from Firestore, converts it to an Event object,
-     * and populates the fields.
-     */
-    private void populateFields() {
-        if (originalEventId == null) return;
-        // Populate fields that require a full Firestore document read (Description, Waitlist, Poster)
-        db.collection("Events").document(originalEventId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists() && isAdded() && getView() != null){
-                        // Convert document to Event object
-                        eventForOrgToEdit = documentSnapshot.toObject(EventForOrg.class);
-                        if (eventForOrgToEdit == null) return;
-                        domainEventToEdit = EventMapper.toDomain(eventForOrgToEdit, documentSnapshot.getId());
-                        baseEvent = domainEventToEdit;
-
-                        // Set the ID on the object after loading it
-                        eventForOrgToEdit.setEventId(documentSnapshot.getId());
-
-                        // --- Populate all fields from the object ---
-                        eventNameEditText.setText(eventForOrgToEdit.getName());
-                        maxPeopleEditText.setText(eventForOrgToEdit.getMax_People());
-                        dateEditText.setText(eventForOrgToEdit.getDate());
-                        deadlineEditText.setText(eventForOrgToEdit.getDeadline());
-                        genreEditText.setText(eventForOrgToEdit.getGenre());
-                        locationEditText.setText(eventForOrgToEdit.getLocation());
-                        descriptionEditText.setText(eventForOrgToEdit.getDescription());
-                        maxentrantEditText.setText(eventForOrgToEdit.getWait_List_Maximum());
-
-                        if (eventForOrgToEdit.getPosterUrl() != null && !eventForOrgToEdit.getPosterUrl().isEmpty()) {
-
-                            // Add a null check on imagePreview before using it.
-                            if (imagePreview != null) {
-                                Glide.with(requireContext())
-                                        .load(eventForOrgToEdit.getPosterUrl())
-                                        .into(imagePreview);
-
-                                imagePreview.setVisibility(View.VISIBLE);
-                                isPosterUploaded = true; // Make sure your flag is set
-                            }
-                        }
-                        updateButton.setEnabled(true);
-                    }else {
-                        // Handle cases where the document might not exist
-                        Toast.makeText(getContext(), "Event not found.", Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to load event data.", Toast.LENGTH_SHORT).show();
-                    Log.e("FIRESTORE_ERROR", "Error loading event for edit", e);
-                });
-    }
-
-    /**
-     * REFACTORED: Implements the abstract method to update an existing Firestore document
-     * directly from the Event object.
-     * @param eventFromUi The complete Event object with updated data.
-     */
-    @Override
-    protected void processEvent(Event eventFromUi) {
-        // If the original event failed to load, we can't safely proceed.
-        if (domainEventToEdit == null) {
-            Toast.makeText(getContext(), "Error: Original event not loaded. Cannot save.", Toast.LENGTH_LONG).show();
-            if(updateButton != null) {
-                updateButton.setEnabled(true);
-            }
+        if (eventId == null || eventId.isEmpty()) {
+            Toast.makeText(getContext(),
+                    "No event ID provided for editing.",
+                    Toast.LENGTH_SHORT).show();
+            navigateBack();
             return;
         }
 
-        // Now we need to notify the users that the event they have joined in has changed
-        notifyusers(eventFromUi);
+        FirebaseFirestore.getInstance()
+                .collection("Events")
+                .document(eventId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!isAdded()) return;
 
-        // Merge editable fields into the canonical event while keeping waitlist/lottery data.
-        domainEventToEdit.setName(eventFromUi.getName());
-        domainEventToEdit.setCapacity(eventFromUi.getCapacity());
-        domainEventToEdit.setEventDate(eventFromUi.getEventDateText());
-        domainEventToEdit.setRegistrationClosesAt(eventFromUi.getRegistrationClosesAtText());
-        domainEventToEdit.setLocation(eventFromUi.getLocation());
-        domainEventToEdit.setGenre(eventFromUi.getGenre());
-        domainEventToEdit.setDescription(eventFromUi.getDescription());
-        domainEventToEdit.setMaxEntrants(eventFromUi.getMaxEntrants());
-        domainEventToEdit.setPosterUrl(eventFromUi.getPosterUrl());
-        domainEventToEdit.setFirestoreDocumentId(originalEventId);
+                    baseEvent = snapshot.toObject(Event.class);
+                    if (baseEvent == null) {
+                        Toast.makeText(getContext(),
+                                "Failed to load event for editing.",
+                                Toast.LENGTH_SHORT).show();
+                        navigateBack();
+                        return;
+                    }
 
-        // Disable button immediately on click to prevent double-taps
-        updateButton.setEnabled(false);
+                    // Ensure the ID is set on the object if it's not already
+                    try {
+                        if (baseEvent.getEventId() == null ||
+                                baseEvent.getEventId().isEmpty()) {
+                            baseEvent.setEventId(eventId);
+                        }
+                    } catch (Exception ignored) {}
 
-        eventService.saveEvent(domainEventToEdit)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Event updated successfully", Toast.LENGTH_SHORT).show();
-
-                    navigateBack(); // This should now be called correctly
+                    bindEventToForm(baseEvent);
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("FIRESTORE_ERROR", "Error updating event", e);
-                    Toast.makeText(getContext(), "Failed to update event.", Toast.LENGTH_SHORT).show();
-                    // Re-enable button on failure to allow user to try again
-                    if(updateButton != null) {
-                        updateButton.setEnabled(true);
-                    }
+                    Log.e(TAG, "Failed to load event", e);
+                    if (!isAdded()) return;
+                    Toast.makeText(getContext(),
+                            "Error loading event for editing.",
+                            Toast.LENGTH_SHORT).show();
+                    navigateBack();
                 });
+    }
+
+    /**
+     * Override the base "save" handler so that we mutate and upload the already-loaded event,
+     * instead of constructing a brand new one.
+     */
+    @Override
+    protected void onSaveOrUpdateButtonClicked() {
+        if (!validateAllInput()) {
+            return;
+        }
+
+        if (baseEvent == null) {
+            Toast.makeText(getContext(),
+                    "Event not loaded yet, please wait a moment.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Update baseEvent's fields from the form
+        updateBaseEventFromForm();
+
+        // If the user picked a new image, upload it and then save
+        if (imageUri != null) {
+            uploadImageAndProcessEvent(baseEvent);
+        } else {
+            // Reuse the parent's processEvent() which calls eventModel.uploadEvent(...)
+            processEvent(baseEvent);
+        }
+    }
+
+    /**
+     * Fill the form fields from the loaded Event.
+     *
+     * @param event The loaded event
+     */
+    private void bindEventToForm(@NonNull Event event) {
+        // Name, description, counts
+        if (event.getName() != null) {
+            eventNameEditText.setText(event.getName());
+        }
+
+        event.setLocation(event.getLocation());
+        descriptionEditText.setText(
+                event.getDescription() == null ? "" : event.getDescription()
+        );
+
+        try {
+            maxPeopleEditText.setText(String.valueOf(event.getCapacity()));
+        } catch (Exception ignored) {
+            maxPeopleEditText.setText("");
+        }
+
+        try {
+            maxentrantEditText.setText(String.valueOf(event.getWaitlistLimit()));
+        } catch (Exception ignored) {
+            maxentrantEditText.setText("");
+        }
+
+        // Dates
+        Date start = event.getEventStartDate();
+        if (start != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(start);
+            datePickerStartDate.updateDate(
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+            );
+        }
+
+        Date end = event.getEventEndDate();
+        if (end != null) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(end);
+            datePickerEndDate.updateDate(
+                    cal.get(Calendar.YEAR),
+                    cal.get(Calendar.MONTH),
+                    cal.get(Calendar.DAY_OF_MONTH)
+            );
+        }
+
+        // Genre → set spinner selection
+        if (event.getGenre() != null && spinnerGenre != null &&
+                spinnerGenre.getAdapter() instanceof ArrayAdapter) {
+
+            ArrayAdapter<String> adapter =
+                    (ArrayAdapter<String>) spinnerGenre.getAdapter();
+            int pos = adapter.getPosition(event.getGenre());
+            if (pos >= 0) {
+                spinnerGenre.setSelection(pos);
+                selectedGenre = event.getGenre();
+            }
+        }
+
+        Location loc = event.getLocation();
+        if (loc != null) {
+            location = loc;
+            if (autocompleteSupportFragmentEventAddress != null) {
+                autocompleteSupportFragmentEventAddress.setText(loc.toString());
+            }
+        }
+
+        if (event.getPosterUrl() != null && !event.getPosterUrl().isEmpty()) {
+            imagePreview.setVisibility(View.VISIBLE);
+            Glide.with(requireContext())
+                    .load(event.getPosterUrl())
+                    .into(imagePreview);
+        } else {
+            imagePreview.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Copy values from the form into the loaded baseEvent, without touching its ID / internal lists.
+     */
+    private void updateBaseEventFromForm() {
+        baseEvent.setName(eventNameEditText.getText().toString().trim());
+        baseEvent.setDescription(descriptionEditText.getText().toString().trim());
+        baseEvent.setGenre(selectedGenre);
+        baseEvent.setEventStartDate(getDateFromDatePicker(datePickerStartDate));
+        baseEvent.setEventEndDate(getDateFromDatePicker(datePickerEndDate));
+        baseEvent.setLocation(location);
+
+        try {
+            int capacity = Integer.parseInt(maxPeopleEditText.getText().toString());
+            baseEvent.setCapacity(capacity);
+        } catch (NumberFormatException e) {
+            baseEvent.setCapacity(0);
+        }
+
+        try {
+            int waitLimit = Integer.parseInt(maxentrantEditText.getText().toString());
+            baseEvent.setWaitlistLimit(waitLimit);
+        } catch (NumberFormatException e) {
+            baseEvent.setWaitlistLimit(0);
+        }
+
+        // NOTE: we do NOT touch waitlist entries, chosen list, etc.
     }
 
     void notifyusers (Event ourevent){
         // We need to loop through the list of people and see if they have notifications turned on.
-        // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
+        // Then we check to see if they have a phone number, then we SMS. If not, then we only email
 
         // Get this list of entrants and then we loop through
         ArrayList<String> people = ourevent.getWaitingList();

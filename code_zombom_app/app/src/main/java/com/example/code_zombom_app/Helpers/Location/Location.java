@@ -42,6 +42,11 @@ public class Location {
     private static final String GOOGLE_API = "AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs";
 
     /**
+     * No-arg constructor to allow deserializable by Firebase
+     */
+    public Location() {}
+
+    /**
      * Constructor:
      *
      * @param name The name of the location e.g., University of Alberta

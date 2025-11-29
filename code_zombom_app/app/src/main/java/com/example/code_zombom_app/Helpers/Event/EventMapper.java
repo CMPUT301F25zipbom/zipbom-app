@@ -33,15 +33,12 @@ public final class EventMapper {
         }
 
         Event event = new Event(name);
-        if (firestoreId != null && !firestoreId.trim().isEmpty()) {
-            event.setFirestoreDocumentId(firestoreId);
-        }
 
         // Basic text fields
-        event.setLocation(source.getLocation());
+        //event.setLocation(source.getLocation());
         event.setMaxEntrants(Integer.parseInt(source.getMax_People()));
-        event.setEventDate(source.getDate());
-        event.setRegistrationClosesAt(source.getDeadline());
+        //event.setEventDate(source.getDate());
+        //event.setRegistrationClosesAt(source.getDeadline());
         event.setDescription(source.getDescription());
         event.setPosterUrl(source.getPosterUrl());
         if (source.getDrawComplete() != null) {
@@ -65,13 +62,7 @@ public final class EventMapper {
 
         // Genre -> category (store unrecognised genres as restrictions for visibility)
         String genre = source.getGenre();
-        if (genre != null && !genre.trim().isEmpty()) {
-            try {
-                event.addCategory(genre);
-            } catch (IllegalArgumentException ex) {
-                event.addRestriction("Category: " + genre);
-            }
-        }
+        event.setGenre(genre);
 
         // Lists
         for (String entrant : safeList(source.getEntrants())) {
@@ -98,12 +89,13 @@ public final class EventMapper {
         if (event == null) {
             return dto;
         }
-        dto.setEventId(event.getFirestoreDocumentId());
+        dto.setEventId(event.getEventId());
         dto.setName(event.getName());
-        dto.setDate(event.getEventDateText());
-        dto.setDeadline(event.getRegistrationClosesAtText());
-        dto.setGenre(firstCategory(event));
-        dto.setLocation(event.getLocation());
+        dto.setDate(event.getEventStartDate().toString());
+        dto.setDeadline(event.getEventEndDate().toString());
+        dto.setGenre(event.getGenre());
+        if (event.getLocation() != null)
+            dto.setLocation(event.getLocation().toString());
         dto.setDescription(event.getDescription());
         dto.setMax_People(String.valueOf(event.getCapacity()));
         dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
@@ -123,9 +115,9 @@ public final class EventMapper {
     public static String buildQrPayload(Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
         qrDataBuilder.append("Event: ").append(event != null ? nullToEmpty(event.getName()) : "").append("\n");
-        qrDataBuilder.append("Location: ").append(event != null ? nullToEmpty(event.getLocation()) : "").append("\n");
-        qrDataBuilder.append("Date: ").append(event != null ? nullToEmpty(event.getEventDateText()) : "").append("\n");
-        qrDataBuilder.append("Deadline: ").append(event != null ? nullToEmpty(event.getRegistrationClosesAtText()) : "").append("\n");
+        qrDataBuilder.append("Location: ").append(event != null ? nullToEmpty(event.getLocation().toString()) : "").append("\n");
+        qrDataBuilder.append("Date: ").append(event != null ? nullToEmpty(event.getEventStartDate().toString()) : "").append("\n");
+        qrDataBuilder.append("Deadline: ").append(event != null ? nullToEmpty(event.getEventEndDate().toString()) : "").append("\n");
         qrDataBuilder.append("Description: ").append(event != null ? nullToEmpty(event.getDescription()) : "").append("\n");
         if (posterUrl != null && !posterUrl.isEmpty()) {
             qrDataBuilder.append("Poster: ").append(posterUrl);
@@ -141,11 +133,14 @@ public final class EventMapper {
         return value == null ? "" : value;
     }
 
-    private static String firstCategory(Event event) {
-        ArrayList<String> categories = event.getCategories();
-        if (categories.isEmpty()) {
-            return "";
-        }
-        return categories.get(0);
-    }
+    /**
+     * @deprecated Now each event only have ONE genre
+     */
+//    private static String firstCategory(Event event) {
+//        ArrayList<String> categories = event.getCategories();
+//        if (categories.isEmpty()) {
+//            return "";
+//        }
+//        return categories.get(0);
+//    }
 }

@@ -6,11 +6,56 @@
     android:background="?android:attr/selectableItemBackground"> <!-- Adds a ripple effect on click -->
 
     <TextView
-        android:id="@+id/event_item_textview"
+        android:id="@+id/textView_event_list_item_name"
         android:layout_width="381dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Event Details Here..."
+        android:text="@string/event_name"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView_event_list_item_genre"
+        android:layout_width="381dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/genre"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView_event_list_item_startDate"
+        android:layout_width="381dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/start_date"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView_event_list_item_endDate"
+        android:layout_width="381dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/end_date"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView_event_list_item_location"
+        android:layout_width="381dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/location"
+        android:textColor="@android:color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/textView_event_list_items_details"
+        android:layout_width="381dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/details"
         android:textColor="@android:color/white"
         android:textSize="16sp" />
 
@@ -19,6 +64,5 @@
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_marginStart="16dp"
-        android:contentDescription="Event QR Code"
-        android:visibility="gone" />
+        android:contentDescription="@string/event_qr_code" />
 </LinearLayout>

@@ -1,6 +1,12 @@
 package com.example.code_zombom_app.organizer;
 
+import android.Manifest;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 import android.app.Dialog;
@@ -13,7 +19,10 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 
 import com.example.code_zombom_app.Helpers.Event.EventService;
@@ -24,6 +33,8 @@ import java.io.ByteArrayOutputStream;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -35,10 +46,11 @@ import java.util.Map;
 public class OrganizerDialog extends Dialog {
     private final EventForOrg eventForOrg; // <<< Use the Event object
     private final NavController navController;
-//    private final View fragmentView;
+    //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
     private final ImageView qrCodeImageView; // Direct reference to the ImageView
     private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
+    private final Runnable requestExportPermissionTask; // <-- Add this property
 
     private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
@@ -49,12 +61,14 @@ public class OrganizerDialog extends Dialog {
      * @param navController sets the organizerdialog navController
      * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, ImageView qrCodeImageView, Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController,
+                           ImageView qrCodeImageView, Bitmap qrCodeBitmap, Runnable requestExportPermissionTask) {
         super(context);
         this.eventForOrg = eventForOrg; // <<< Store the whole object
         this.navController = navController;
         this.qrCodeImageView = qrCodeImageView; // Store the direct reference
         this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
+        this.requestExportPermissionTask = requestExportPermissionTask; // <-- Store the task
     }
 
     /**
@@ -77,9 +91,9 @@ public class OrganizerDialog extends Dialog {
         Button viewStartButton = findViewById(R.id.button_start_draw);
         Button messageButton = findViewById(R.id.button_message_participants);
         Button editEventButton = findViewById(R.id.button_edit_event);
-        Button genQRButton = findViewById(R.id.genQRButton);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button cancelButton = findViewById(R.id.button_cancel);
+        Button exportButton = findViewById(R.id.exportCSVButton);
 
         if (eventForOrg.getLottery_Winners() != null && !eventForOrg.getLottery_Winners().isEmpty()) {
             viewStartButton.setText("Replacement Draw");
@@ -106,19 +120,6 @@ public class OrganizerDialog extends Dialog {
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
-        //This makes the QR code visible when the user clicks generate QR code
-        genQRButton.setOnClickListener(v -> {
-            if (qrCodeImageView != null && qrCodeBitmap != null) {
-                qrCodeImageView.setImageBitmap(qrCodeBitmap);
-                qrCodeImageView.setVisibility(View.VISIBLE);
-                eventForOrg.setQrCodeExists(true); // Update the state
-                uploadQrCodeToFirebase(qrCodeBitmap);
-            } else {
-                // 5. If something is wrong, show a clear error.
-                Toast.makeText(getContext(), "Error: Could not display QR code.", Toast.LENGTH_SHORT).show();
-                Log.e("OrganizerDialog", "QR Bitmap or ImageView was null. Cannot display.");
-            }
-        });
         //This gets rid of the popup.
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
@@ -129,6 +130,11 @@ public class OrganizerDialog extends Dialog {
             navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
         });
 
+        exportButton.setOnClickListener(v -> {
+            requestExportPermissionTask.run();
+            dismiss();
+        });
+
         cancelButton.setOnClickListener(v -> dismiss());
 
         // Make the dialog's background transparent
@@ -136,69 +142,61 @@ public class OrganizerDialog extends Dialog {
             getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
     }
-    /**
-     * Uploads the provided QR code Bitmap to Firebase Storage and saves the URL to Firestore.
-     * @param bitmap The QR code bitmap to upload.
-     */
-    private void uploadQrCodeToFirebase(Bitmap bitmap) {
-        Toast.makeText(getContext(), "Saving QR Code...", Toast.LENGTH_SHORT).show();
-
-        // Convert Bitmap to byte array for upload
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-        byte[] data = baos.toByteArray();
-
-        // Define the path in Firebase Storage
-        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("qr_codes/" + eventForOrg.getEventId() + ".png");
-
-        // Upload the byte array
-        storageRef.putBytes(data)
-                .addOnSuccessListener(taskSnapshot -> {
-                    // Get the public download URL
-                    storageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-                        // Save the URL to the event's document in Firestore
-                        saveQrUrlToFirestore(uri.toString());
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Upload to firebase failed. Please try again.", Toast.LENGTH_SHORT).show();
-                    Log.e("FirebaseStorage", "QR code upload to firebase failed", e);
-                });
-    }
-    /**
-     * Saves the QR code's download URL to a 'qrCodeUrl' field in the event's document.
-     * @param url The public URL of the uploaded image.
-     */
-    private void saveQrUrlToFirestore(String url) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Get the reference to the specific event document
-        db.collection("Events").document(eventForOrg.getEventId())
-                .update(
-                        "qrCodeUrl", url,          // Save the URL
-                        "qrCodeExists", true   // --- THIS IS THE CRITICAL FIX ---
-                )
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "QR Code Saved Successfully!", Toast.LENGTH_LONG).show();
-                    Log.d("Firestore", "QR Code URL and exists flag updated for event: " + eventForOrg.getEventId());
-                    dismiss(); // Close the dialog on success
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to save QR code details.", Toast.LENGTH_SHORT).show();
-                    Log.e("Firestore", "Error updating event with QR details", e);
-                    dismiss();
-                });
-    }
 
     /**
      * Runs a lottery draw via the central EventService and surfaces the outcome to the organiser.
      */
     private void runLottery() {
         eventService.runLotteryDraw(eventForOrg.getEventId())
-                .addOnSuccessListener(ignored -> Toast.makeText(getContext(), "Lottery draw completed.", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                        "Lottery draw completed.", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), e.getMessage() != null ? e.getMessage() : "Lottery draw failed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),
+                            e.getMessage() != null ? e.getMessage() : "Lottery draw failed.",
+                            Toast.LENGTH_SHORT).show();
                     Log.e("OrganizerDialog", "Lottery draw failed", e);
                 });
+    }
+    private void exportEntrantsToCsv() {
+        ArrayList<String> entrants = eventForOrg.getAccepted_Entrants();
+
+        if (entrants == null || entrants.isEmpty()) {
+            Toast.makeText(getContext(), "No entrants to export.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create a unique filename based on event name and date
+        String fileName = "entrants_" + eventForOrg.getName().replaceAll("\\s+", "_") + ".csv";
+
+        // Use StringBuilder to efficiently build the CSV content
+        StringBuilder csvContent = new StringBuilder();
+        csvContent.append("Accepted Entrants\n"); // CSV Header
+        for (String entrantId : entrants) {
+            csvContent.append(entrantId).append("\n");
+        }
+
+        // Use MediaStore to save the file to the public "Downloads" directory
+        // This is the modern, recommended way to handle file saving.
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");
+        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");
+
+        Uri uri = getContext().getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
+
+        if (uri != null) {
+            try (OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri)) {
+                if (outputStream != null) {
+                    outputStream.write(csvContent.toString().getBytes());
+                    Toast.makeText(getContext(), "Exported to Downloads folder!", Toast.LENGTH_LONG).show();
+                    dismiss(); // Close dialog on success
+                }
+            } catch (Exception e) {
+                Log.e("CSV_EXPORT", "Error writing to file", e);
+                Toast.makeText(getContext(), "Failed to export file.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Failed to create file in Downloads.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

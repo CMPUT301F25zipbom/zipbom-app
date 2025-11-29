@@ -46,7 +46,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_event_catalog, parent, false);
+                .inflate(R.layout.listview_events, parent, false);
         return new EventViewHolder(view);
     }
 
@@ -66,11 +66,11 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
         EventViewHolder(@NonNull View itemView) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.item_event_name);
-            categoriesTextView = itemView.findViewById(R.id.item_event_category);
-            detailsTextView = itemView.findViewById(R.id.item_event_details);
-            joinButton = itemView.findViewById(R.id.item_event_join_button);
-            leaveButton = itemView.findViewById(R.id.btn_leave);
+            nameTextView = itemView.findViewById(R.id.textView_listView_event_name);
+            categoriesTextView = itemView.findViewById(R.id.textView_listView_event_genre);
+            detailsTextView = itemView.findViewById(R.id.textView_listView_event_details);
+            joinButton = itemView.findViewById(R.id.button_listView_event_join_waitingList);
+            leaveButton = itemView.findViewById(R.id.button_listView_event_leave_waitingList);
         }
 
         /**
@@ -78,7 +78,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
          */
         void bind(@NonNull Event event, OnEventActionListener actionListener) {
             nameTextView.setText(event.getName());
-            categoriesTextView.setText(buildCategoryLabel(event.getCategories()));
+            //categoriesTextView.setText(buildCategoryLabel(event.getCategories()));
 
             String details = String.format(
                     Locale.getDefault(),
@@ -120,18 +120,18 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
 
         @Override
         public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-            if (oldItem == newItem) {
-                return true;
-            }
+//            if (oldItem == newItem) {
+//                return true;
+//            }
 
             return Objects.equals(oldItem.getName(), newItem.getName())
                     && Objects.equals(oldItem.getLocation(), newItem.getLocation())
                     && oldItem.getCapacity() == newItem.getCapacity()
-                    && Objects.equals(oldItem.getCategories(), newItem.getCategories())
-                    && Objects.equals(oldItem.getRestrictions(), newItem.getRestrictions())
-                    && Objects.equals(oldItem.getEventDateText(), newItem.getEventDateText())
-                    && Objects.equals(oldItem.getRegistrationClosesAtText(), newItem.getRegistrationClosesAtText())
-                    && oldItem.getNumberOfWaiting() == newItem.getNumberOfWaiting();
+                    //&& Objects.equals(oldItem.getCategories(), newItem.getCategories())
+                    && Objects.equals(oldItem.getRestrictions(), newItem.getRestrictions());
+                    //&& Objects.equals(oldItem.getEventDateText(), newItem.getEventDateText())
+                    //&& Objects.equals(oldItem.getRegistrationClosesAtText(), newItem.getRegistrationClosesAtText())
+                    //&& oldItem.getNumberOfWaiting() == newItem.getNumberOfWaiting();
         }
     };
 }

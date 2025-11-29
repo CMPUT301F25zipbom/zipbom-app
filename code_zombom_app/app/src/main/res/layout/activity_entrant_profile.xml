@@ -146,6 +146,17 @@
         app:layout_constraintTop_toBottomOf="@+id/toggleButtonEntrantProfileLinkUnlinkDevice"
         app:layout_constraintVertical_bias="0.157" />
 
+    <Button
+        android:id="@+id/buttonEntrantViewHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/view_history"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantProfileDelete"
+        app:layout_constraintVertical_bias="0.05" />
+
     <ImageButton
         android:id="@+id/imageButtonEntrantProfileName"
         android:layout_width="49dp"
@@ -170,7 +181,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantProfileDelete"
-        app:layout_constraintVertical_bias="0.283" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantViewHistory"
+        app:layout_constraintVertical_bias="0.15" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

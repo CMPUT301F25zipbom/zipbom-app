@@ -38,19 +38,18 @@
         android:text="Edit Event" />
 
     <Button
-        android:id="@+id/genQRButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Generate QR Code" />
-
-    <Button
         android:id="@+id/seeDetailsButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="See Event Details" />
 
+    <Button
+        android:id="@+id/exportCSVButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Export CSV" />
     <Button
         android:id="@+id/button_cancel"
         android:layout_width="match_parent"
