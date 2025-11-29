@@ -53,7 +53,8 @@
             android:layout_height="wrap_content"
             android:calendarViewShown="false"
             android:spinnersShown="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:theme="@style/DatePickerWhiteText" />
 
         <!-- Deadline Date (Scroll Wheel Picker) -->
         <TextView
@@ -69,7 +70,8 @@
             android:layout_height="wrap_content"
             android:calendarViewShown="false"
             android:spinnersShown="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:theme="@style/DatePickerWhiteText"/>
 
         <Spinner
             android:id="@+id/spinnerGenre"
