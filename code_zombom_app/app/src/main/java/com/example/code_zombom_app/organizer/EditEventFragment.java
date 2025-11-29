@@ -16,7 +16,10 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Location.Location;
+import com.example.code_zombom_app.Helpers.Mail.Mail;
+import com.example.code_zombom_app.Helpers.Mail.MailService;
 import com.example.code_zombom_app.R;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
@@ -196,8 +199,7 @@ public class EditEventFragment extends AddEventFragment {
         if (event.getGenre() != null && spinnerGenre != null &&
                 spinnerGenre.getAdapter() instanceof ArrayAdapter) {
 
-            ArrayAdapter<String> adapter =
-                    (ArrayAdapter<String>) spinnerGenre.getAdapter();
+            ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerGenre.getAdapter();
             int pos = adapter.getPosition(event.getGenre());
             if (pos >= 0) {
                 spinnerGenre.setSelection(pos);
@@ -234,6 +236,9 @@ public class EditEventFragment extends AddEventFragment {
         baseEvent.setEventEndDate(getDateFromDatePicker(datePickerEndDate));
         baseEvent.setLocation(location);
 
+        // We notify users
+        notifyusers(baseEvent);
+
         try {
             int capacity = Integer.parseInt(maxPeopleEditText.getText().toString());
             baseEvent.setCapacity(capacity);
@@ -256,12 +261,16 @@ public class EditEventFragment extends AddEventFragment {
         // Then we check to see if they have a phone number, then we SMS. If not, then we only email
 
         // Get this list of entrants and then we loop through
-        ArrayList<String> people = ourevent.getWaitingList();
+        ArrayList<String> people = ourevent.getRegisteredList();
         if (people == null){return;}
         for (int i = 0; i < people.size(); i++){
-            NotificationTemplate noti = new NotificationTemplate("email", people.get(i), Calendar.getInstance().getTime().toString());
-            DocumentReference docref = db.collection("Notifications").document(noti.getReciever());
-            docref.set(noti);
+            Mail noti = new Mail(people.get(i), people.get(i), Mail.MailType.EDITED_EVENT);
+            noti.setReceiver(people.get(i));
+            noti.setContent("An event you have entered into has been edited.");
+            noti.setRead(false);
+            noti.setHeader("Edited event");
+            noti.setTimestamp(Timestamp.now());
+            MailService.sendMail(noti);
         }
     }
 }
