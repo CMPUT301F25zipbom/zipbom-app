@@ -97,4 +97,5 @@
     <string name="header">Header</string>
     <string name="sender">Sender</string>
     <string name="content">Content</string>
+    <string name="google_api_key">AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs</string>
 </resources>

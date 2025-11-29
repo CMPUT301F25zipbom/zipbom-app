@@ -1,5 +1,6 @@
 package com.example.code_zombom_app.organizer;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,15 +17,24 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
+import com.example.code_zombom_app.Helpers.Location.EventHeatMapActivity;
+import com.example.code_zombom_app.Helpers.Location.Location;
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Tejwinder Johal
@@ -33,25 +43,30 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final EventForOrg eventForOrg; // <<< Use the Event object
+    private final EventForOrg eventForOrg;
+    private final Event event;
     private final NavController navController;
     //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
     private final ImageView qrCodeImageView; // Direct reference to the ImageView
     private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
-
     private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
     /**
      * This method is used to make an organizerdialog object.
      * @param context sets the context
      * @param eventForOrg sets the organizerdialog eventid
+     * @param event The Event object. It is here because there is no good way to map EventForOrg
+     *              -> Event
      * @param navController sets the organizerdialog navController
      * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController, ImageView qrCodeImageView, Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, Event event,
+                           NavController navController, ImageView qrCodeImageView,
+                           Bitmap qrCodeBitmap) { // Pass ImageView and Bitmap directly
         super(context);
-        this.eventForOrg = eventForOrg; // <<< Store the whole object
+        this.eventForOrg = eventForOrg;
+        this.event = event;
         this.navController = navController;
         this.qrCodeImageView = qrCodeImageView; // Store the direct reference
         this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
@@ -78,6 +93,7 @@ public class OrganizerDialog extends Dialog {
         Button messageButton = findViewById(R.id.button_message_participants);
         Button editEventButton = findViewById(R.id.button_edit_event);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
+        Button buttonHeatMap = findViewById(R.id.button_dialog_event_options_showLocationHeatMap);
         Button cancelButton = findViewById(R.id.button_cancel);
 
         if (eventForOrg.getLottery_Winners() != null && !eventForOrg.getLottery_Winners().isEmpty()) {
@@ -105,6 +121,7 @@ public class OrganizerDialog extends Dialog {
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
+
         //This gets rid of the popup.
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
@@ -112,7 +129,15 @@ public class OrganizerDialog extends Dialog {
             bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object    // Navigate to the full details fragment
 
             // Navigate to the full details fragment
-            navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
+            navController.navigate(
+                    R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
+        });
+
+        buttonHeatMap.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), EventHeatMapActivity.class);
+            intent.putExtra(EventHeatMapActivity.EXTRA_EVENT_ID, event.getEventId());
+            getContext().startActivity(intent);
+            dismiss();
         });
 
         cancelButton.setOnClickListener(v -> dismiss());

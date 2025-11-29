@@ -152,15 +152,23 @@ public class OrganizerMainFragment extends Fragment {
                         }
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
-                        View eventItemView = LayoutInflater.from(getContext()).inflate(R.layout.event_list_item, eventsContainer, false);
-                        TextView eventDetailsTextView = eventItemView.findViewById(R.id.textView_event_list_items_details);
-                        ImageView qrCodeImageView = eventItemView.findViewById(R.id.event_qr_code_imageview);
+                        View eventItemView = LayoutInflater.from(getContext()).inflate(
+                                R.layout.event_list_item, eventsContainer, false);
+                        TextView eventDetailsTextView = eventItemView.findViewById(
+                                R.id.textView_event_list_items_details);
+                        ImageView qrCodeImageView = eventItemView.findViewById(
+                                R.id.event_qr_code_imageview);
 
-                        TextView textViewName = eventItemView.findViewById(R.id.textView_event_list_item_name);
-                        TextView textViewGenre = eventItemView.findViewById(R.id.textView_event_list_item_genre);
-                        TextView textViewStartDate = eventItemView.findViewById(R.id.textView_event_list_item_startDate);
-                        TextView textViewEndDate = eventItemView.findViewById(R.id.textView_event_list_item_endDate);
-                        TextView textViewLocation = eventItemView.findViewById(R.id.textView_event_list_item_location);
+                        TextView textViewName = eventItemView.findViewById(
+                                R.id.textView_event_list_item_name);
+                        TextView textViewGenre = eventItemView.findViewById(
+                                R.id.textView_event_list_item_genre);
+                        TextView textViewStartDate = eventItemView.findViewById(
+                                R.id.textView_event_list_item_startDate);
+                        TextView textViewEndDate = eventItemView.findViewById(
+                                R.id.textView_event_list_item_endDate);
+                        TextView textViewLocation = eventItemView.findViewById(
+                                R.id.textView_event_list_item_location);
 
                         qrCodeImageView.setTag(event.getEventId());
 
@@ -170,7 +178,8 @@ public class OrganizerMainFragment extends Fragment {
                         textViewName.setText("Name: " + event.getName());
                         textViewGenre.setText("Genre: " + event.getGenre());
                         if (event.getEventStartDate() != null)
-                            textViewStartDate.setText("Start Date: " + event.getEventStartDate().toString());
+                            textViewStartDate.setText("Start Date: " +
+                                    event.getEventStartDate().toString());
                         if (event.getEventEndDate() != null)
                             textViewEndDate.setText("End Date: " + event.getEventEndDate());
                         if (event.getLocation() != null)
@@ -188,14 +197,17 @@ public class OrganizerMainFragment extends Fragment {
 
                     }  catch (Exception e) {
                         // This will catch NullPointerExceptions if a view ID is wrong
-                        Log.e("DATA_MAPPING_ERROR", "Error converting document to Event object. Check Firestore field names!", e);
+                        Log.e("DATA_MAPPING_ERROR",
+                                "Error converting document to Event object. " +
+                                        "Check Firestore field names!", e);
                     }
                 }
             } else {
                 // If there are no documents, show a "No events" message
                 TextView noEventsTextView = new TextView(getContext());
                 noEventsTextView.setText("No events yet.");
-                noEventsTextView.setTextColor(ContextCompat.getColor(getContext(), android.R.color.white));
+                noEventsTextView.setTextColor(ContextCompat.getColor(
+                        getContext(), android.R.color.white));
                 noEventsTextView.setTextSize(18);
                 noEventsTextView.setPadding(16, 16, 16, 16);
                 eventsContainer.addView(noEventsTextView);
@@ -227,6 +239,7 @@ public class OrganizerMainFragment extends Fragment {
         OrganizerDialog dialog = new OrganizerDialog(
                 requireContext(),
                 eventForOrg,
+                event,
                 navController,
                 qrImageViewForEvent, // Pass the specific ImageView
                 qrBitmapForEvent     // Pass the specific Bitmap
