@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 
+import com.example.code_zombom_app.ui.admin.AdminLoginFragment;
 import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.databinding.FragmentHomeBinding;
@@ -46,8 +47,10 @@ public class HomeFragment extends Fragment {
         });
 
         adminButton.setOnClickListener(v -> {
-            NavHostFragment.findNavController(HomeFragment.this)
-                    .navigate(R.id.adminFragment);
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.nav_host_fragment_activity_main, new AdminLoginFragment())
+                    .addToBackStack(null) // Allows the user to press 'Back' to return to Home
+                    .commit();
         });
 
         entrantLoginButton.setOnClickListener(v -> {
