@@ -36,6 +36,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Code_zombom_app">
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBKDwGbjNLMqiL7ep4MZn6hbjvS-lN1_cA"/>
+<!--        Yes, I know it is unsafe, but I will delete this key in the future-->
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -58,6 +68,7 @@
         <activity android:name=".Login.SignUp.SignUpAddress.SignUpAddressActivity"/>
         <activity android:name=".Entrant.EntrantHistoryActivity"
             android:exported="false"/>
+        <activity android:name=".Helpers.Location.EventHeatMapActivity"/>
         <activity android:name=".Entrant.EntrantNotificationsActivity"
             android:exported="false"/>
 
