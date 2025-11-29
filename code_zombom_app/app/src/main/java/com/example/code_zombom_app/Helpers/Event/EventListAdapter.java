@@ -120,7 +120,10 @@ public class EventListAdapter extends ArrayAdapter<Event> {
             holder.leaveButton.setEnabled(false);
         } else {
             boolean alreadyInWaitlist = event.isInWaitingList(email);
-            holder.joinButton.setEnabled(!alreadyInWaitlist);
+            boolean alreadySelected = event.getChosenList().contains(email)
+                    || event.getPendingList().contains(email)
+                    || event.getRegisteredList().contains(email);
+            holder.joinButton.setEnabled(!alreadyInWaitlist && !alreadySelected);
             holder.leaveButton.setEnabled(alreadyInWaitlist);
         }
 
@@ -134,6 +137,15 @@ public class EventListAdapter extends ArrayAdapter<Event> {
 
             android.util.Log.d("ADAPTER_BTN",
                     "Join clicked at position " + position + " for event " + event.getEventId());
+
+            if (event.getChosenList().contains(email)
+                    || event.getPendingList().contains(email)
+                    || event.getRegisteredList().contains(email)) {
+                Toast.makeText(getContext(),
+                        "You have already been selected for this event.",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             try {
                 event.joinWaitingList(email);

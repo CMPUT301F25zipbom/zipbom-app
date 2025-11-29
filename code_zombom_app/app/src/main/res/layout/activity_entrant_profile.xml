@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/purple_200">
+    android:background="?attr/colorControlActivated"
+    android:backgroundTint="@color/teal_700">
 
     <ImageButton
         android:id="@+id/imageButtonEntrantProfilePhone"
@@ -68,30 +69,37 @@
         android:id="@+id/buttonEntrantProfileBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/black"
         android:text="@string/back"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.12"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.048" />
+        app:layout_constraintEnd_toStartOf="@+id/buttonEntrantProfileSave"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/buttonEntrantProfileSave"
-        android:layout_width="wrap_content"
+        android:layout_width="88dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="@color/black"
         android:text="@string/save"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.306"
         app:layout_constraintStart_toEndOf="@+id/buttonEntrantProfileBack"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.048" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantLogOut"
+        app:layout_constraintVertical_bias="1.0" />
 
     <ToggleButton
         android:id="@+id/toggleButtonEntrantProfileNotification"
         android:layout_width="47dp"
         android:layout_height="48dp"
+        android:layout_marginEnd="8dp"
         android:background="@drawable/belloff"
         android:clickable="true"
         android:focusable="true"
@@ -99,10 +107,9 @@
         android:textOn=""
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.629"
-        app:layout_constraintStart_toEndOf="@+id/buttonEntrantProfileSave"
+        app:layout_constraintStart_toEndOf="@+id/buttonEntrantViewHistory"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.048" />
+        app:layout_constraintVertical_bias="0.023" />
 
     <TextView
         android:id="@+id/textViewEntrantProfileName"
@@ -114,22 +121,23 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.242"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantProfileBack"
-        app:layout_constraintVertical_bias="0.103" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantViewNotifications"
+        app:layout_constraintVertical_bias="0.1" />
 
     <ToggleButton
         android:id="@+id/toggleButtonEntrantProfileLinkUnlinkDevice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_link_unlink_selector"
+        android:backgroundTint="@color/red"
+        android:clickable="true"
+        android:focusable="true"
+        android:textColor="@color/white"
         android:textOff="@string/device_unlinked"
         android:textOn="@string/device_linked"
-        android:background="@drawable/bg_link_unlink_selector"
-        android:focusable="true"
-        android:clickable="true"
-        android:textColor="@color/white"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewEntrantProfilePhone"
         app:layout_constraintVertical_bias="0.12" />
@@ -138,24 +146,42 @@
         android:id="@+id/buttonEntrantProfileDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/delete_account"
         android:backgroundTint="@color/red"
+        android:text="@string/delete_account"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toggleButtonEntrantProfileLinkUnlinkDevice"
-        app:layout_constraintVertical_bias="0.157" />
+        app:layout_constraintVertical_bias="0.103" />
 
     <Button
         android:id="@+id/buttonEntrantViewHistory"
+        android:layout_width="97dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="@color/black"
+        android:text="@string/view_history"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonEntrantViewNotifications"
+        app:layout_constraintEnd_toStartOf="@+id/toggleButtonEntrantProfileNotification"
+        app:layout_constraintStart_toEndOf="@+id/buttonEntrantViewNotifications"
+        app:layout_constraintTop_toTopOf="@+id/buttonEntrantViewNotifications"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/buttonEntrantViewNotifications"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/view_history"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black"
+        android:text="@string/view_notifications"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/buttonEntrantViewHistory"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonEntrantProfileDelete"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
         android:id="@+id/imageButtonEntrantProfileName"
@@ -177,11 +203,13 @@
         android:id="@+id/buttonEntrantLogOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/black"
         android:text="@string/log_out"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.525"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonEntrantViewHistory"
-        app:layout_constraintVertical_bias="0.15" />
+        app:layout_constraintVertical_bias="0.783" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

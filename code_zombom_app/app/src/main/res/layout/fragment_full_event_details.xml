@@ -19,7 +19,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="8dp"
-            android:text="Poster:"
             android:text="@string/poster"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView_entrant_event_full_details_description" />

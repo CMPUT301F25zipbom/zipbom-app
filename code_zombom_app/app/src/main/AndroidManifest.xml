@@ -69,6 +69,8 @@
         <activity android:name=".Entrant.EntrantHistoryActivity"
             android:exported="false"/>
         <activity android:name=".Helpers.Location.EventHeatMapActivity"/>
+        <activity android:name=".Entrant.EntrantNotificationsActivity"
+            android:exported="false"/>
 
     </application>
 
