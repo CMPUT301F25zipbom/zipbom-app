@@ -42,7 +42,7 @@ import kotlinx.coroutines.scheduling.Task;
 /**
  * Fragment that allows an organizer to edit an existing Event.
  *
- * @author Dang Nguyen, Teji
+ * @author Dang Nguyen, Teji, Robert Enstrom
  * @version 11/27/2025
  */
 public class EditEventFragment extends AddEventFragment {
@@ -256,6 +256,10 @@ public class EditEventFragment extends AddEventFragment {
         // NOTE: we do NOT touch waitlist entries, chosen list, etc.
     }
 
+    /**
+     * Gets our event and sends notifications to all users inside of the registered list
+     * @param ourevent is our event.
+     */
     void notifyusers (Event ourevent){
         // We need to loop through the list of people and see if they have notifications turned on.
         // Then we check to see if they have a phone number, then we SMS. If not, then we only email.

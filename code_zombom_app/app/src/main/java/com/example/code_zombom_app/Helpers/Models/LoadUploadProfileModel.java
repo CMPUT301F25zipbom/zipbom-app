@@ -7,7 +7,9 @@ import android.provider.Settings;
 import android.util.Log;
 
 import com.example.code_zombom_app.Helpers.MVC.GModel;
+import com.example.code_zombom_app.Helpers.Users.Admin;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
+import com.example.code_zombom_app.Helpers.Users.Organizer;
 import com.example.code_zombom_app.Helpers.Users.Profile;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -96,6 +98,11 @@ public class LoadUploadProfileModel extends GModel {
         try {
             if (type.equals("Entrant"))
                 profile = new Entrant(name, email, phone);
+            else if (type.equals("Organizer")) {
+                profile = new Organizer(name, email, phone);
+            } else if (type.equals("Admin")) {
+                profile = new Admin(name, email, phone);
+            }
             if (location != null) {
                 assert profile != null;
                 profile.setLocation(location);
