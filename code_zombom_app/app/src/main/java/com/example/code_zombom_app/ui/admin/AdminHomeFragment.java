@@ -21,16 +21,21 @@ public class AdminHomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // 1. Find the buttons in the layout
         Button eventsBtn = view.findViewById(R.id.button_home_events);
         Button profilesBtn = view.findViewById(R.id.button_home_profiles);
         Button postersBtn = view.findViewById(R.id.button_home_posters);
+        Button logsBtn = view.findViewById(R.id.button_home_logs); // <--- ADDED THIS
 
-        // Button Listeners
+        // 2. Set Listeners
         eventsBtn.setOnClickListener(v -> loadPanel(new EventsAdminFragment()));
         profilesBtn.setOnClickListener(v -> loadPanel(new ProfileAdminFragment()));
         postersBtn.setOnClickListener(v -> loadPanel(new PostersAdminFragment()));
 
-        // If this is the first time the fragment is created (not a screen rotation restore)
+        // <--- ADDED THIS LISTENER
+        logsBtn.setOnClickListener(v -> loadPanel(new AdminNotificationLogsFragment()));
+
+        // 3. Default Load
         if (savedInstanceState == null) {
             loadPanel(new EventsAdminFragment());
         }
