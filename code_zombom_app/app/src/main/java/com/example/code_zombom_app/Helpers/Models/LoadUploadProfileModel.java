@@ -19,7 +19,7 @@ public class LoadUploadProfileModel extends GModel {
     protected static final String errorTag = "FireBaseFireStore Error"; // Tag to debug errors
     public LoadUploadProfileModel(FirebaseFirestore db) {
         super();
-        this.db = db; // Force the database to be initialized within a context
+        this.db = db; // Force the database to be initialized within a context.
     }
 
     /**
