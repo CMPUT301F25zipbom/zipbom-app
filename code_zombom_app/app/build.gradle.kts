@@ -37,7 +37,6 @@ android {
 
 dependencies {
     implementation("com.google.maps.android:android-maps-utils:3.8.2")
-    implementation("implementation 'com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation(platform("com.google.firebase:firebase-bom:34.3.0"))
     implementation("com.google.firebase:firebase-firestore")
