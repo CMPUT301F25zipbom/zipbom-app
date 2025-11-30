@@ -25,13 +25,19 @@ public class AdminHomeFragment extends Fragment {
         Button profilesBtn = view.findViewById(R.id.button_home_profiles);
         Button postersBtn = view.findViewById(R.id.button_home_posters);
 
-        // Default view
+        // Button Listeners
         eventsBtn.setOnClickListener(v -> loadPanel(new EventsAdminFragment()));
         profilesBtn.setOnClickListener(v -> loadPanel(new ProfileAdminFragment()));
         postersBtn.setOnClickListener(v -> loadPanel(new PostersAdminFragment()));
+
+        // If this is the first time the fragment is created (not a screen rotation restore)
+        if (savedInstanceState == null) {
+            loadPanel(new EventsAdminFragment());
+        }
     }
 
     private void loadPanel(Fragment fragment) {
+        // Using getChildFragmentManager() ensures the fragments stay inside the AdminHome container
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.replace(R.id.admin_panel_container, fragment);
         ft.commit();

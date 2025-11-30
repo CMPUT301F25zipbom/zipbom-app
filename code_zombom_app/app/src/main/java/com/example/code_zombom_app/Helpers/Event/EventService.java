@@ -177,7 +177,7 @@ public class EventService {
             for (String winner : winners) {
                 if (isNotificationsEnabled(transaction, winner)) {
                     // Look up the entrant's first name so the invitation feels personalized.
-                    String displayName = resolveEntrantFirstName(transaction, winner);
+                    String displayName = resolveEntrantDisplayName(transaction, winner);
                     transaction.set(eventRef.collection("Notifications").document(),
                             buildNotification(
                                     winner,
@@ -391,7 +391,8 @@ public class EventService {
         DocumentReference profileRef = firestore.collection("Profiles").document(normalized);
         try {
             DocumentSnapshot snapshot = transaction.get(profileRef);
-            Boolean enabled = snapshot.getBoolean("notificationsEnabled");
+            // Firestore stores this flag as "notificationEnabled" (singular) on the profile.
+            Boolean enabled = snapshot.getBoolean("notificationEnabled");
             return enabled == null || enabled;
         } catch (Exception e) {
             // Fail open to avoid suppressing critical notifications when profile read fails.
@@ -478,7 +479,7 @@ public class EventService {
         }
     }
 
-    private String resolveEntrantFirstName(@NonNull Transaction transaction, @NonNull String email) {
+    private String resolveEntrantDisplayName(@NonNull Transaction transaction, @NonNull String email) {
         try {
             // Pull the entrant profile inside the transaction to read the stored name.
             DocumentSnapshot profile = transaction.get(
@@ -488,10 +489,7 @@ public class EventService {
                 if (fullName != null) {
                     String trimmed = fullName.trim();
                     if (!trimmed.isEmpty()) {
-                        String[] parts = trimmed.split("\\s+");
-                        if (parts.length > 0) {
-                            return parts[0];
-                        }
+                        return trimmed;
                     }
                 }
             }
