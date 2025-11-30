@@ -106,6 +106,7 @@ public class OrganizerDialog extends Dialog {
         // Find the buttons
         Button viewStartButton = findViewById(R.id.button_start_draw);
         Button messageButton = findViewById(R.id.button_message_participants);
+        Button cancelUnregisteredButton = findViewById(R.id.button_cancel_unregistered);
         Button editEventButton = findViewById(R.id.button_edit_event);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
         Button buttonHeatMap = findViewById(R.id.button_dialog_event_options_showLocationHeatMap);
@@ -127,6 +128,12 @@ public class OrganizerDialog extends Dialog {
         messageButton.setOnClickListener(v -> {
             showBroadcastOptions();
         });
+        // This button moves all accepted entrants into the canceled entrants list.
+        cancelUnregisteredButton.setOnClickListener(v -> {
+            dismiss();
+            eventService.cancelUnregisteredEntrants(eventForOrg.getEventId());
+        });
+
         //This will send the user to EditEventFragment along with the event's id and the events text.
         editEventButton.setOnClickListener(v -> {
             dismiss();
