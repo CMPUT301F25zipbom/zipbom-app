@@ -51,12 +51,37 @@ public class EventServiceLeaveWaitlistTest {
         when(mockTransaction.get(any(DocumentReference.class))).thenReturn(snapshot);
     }
 
+    /**
+     * runTransaction stub that executes the lambda and:
+     *  - returns a successful Task on success
+     *  - returns a failed Task (Tasks.forException) if the lambda throws
+     */
     private void mockSuccessfulTransaction() {
         doAnswer(invocation -> {
-            Transaction.Function<?> f = invocation.getArgument(0);
-            f.apply(mockTransaction);
-            return Tasks.forResult(null);
+            @SuppressWarnings("unchecked")
+            Transaction.Function<Void> f = invocation.getArgument(0);
+            try {
+                f.apply(mockTransaction);
+                return Tasks.forResult(null);
+            } catch (Exception e) {
+                return Tasks.forException(e);
+            }
         }).when(mockFirestore).runTransaction(any(Transaction.Function.class));
+    }
+
+    /**
+     * Lightweight replacement for Tasks.await(...) that does NOT touch Android Looper.
+     * Assumes the Task is already completed (true for all our stubs).
+     */
+    private <T> T awaitTask(Task<T> task) throws ExecutionException {
+        if (task.isSuccessful()) {
+            return task.getResult();
+        }
+        Exception e = task.getException();
+        if (e != null) {
+            throw new ExecutionException(e);
+        }
+        return null;
     }
 
     private Event event() {
@@ -73,6 +98,9 @@ public class EventServiceLeaveWaitlistTest {
     public void setup() throws FirebaseFirestoreException {
         MockitoAnnotations.initMocks(this);
 
+        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        Event.setQrCodeGenerationEnabled(false);
+
         eventService = new EventService(mockFirestore);
 
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
@@ -85,7 +113,8 @@ public class EventServiceLeaveWaitlistTest {
 
         // also uses Transaction.get(...), so it must handle the checked exception
         when(mockTransaction.get(mockProfileDocumentRef)).thenReturn(mockProfileDocumentSnapshot);
-        when(mockProfileDocumentSnapshot.getBoolean("notificationsEnabled")).thenReturn(true);
+        // Production code uses "notificationEnabled" (singular)
+        when(mockProfileDocumentSnapshot.getBoolean("notificationEnabled")).thenReturn(true);
     }
 
     // ---------------- tests ----------------
@@ -103,7 +132,7 @@ public class EventServiceLeaveWaitlistTest {
         int before = e.getNumberOfWaiting();
 
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
-        Tasks.await(task);
+        awaitTask(task);
 
         verify(mockTransaction).set(eq(mockEventDocumentRef), any(Event.class));
         assertFalse(e.getWaitingList().contains(NORM));
@@ -122,7 +151,7 @@ public class EventServiceLeaveWaitlistTest {
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
 
         try {
-            Tasks.await(task);
+            awaitTask(task);
             fail();
         } catch (ExecutionException ex) {
             assertEquals("You are not on this waiting list.", ex.getCause().getMessage());
@@ -146,7 +175,7 @@ public class EventServiceLeaveWaitlistTest {
         mockSuccessfulTransaction();
 
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
-        Tasks.await(task);
+        awaitTask(task);
 
         assertEquals(before - 1, e.getNumberOfWaiting());
         assertFalse(e.getWaitingList().contains(NORM));
@@ -170,12 +199,13 @@ public class EventServiceLeaveWaitlistTest {
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
 
         try {
-            Tasks.await(task);
+            awaitTask(task);
             fail();
         } catch (ExecutionException err) {
             assertEquals("Firestore transaction failed", err.getCause().getMessage());
         }
 
+        // Since transaction failed, the in-memory event should be unchanged
         assertTrue(e.getWaitingList().contains(NORM));
     }
 
@@ -189,7 +219,7 @@ public class EventServiceLeaveWaitlistTest {
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
 
         try {
-            Tasks.await(task);
+            awaitTask(task);
             fail();
         } catch (ExecutionException ex) {
             assertEquals("Event not found", ex.getCause().getMessage());
@@ -210,7 +240,7 @@ public class EventServiceLeaveWaitlistTest {
 
         String messy = "   test@example.com   ";
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, messy);
-        Tasks.await(task);
+        awaitTask(task);
 
         assertFalse(e.getWaitingList().contains(NORM));
     }
@@ -229,7 +259,7 @@ public class EventServiceLeaveWaitlistTest {
         mockSuccessfulTransaction();
 
         Task<Void> task = eventService.removeEntrantFromWaitlist(EVENT_ID, EMAIL);
-        Tasks.await(task);
+        awaitTask(task);
 
         assertFalse(e.getWaitingList().contains(NORM));
         assertTrue(e.getWaitingList().contains("x"));

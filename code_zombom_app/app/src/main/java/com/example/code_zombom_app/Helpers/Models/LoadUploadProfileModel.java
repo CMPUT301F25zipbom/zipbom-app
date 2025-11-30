@@ -6,6 +6,8 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.Users.Admin;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
@@ -13,6 +15,10 @@ import com.example.code_zombom_app.Helpers.Users.Organizer;
 import com.example.code_zombom_app.Helpers.Users.Profile;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class LoadUploadProfileModel extends GModel {
     protected FirebaseFirestore db;
@@ -131,6 +137,7 @@ public class LoadUploadProfileModel extends GModel {
                         db.collection("Profiles").document(finalProfile.getEmail())
                                 .set(finalProfile)
                                 .addOnSuccessListener(aVoid -> {
+                                    syncNotificationPreference(finalProfile);
                                     state = State.SIGNUP_SUCCESS;
                                     notifyViews();
                                 })
@@ -174,6 +181,7 @@ public class LoadUploadProfileModel extends GModel {
                             db.collection("Profiles").document(oldProfile.getEmail())
                                     .set(newProfile)
                                     .addOnSuccessListener(aVoid -> {
+                                        syncNotificationPreference(newProfile);
                                         state = State.EDIT_PROFILE_SUCCESS;
                                         setInterMsg("Profile", newProfile);
                                         notifyViews();
@@ -212,10 +220,12 @@ public class LoadUploadProfileModel extends GModel {
                             db.collection("Profiles").document(oldProfile.getEmail())
                                     .delete()
                                     .addOnSuccessListener(aVoid -> {
+                                        deleteNotificationPreference(oldProfile.getEmail());
                                         // Now upload the new profile
                                         db.collection("Profiles").document(newProfile.getEmail())
                                                 .set(newProfile)
                                                 .addOnSuccessListener(aVoid2 -> {
+                                                    syncNotificationPreference(newProfile);
                                                     state = State.EDIT_PROFILE_SUCCESS;
                                                     setInterMsg("Profile", newProfile);
                                                     notifyViews();
@@ -258,6 +268,7 @@ public class LoadUploadProfileModel extends GModel {
         db.collection("Profiles").document(email)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
+                    deleteNotificationPreference(email);
                     state = State.DELETE_PROFILE_SUCCESS;
                     setInterMsg("Message", email);
                     notifyViews();
@@ -276,6 +287,42 @@ public class LoadUploadProfileModel extends GModel {
     public String getDeviceId(Context context) {
         return Settings.Secure.getString(
                 context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    protected void syncNotificationPreference(@Nullable Profile profile) {
+        if (!(profile instanceof Entrant)) {
+            return;
+        }
+        if (profile == null || profile.getEmail() == null) {
+            return;
+        }
+        String normalized = normalizeNotificationKey(profile.getEmail());
+        if (normalized.isEmpty()) {
+            return;
+        }
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("email", profile.getEmail().trim());
+        payload.put("notificationEnabled", ((Entrant) profile).isNotificationEnabled());
+        db.collection("NotificationPreferences")
+                .document(normalized)
+                .set(payload);
+    }
+
+    protected void deleteNotificationPreference(@Nullable String email) {
+        String normalized = normalizeNotificationKey(email);
+        if (normalized.isEmpty()) {
+            return;
+        }
+        db.collection("NotificationPreferences")
+                .document(normalized)
+                .delete();
+    }
+
+    protected String normalizeNotificationKey(@Nullable String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     /**

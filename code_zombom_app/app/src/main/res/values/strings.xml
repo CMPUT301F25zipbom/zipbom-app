@@ -61,6 +61,7 @@
     <string name="history_status_format">%1$s • %2$s</string>
     <string name="view_history">History</string>
     <string name="view_notifications">Notifications</string>
+    <string name="notifications_disabled_message">Notifications are disabled for this profile.</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

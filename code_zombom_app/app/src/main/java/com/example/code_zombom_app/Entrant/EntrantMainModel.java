@@ -28,6 +28,13 @@ public class EntrantMainModel extends EventModel {
         this.entrant = null;
     }
 
+    //test db
+    public EntrantMainModel(String email, FirebaseFirestore firestore) {
+        super(firestore);
+
+        this.email = email;
+    }
+
     /**
      * Request the view to open a pop-up window for filtering the events
      */
