@@ -15,7 +15,9 @@ import static org.junit.Assert.assertTrue;
  * Unit tests for EventFilter.passFilter() method (in-memory filtering).
  * Tests US 01.01.04: "As an entrant, I want to filter events based on my interests and availability."
  *
- * @author Test Suite
+ * This test class does NOT touch Firestore or Android UI:
+ * - Uses the real Event model.
+ * - Disables QR generation via Event.setQrCodeGenerationEnabled(false) to avoid Bitmap APIs.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EventFilterTest {
@@ -27,7 +29,7 @@ public class EventFilterTest {
 
     @Before
     public void setUp() {
-        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        // Disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
         Event.setQrCodeGenerationEnabled(false);
         eventFilter = new EventFilter();
     }
@@ -53,15 +55,15 @@ public class EventFilterTest {
     }
 
     /**
-     * Test filter by availability only: Only events that fit within the entrant's availability
-     * (or do not conflict) are returned.
+     * Test filter by availability only: Only events that overlap with the entrant's
+     * availability window are returned.
      */
     @Test
     public void passFilter_FilterByAvailabilityOnly_ReturnsMatchingEvents() {
         // Arrange
         eventFilter.setFilterGenre(null);
-        
-        // Set availability window: Jan 15 - Jan 20
+
+        // Set availability window: Jan 15 - Jan 20, 2000
         Date filterStart = new Date(100, 0, 15); // Jan 15, 2000
         Date filterEnd = new Date(100, 0, 20);   // Jan 20, 2000
         eventFilter.setFilterStartDate(filterStart);
@@ -72,7 +74,7 @@ public class EventFilterTest {
         overlappingEvent.setEventStartDate(new Date(100, 0, 16));
         overlappingEvent.setEventEndDate(new Date(100, 0, 18));
 
-        // Event that starts before availability window (Jan 10 - Jan 12)
+        // Event that ends before availability window (Jan 10 - Jan 12)
         Event beforeEvent = createTestEvent("event-2", "Before Event", null);
         beforeEvent.setEventStartDate(new Date(100, 0, 10));
         beforeEvent.setEventEndDate(new Date(100, 0, 12));
@@ -83,11 +85,11 @@ public class EventFilterTest {
         afterEvent.setEventEndDate(new Date(100, 0, 27));
 
         // Act & Assert
-        assertTrue("Overlapping event should pass filter", 
+        assertTrue("Overlapping event should pass filter",
                 eventFilter.passFilter(overlappingEvent));
-        assertFalse("Event before availability should not pass filter", 
+        assertFalse("Event before availability should not pass filter",
                 eventFilter.passFilter(beforeEvent));
-        assertFalse("Event after availability should not pass filter", 
+        assertFalse("Event after availability should not pass filter",
                 eventFilter.passFilter(afterEvent));
     }
 
@@ -124,13 +126,13 @@ public class EventFilterTest {
         matchingNeither.setEventEndDate(new Date(100, 0, 27));
 
         // Act & Assert
-        assertTrue("Event matching both criteria should pass", 
+        assertTrue("Event matching both criteria should pass",
                 eventFilter.passFilter(matchingBoth));
-        assertFalse("Event matching only interest should not pass", 
+        assertFalse("Event matching only interest should not pass",
                 eventFilter.passFilter(matchingInterestOnly));
-        assertFalse("Event matching only availability should not pass", 
+        assertFalse("Event matching only availability should not pass",
                 eventFilter.passFilter(matchingAvailabilityOnly));
-        assertFalse("Event matching neither should not pass", 
+        assertFalse("Event matching neither should not pass",
                 eventFilter.passFilter(matchingNeither));
     }
 
@@ -156,9 +158,9 @@ public class EventFilterTest {
         wrongDates.setEventEndDate(new Date(100, 0, 27));
 
         // Act & Assert
-        assertFalse("Event with wrong genre should not pass", 
+        assertFalse("Event with wrong genre should not pass",
                 eventFilter.passFilter(wrongGenre));
-        assertFalse("Event with wrong dates should not pass", 
+        assertFalse("Event with wrong dates should not pass",
                 eventFilter.passFilter(wrongDates));
     }
 
