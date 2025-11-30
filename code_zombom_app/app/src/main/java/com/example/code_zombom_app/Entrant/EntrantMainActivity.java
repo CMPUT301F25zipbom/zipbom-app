@@ -539,7 +539,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 .document(email)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    Boolean enabled = snapshot.getBoolean("notificationsEnabled");
+                    Boolean enabled = snapshot.getBoolean("notificationEnabled");
                     notificationsEnabled = enabled == null || enabled;
                     if (notificationsEnabled) {
                         startNotificationListener();
