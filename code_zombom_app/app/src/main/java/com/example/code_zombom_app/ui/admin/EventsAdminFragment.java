@@ -83,7 +83,12 @@ public class EventsAdminFragment extends Fragment {
                 return;
             }
 
+            if (!isAdded() || getContext() == null) {
+                return;
+            }
+
             eventsContainer.removeAllViews();
+            LayoutInflater safeInflater = LayoutInflater.from(getContext());
 
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
@@ -92,8 +97,7 @@ public class EventsAdminFragment extends Fragment {
 
                     String eventDetails = formatEventString(snapshot);
 
-                    View eventView = LayoutInflater.from(getContext())
-                            .inflate(R.layout.event_admin_list_item, eventsContainer, false);
+                    View eventView = safeInflater.inflate(R.layout.event_admin_list_item, eventsContainer, false);
 
                     TextView eventTextView = eventView.findViewById(R.id.textView_event_list_items_details);
                     ImageButton deleteButton = eventView.findViewById(R.id.button_delete_event);
