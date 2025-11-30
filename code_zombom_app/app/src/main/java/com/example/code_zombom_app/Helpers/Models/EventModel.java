@@ -32,6 +32,13 @@ public class EventModel extends GModel {
         loadedEvents = new ArrayList<>();
     }
 
+    //testdb
+    public EventModel(FirebaseFirestore firestore) {
+        super();
+        this.db = firestore;
+        this.loadedEvents = new ArrayList<>();
+    }
+
     /**
      * Upload an event onto the database.
      *

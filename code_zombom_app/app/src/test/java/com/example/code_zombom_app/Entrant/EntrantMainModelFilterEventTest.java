@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Filter.EventFilter;
-import com.example.code_zombom_app.Helpers.Models.EventModel;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -22,10 +21,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,12 +44,8 @@ public class EntrantMainModelFilterEventTest {
     public void setUp() throws Exception {
         MockitoAnnotations.openMocks(this);
 
-        model = new EntrantMainModel("test@example.com");
-
-        // Inject our mock Firestore into the inherited final 'db' field
-        Field dbField = EventModel.class.getDeclaredField("db");
-        dbField.setAccessible(true);
-        dbField.set(model, mockDb);
+        // Use the constructor that accepts the mocked Firestore
+        model = new EntrantMainModel("test@example.com", mockDb);
 
         // Common Firestore stubbing
         when(mockDb.collection("Events")).thenReturn(mockEventsCollection);
@@ -65,7 +58,7 @@ public class EntrantMainModelFilterEventTest {
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(OnSuccessListener.class));
 
-        // We still need addOnFailureListener to return the task, even if unused
+        // Ensure addOnFailureListener still returns the task, even if unused
         when(mockTask.addOnFailureListener(any(OnFailureListener.class)))
                 .thenReturn(mockTask);
 
@@ -96,8 +89,7 @@ public class EntrantMainModelFilterEventTest {
 
         // event2: different genre → should be filtered out
         when(event2.getGenre()).thenReturn("Sport");
-        when(event2.getEventStartDate()).thenReturn(new Date(1700100000000L));
-        when(event2.getEventEndDate()).thenReturn(new Date(1700400000000L));
+        // No need to stub start/end dates for event2 – they are never used
 
         // Act
         model.filterEvent(filter);

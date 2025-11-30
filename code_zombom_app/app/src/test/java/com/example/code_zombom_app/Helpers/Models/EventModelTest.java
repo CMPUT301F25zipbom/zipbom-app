@@ -96,6 +96,9 @@ public class EventModelTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
         
+        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        Event.setQrCodeGenerationEnabled(false);
+        
         // Setup Firestore collection mock
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
     }

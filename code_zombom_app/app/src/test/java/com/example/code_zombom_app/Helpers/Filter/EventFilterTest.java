@@ -27,6 +27,8 @@ public class EventFilterTest {
 
     @Before
     public void setUp() {
+        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        Event.setQrCodeGenerationEnabled(false);
         eventFilter = new EventFilter();
     }
 
