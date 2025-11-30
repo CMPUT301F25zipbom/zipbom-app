@@ -76,9 +76,18 @@ public class ProfileAdminFragment extends Fragment {
                 Log.e(TAG, "Error loading profiles", error);
                 return;
             }
+
+            // --- FIX STARTS HERE ---
+            // 1. Add this safety check. If the fragment isn't on screen, don't update UI.
+            if (!isAdded() || getContext() == null) {
+                return;
+            }
+            // --- FIX ENDS HERE ---
+
             if (profilesContainer != null) {
                 profilesContainer.removeAllViews();
             }
+
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
                     String name = snapshot.getString("name");
@@ -94,7 +103,8 @@ public class ProfileAdminFragment extends Fragment {
                             .append("Email: ").append(email).append("\n")
                             .append("Role: ").append(type);
 
-                    View profileView = LayoutInflater.from(requireContext())
+                    // 2. Change requireContext() to getContext() to be safer (guaranteed not null due to check above)
+                    View profileView = LayoutInflater.from(getContext())
                             .inflate(R.layout.profile_admin_list, profilesContainer, false);
 
                     TextView textView = profileView.findViewById(R.id.profile_item_textview);
@@ -107,7 +117,8 @@ public class ProfileAdminFragment extends Fragment {
                     profilesContainer.addView(profileView);
                 }
             } else {
-                TextView noProfiles = new TextView(requireContext());
+                // 3. Change requireContext() to getContext()
+                TextView noProfiles = new TextView(getContext());
                 noProfiles.setText("No profiles found.");
                 noProfiles.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
                 noProfiles.setTextSize(18);

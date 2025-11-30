@@ -55,36 +55,46 @@ public class PostersAdminFragment extends Fragment {
     }
 
     private void fetchPosters() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
         db.collection("Events")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    // --- SAFETY CHECK ---
+                    if (!isAdded() || getContext() == null) {
+                        return;
+                    }
+
                     posterEvents.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        // We check the raw field string, similar to how the coworker checked getPosterUrl()
                         String url = doc.getString("posterUrl");
-
                         // Only add to the list if there is a valid URL
                         if (url != null && !url.isEmpty()) {
                             posterEvents.add(doc);
                         }
                     }
                     adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
+
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
 
                     if (posterEvents.isEmpty()) {
                         Toast.makeText(getContext(), "No events with posters found.", Toast.LENGTH_SHORT).show();
                     }
                 })
                 .addOnFailureListener(e -> {
+                    // --- SAFETY CHECK ---
+                    if (!isAdded() || getContext() == null) return;
+
                     Log.e(TAG, "Error fetching posters", e);
                     Toast.makeText(getContext(), "Error loading posters.", Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
+                    if (progressBar != null) progressBar.setVisibility(View.GONE);
                 });
     }
 
     private void confirmDeletePoster(DocumentSnapshot eventSnapshot) {
+        // Simple safety check before showing dialog
+        if (getContext() == null) return;
+
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Poster")
                 .setMessage("Are you sure you want to remove this poster image?")
@@ -105,6 +115,9 @@ public class PostersAdminFragment extends Fragment {
             // 2. Delete reference from Database
             removePosterReferenceFromFirestore(eventId);
         }).addOnFailureListener(e -> {
+            // --- SAFETY CHECK ---
+            if (!isAdded() || getContext() == null) return;
+
             // If it fails to delete file, remove from DB anyway
             Toast.makeText(getContext(), "Storage delete failed, removing from DB...", Toast.LENGTH_SHORT).show();
             removePosterReferenceFromFirestore(eventId);
@@ -112,14 +125,19 @@ public class PostersAdminFragment extends Fragment {
     }
 
     private void removePosterReferenceFromFirestore(String eventId) {
-
         db.collection("Events").document(eventId)
                 .update("posterUrl", null) // Set field to null
                 .addOnSuccessListener(aVoid -> {
+                    // --- SAFETY CHECK (This was likely the crash cause) ---
+                    if (!isAdded() || getContext() == null) return;
+
                     Toast.makeText(getContext(), "Poster removed successfully", Toast.LENGTH_SHORT).show();
                     fetchPosters(); // Refresh list
                 })
                 .addOnFailureListener(e -> {
+                    // --- SAFETY CHECK ---
+                    if (!isAdded() || getContext() == null) return;
+
                     Toast.makeText(getContext(), "Failed to update database", Toast.LENGTH_SHORT).show();
                 });
     }
