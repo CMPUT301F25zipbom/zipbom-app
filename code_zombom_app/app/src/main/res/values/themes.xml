@@ -13,4 +13,12 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+    <style name="DatePickerWhiteText" parent="ThemeOverlay.AppCompat.Dark">
+        <!-- This controls the color of the numbers -->
+        <item name="android:textColorPrimary">#FFFFFF</item>
+        <!-- This controls the color of the header text -->
+        <item name="android:textColorSecondary">#E0E0E0</item>
+        <!-- This controls the highlight color of the selectors -->
+        <item name="colorAccent">#AE87FF</item>
+    </style>
 </resources>

@@ -60,6 +60,7 @@
     <string name="history_unknown_date">Unknown date</string>
     <string name="history_status_format">%1$s • %2$s</string>
     <string name="view_history">History</string>
+    <string name="view_notifications">Notifications</string>
 
     <string-array name="user_types">
         <item>Entrant</item>
@@ -104,4 +105,5 @@
     <string name="header">Header</string>
     <string name="sender">Sender</string>
     <string name="content">Content</string>
+    <string name="google_api_key">AIzaSyDEZ31HqSOzmjV0acyJk22MJjHjZKg2pXs</string>
 </resources>

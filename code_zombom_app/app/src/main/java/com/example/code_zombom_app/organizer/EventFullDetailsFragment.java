@@ -162,7 +162,9 @@ public class EventFullDetailsFragment extends Fragment {
         nameValue.setText(eventForOrg.getName());
         dateValue.setText(eventForOrg.getDate());
         deadlineValue.setText(eventForOrg.getDeadline());
-        locationValue.setText(eventForOrg.getLocation());
+        locationValue.setText(eventForOrg.getLocation() != null
+                ? eventForOrg.getLocation().toString()
+                : "-");
         genreValue.setText(eventForOrg.getGenre());
         maxPeopleValue.setText(eventForOrg.getMax_People());
         waitlistMaxValue.setText(eventForOrg.getWait_List_Maximum());

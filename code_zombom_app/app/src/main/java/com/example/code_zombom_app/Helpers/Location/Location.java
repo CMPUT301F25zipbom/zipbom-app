@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
-//import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -114,11 +114,29 @@ public class Location {
     }
 
     /**
+     * Set the name of the location
+     *
+     * @param name The name of the location
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      *
      * @return The location's street
      */
     public String getStreet() {
         return street;
+    }
+
+    /**
+     * Set the street
+     *
+     * @param street The street name
+     */
+    public void setStreet(String street) {
+        this.street = street;
     }
 
     /**
@@ -130,6 +148,15 @@ public class Location {
     }
 
     /**
+     * Set the city
+     *
+     * @param city The city's name
+     */
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    /**
      *
      * @return The location's province
      */
@@ -138,11 +165,29 @@ public class Location {
     }
 
     /**
+     * Set the province
      *
-     * @return The location;s country
+     * @param province The province name
+     */
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
+    /**
+     *
+     * @return The location's country
      */
     public String getCountry() {
         return country;
+    }
+
+    /**
+     * Set the country
+     *
+     * @param country The country's name
+     */
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     /**
@@ -154,6 +199,15 @@ public class Location {
     }
 
     /**
+     * Set the postal code
+     *
+     * @param postalCode The postal code to set
+     */
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    /**
      *
      * @return The location's coordinate
      */
@@ -162,19 +216,19 @@ public class Location {
     }
 
     /**
+     * Set the coordinate
+     *
+     * @param coordinate The coordinate to set
+     */
+    public void setCoordinate(Coordinate coordinate) {
+        this.coordinate = coordinate;
+    }
+
+    /**
      * @return The Google API key
      */
     public static String getGoogleApi() {
         return GOOGLE_API;
-    }
-
-    /**
-     * Set the name of the location
-     *
-     * @param name The name of the location
-     */
-    public void setName(String name) {
-        this.name = name;
     }
 
     /**
@@ -228,48 +282,55 @@ public class Location {
     /**
      * Generate a heatmap that pins all the registered locations on a Google Map.
      *
-     * @param map The GoogleMap object where the heatmap will be drawn
-     * @param locations The array of locations to be put on the heatmap
+     * @param map       The GoogleMap object where the heatmap will be drawn
+     * @param locations The list of locations to be put on the heatmap
+     * @return The TileOverlay created for the heatmap, or null if nothing was drawn
      */
-    public static void generateHeatMap(GoogleMap map, Location[] locations) {
-        if (map == null || locations == null || locations.length == 0) {
-            return;
+    public static TileOverlay generateHeatMap(GoogleMap map, List<Location> locations) {
+        if (map == null || locations == null || locations.isEmpty()) {
+            return null;
         }
 
         List<LatLng> latLngList = new ArrayList<>();
+        LatLngBounds.Builder boundsBuilder = new LatLngBounds.Builder();
+        boolean hasAnyPoint = false;
 
         for (Location loc : locations) {
-            if (loc != null && loc.getCoordinate() != null) {
-                latLngList.add(
-                        new LatLng(
-                                loc.getCoordinate().getLatitude(),
-                                loc.getCoordinate().getLongitude()
-                        )
-                );
-            }
+            if (loc == null || loc.getCoordinate() == null) continue;
+
+            double lat = loc.getCoordinate().getLatitude();
+            double lng = loc.getCoordinate().getLongitude();
+
+            LatLng latLng = new LatLng(lat, lng);
+            latLngList.add(latLng);
+            boundsBuilder.include(latLng);
+            hasAnyPoint = true;
         }
 
-        if (latLngList.isEmpty()) return;
+        if (!hasAnyPoint) {
+            return null;
+        }
 
         // Create the heatmap tile provider
-//        HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
-//                .data(latLngList)
-//                .radius(40)               // adjust the size of the blobs
-//                .opacity(0.7)             // transparency of the heatmap layer
-//                .build();
+        HeatmapTileProvider provider = new HeatmapTileProvider.Builder()
+                .data(latLngList)
+                .radius(40) // Size of blobs
+                .opacity(0.7) // transparency (0 = transparent, 1 = opaque)
+                .build();
 
-        // Add the heatmap overlay to the map
-        //TileOverlay overlay = map.addTileOverlay(new TileOverlayOptions().tileProvider(provider));
+        TileOverlay overlay = map.addTileOverlay(
+                new TileOverlayOptions().tileProvider(provider)
+        );
 
-        // Zoom the camera to include all points
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (LatLng pos : latLngList) builder.include(pos);
-
-        if (latLngList.size() > 1) {
-            map.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100));
+        // Move/zoom camera
+        if (latLngList.size() == 1) {
+            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLngList.get(0), 15f));
         } else {
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLngList.get(0), 15));
+            LatLngBounds bounds = boundsBuilder.build();
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
         }
+
+        return overlay;
     }
 
     /**

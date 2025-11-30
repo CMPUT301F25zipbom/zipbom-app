@@ -258,7 +258,7 @@ public class EditEventFragment extends AddEventFragment {
 
     void notifyusers (Event ourevent){
         // We need to loop through the list of people and see if they have notifications turned on.
-        // Then we check to see if they have a phone number, then we SMS. If not, then we only email
+        // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
 
         // Get this list of entrants and then we loop through
         ArrayList<String> people = ourevent.getRegisteredList();

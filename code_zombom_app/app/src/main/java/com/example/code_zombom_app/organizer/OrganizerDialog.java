@@ -3,6 +3,7 @@ package com.example.code_zombom_app.organizer;
 import android.Manifest;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -25,8 +26,14 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 
+import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
+import com.example.code_zombom_app.Helpers.Location.EventHeatMapActivity;
+import com.example.code_zombom_app.Helpers.Location.Location;
+import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
@@ -35,7 +42,10 @@ import com.google.firebase.storage.StorageReference;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Tejwinder Johal
@@ -44,7 +54,8 @@ import java.util.Map;
  * offers different options relating to the selected event.
  */
 public class OrganizerDialog extends Dialog {
-    private final EventForOrg eventForOrg; // <<< Use the Event object
+    private final EventForOrg eventForOrg;
+    private final Event event;
     private final NavController navController;
     //    private final View fragmentView;
 //    private final Map<String, Bitmap> qrCodeBitmaps;
@@ -58,13 +69,18 @@ public class OrganizerDialog extends Dialog {
      * This method is used to make an organizerdialog object.
      * @param context sets the context
      * @param eventForOrg sets the organizerdialog eventid
+     * @param event The Event object. It is here because there is no good way to map EventForOrg
+     *              -> Event
      * @param navController sets the organizerdialog navController
      * @param qrCodeImageView sets the organizerdialog fragmentView
      */
-    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, NavController navController,
-                           ImageView qrCodeImageView, Bitmap qrCodeBitmap, Runnable requestExportPermissionTask) {
+    public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, Event event,
+                           NavController navController, ImageView qrCodeImageView,
+                           Bitmap qrCodeBitmap,
+                           Runnable requestExportPermissionTask) { // Pass ImageView and Bitmap directly
         super(context);
-        this.eventForOrg = eventForOrg; // <<< Store the whole object
+        this.eventForOrg = eventForOrg;
+        this.event = event;
         this.navController = navController;
         this.qrCodeImageView = qrCodeImageView; // Store the direct reference
         this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
@@ -92,6 +108,7 @@ public class OrganizerDialog extends Dialog {
         Button messageButton = findViewById(R.id.button_message_participants);
         Button editEventButton = findViewById(R.id.button_edit_event);
         Button seeDetsButton = findViewById(R.id.seeDetailsButton);
+        Button buttonHeatMap = findViewById(R.id.button_dialog_event_options_showLocationHeatMap);
         Button cancelButton = findViewById(R.id.button_cancel);
         Button exportButton = findViewById(R.id.exportCSVButton);
 
@@ -108,8 +125,7 @@ public class OrganizerDialog extends Dialog {
         });
         // This button messages all of the people who have entered or who have won the lottery. NOT SURE WHICH.
         messageButton.setOnClickListener(v -> {
-            // TODO: Implement Message Entrants
-            dismiss();
+            showBroadcastOptions();
         });
         //This will send the user to EditEventFragment along with the event's id and the events text.
         editEventButton.setOnClickListener(v -> {
@@ -120,6 +136,7 @@ public class OrganizerDialog extends Dialog {
             // Navigate to the edit fragment
             navController.navigate(R.id.action_organizerMainFragment_to_editEventFragment, bundle);
         });
+
         //This gets rid of the popup.
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
@@ -127,7 +144,15 @@ public class OrganizerDialog extends Dialog {
             bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object    // Navigate to the full details fragment
 
             // Navigate to the full details fragment
-            navController.navigate(R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
+            navController.navigate(
+                    R.id.action_organizerMainFragment_to_eventFullDetailsFragment, bundle);
+        });
+
+        buttonHeatMap.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), EventHeatMapActivity.class);
+            intent.putExtra(EventHeatMapActivity.EXTRA_EVENT_ID, event.getEventId());
+            getContext().startActivity(intent);
+            dismiss();
         });
 
         exportButton.setOnClickListener(v -> {
@@ -155,7 +180,62 @@ public class OrganizerDialog extends Dialog {
                             e.getMessage() != null ? e.getMessage() : "Lottery draw failed.",
                             Toast.LENGTH_SHORT).show();
                     Log.e("OrganizerDialog", "Lottery draw failed", e);
-                });
+        });
+    }
+
+    private void showBroadcastOptions() {
+        final CharSequence[] options = {"Waitlist", "Selected", "Cancelled"};
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Send update to:")
+                .setItems(options, (dialog, which) -> {
+                    promptForCustomMessage(which);
+                })
+                .show();
+    }
+
+    private void promptForCustomMessage(int optionIndex) {
+        final android.widget.EditText input = new android.widget.EditText(getContext());
+        input.setHint("Enter message (optional)");
+        new android.app.AlertDialog.Builder(getContext())
+                .setTitle("Custom message")
+                .setView(input)
+                .setPositiveButton("Send", (d, w) -> {
+                    String message = input.getText().toString().trim();
+                    if (message.isEmpty()) {
+                        message = "Update for " + (eventForOrg.getName() != null ? eventForOrg.getName() : "this event");
+                    }
+                    sendNotification(optionIndex, message);
+                })
+                .setNegativeButton("Cancel", (d, w) -> d.dismiss())
+                .show();
+    }
+
+    private void sendNotification(int optionIndex, String message) {
+        switch (optionIndex) {
+            case 0:
+                eventService.notifyWaitlistEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified waitlist entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify waitlist.", Toast.LENGTH_SHORT).show());
+                break;
+            case 1:
+                eventService.notifySelectedEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified selected entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify selected entrants.", Toast.LENGTH_SHORT).show());
+                break;
+            case 2:
+                eventService.notifyCancelledEntrants(eventForOrg.getEventId(), message)
+                        .addOnSuccessListener(ignored -> Toast.makeText(getContext(),
+                                "Notified cancelled entrants.", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(getContext(),
+                                "Failed to notify cancelled entrants.", Toast.LENGTH_SHORT).show());
+                break;
+            default:
+                break;
+        }
     }
     private void exportEntrantsToCsv() {
         ArrayList<String> entrants = eventForOrg.getAccepted_Entrants();
