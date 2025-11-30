@@ -173,7 +173,7 @@ public class EventFullDetailsFragment extends Fragment {
 
         // Set array values
         entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getLottery_Winners()));
         cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
         registeredEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
 

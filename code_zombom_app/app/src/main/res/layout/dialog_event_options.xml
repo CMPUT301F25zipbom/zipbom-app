@@ -29,6 +29,12 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="message entrants" />
+    <Button
+        android:id="@+id/button_cancel_unregistered"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Cancel unregistered entrants" />
 
     <Button
         android:id="@+id/button_edit_event"

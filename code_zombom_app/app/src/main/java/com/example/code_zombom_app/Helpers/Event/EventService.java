@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.Helpers.Event;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -235,7 +237,6 @@ public class EventService {
 
     /**
      * Builds a QR payload string from the canonical event state, falling back to poster URL when available.
-     * TODO: Maybe in the future build a QR code that when scanned take the entrant to the event in the app ONLY
      */
     public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
@@ -446,6 +447,53 @@ public class EventService {
 
     public Task<Void> notifyCancelledEntrants(@NonNull String eventId, @Nullable String message) {
         return notifyGroup(eventId, NotificationGroup.CANCELLED, "org_cancelled", message);
+    }
+
+    /**
+     * Moves all entrants from the pending (accepted) list to the cancelled list.
+     * This is intended for use after a lottery draw and acceptance period have concluded.
+     *
+     * @param documentId The event's document id
+     * @return Task representing completion of the transaction.
+     */
+    public Task<Void> cancelUnregisteredEntrants(@NonNull String documentId) {
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
+                // This will trigger the error you saw before if the object can't be created
+                throw new IllegalStateException("Error converting document to Event object. Check Firestore field names!");
+            }
+
+            // Get the current lists from the event object
+            ArrayList<String> chosenList = event.getChosenList();
+            ArrayList<String> cancelledList = event.getCancelledList();
+
+            // Nothing to do if the pending list is already empty
+            if (chosenList == null || chosenList.isEmpty()) {
+                return null;
+            }
+            // Iterate through a copy of the pending list to avoid modification issues during the loop
+            for (String entrantEmail : new ArrayList<>(chosenList)) {
+                // Add the entrant to the cancelled list if they aren't already there
+                if (!cancelledList.contains(entrantEmail)) {
+                    cancelledList.add(entrantEmail);
+                }
+                // Record this specific action in the entrant's history
+                recordHistory(transaction, event, entrantEmail, Entrant.Status.CANCELLED);
+            }
+
+            // Clear the original pending list completely
+            chosenList.clear();
+
+            // Set the modified lists back to the event object to ensure they are saved
+            event.setChosenList(chosenList);
+            event.setCancelledList(cancelledList);
+
+            // Persist all the changes to the event document in Firestore.
+            transaction.set(eventRef, event);
+            return null;
+        });
     }
 
     private enum NotificationGroup { WAITLIST, SELECTED, CANCELLED }
