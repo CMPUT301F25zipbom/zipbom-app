@@ -102,6 +102,23 @@ public class Event implements Comparable<Event> {
     private String eventIdQRcode;
 
     /**
+     * Flag to control QR code generation in unit tests.
+     * When false, QR code generation is skipped to avoid Android SDK dependencies in JVM tests.
+     * Defaults to true for production behavior.
+     */
+    private static boolean qrCodeGenerationEnabled = true;
+
+    /**
+     * Sets whether QR code generation is enabled.
+     * This is primarily used in unit tests to avoid Android SDK dependencies.
+     *
+     * @param enabled true to enable QR code generation (default), false to disable
+     */
+    public static void setQrCodeGenerationEnabled(boolean enabled) {
+        qrCodeGenerationEnabled = enabled;
+    }
+
+    /**
      * Public no-arg constructor required by Firestore.
      * We also initialize sensible defaults here so objects created in code are usable.
      */
@@ -130,10 +147,14 @@ public class Event implements Comparable<Event> {
         drawTimestamp = 0L;
         waitingEntrantCount = 0;
 
-        // Generate QR code, but never crash if it fails (important for Firestore deserialization)
-        try {
-            generateQRcode();
-        } catch (WriterException e) {
+        // Generate QR code only if enabled (disabled in unit tests to avoid Android SDK dependencies)
+        if (qrCodeGenerationEnabled) {
+            try {
+                generateQRcode();
+            } catch (WriterException e) {
+                eventIdQRcode = null;
+            }
+        } else {
             eventIdQRcode = null;
         }
     }

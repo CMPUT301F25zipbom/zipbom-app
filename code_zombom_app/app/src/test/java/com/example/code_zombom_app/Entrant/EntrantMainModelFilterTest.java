@@ -16,13 +16,10 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -33,8 +30,6 @@ import static org.mockito.Mockito.when;
  * Unit tests for EntrantMainModel.filterEvent() method.
  * Tests the feature for filtering events based on interests and availability (US 01.01.04)
  * when events are loaded from Firestore.
- *
- * @author Test Suite
  */
 @RunWith(MockitoJUnitRunner.class)
 public class EntrantMainModelFilterTest {
@@ -61,36 +56,31 @@ public class EntrantMainModelFilterTest {
     private QueryDocumentSnapshot mockDocumentSnapshot4;
 
     private EntrantMainModel entrantMainModel;
+
     private static final String TEST_EMAIL = "test@example.com";
     private static final String GENRE_SPORT = "Sport";
     private static final String GENRE_MUSIC = "Music";
     private static final String GENRE_FOOD = "Food";
 
     /**
-     * Testable subclass of EntrantMainModel that allows dependency injection for testing.
+     * Testable subclass of EntrantMainModel that uses the
+     * Firestore-injecting constructor so tests never touch real Firebase.
      */
     private static class TestableEntrantMainModel extends EntrantMainModel {
-        private final FirebaseFirestore testDb;
 
         TestableEntrantMainModel(String email, FirebaseFirestore firestore) {
-            super(email);
-            this.testDb = firestore;
-            try {
-                // Use reflection to inject the mock Firestore instance
-                Field dbField = com.example.code_zombom_app.Helpers.Models.EventModel.class.getDeclaredField("db");
-                dbField.setAccessible(true);
-                dbField.set(this, firestore);
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to inject mock Firestore", e);
-            }
+            // IMPORTANT: this calls EventModel(FirebaseFirestore) under the hood
+            // so db is the Mockito mock, not FirebaseFirestore.getInstance()
+            super(email, firestore);
         }
     }
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        
-        // Setup Firestore collection mock
+        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        Event.setQrCodeGenerationEnabled(false);
+        // Whenever code calls db.collection("Events"), return the mocked collection
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
     }
 
@@ -136,15 +126,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act
         entrantMainModel.filterEvent(filter);
@@ -207,15 +196,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act
         entrantMainModel.filterEvent(filter);
@@ -286,15 +274,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act
         entrantMainModel.filterEvent(filter);
@@ -320,7 +307,6 @@ public class EntrantMainModelFilterTest {
         filter.setFilterStartDate(filterStart);
         filter.setFilterEndDate(filterEnd);
 
-        // Events that don't match
         Event wrongGenre = createTestEvent("event-1", "Wrong Genre", GENRE_MUSIC);
         wrongGenre.setEventStartDate(new Date(100, 0, 16));
         wrongGenre.setEventEndDate(new Date(100, 0, 18));
@@ -348,15 +334,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act
         entrantMainModel.filterEvent(filter);
@@ -382,13 +367,11 @@ public class EntrantMainModelFilterTest {
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            // Simulate failure callback
-            com.google.android.gms.tasks.OnFailureListener failureListener = 
+            com.google.android.gms.tasks.OnFailureListener failureListener =
                     invocation.getArgument(0);
             failureListener.onFailure(firestoreException);
             return mockTask;
@@ -421,15 +404,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act
         entrantMainModel.filterEvent(filter);
@@ -473,15 +455,14 @@ public class EntrantMainModelFilterTest {
         when(mockEventsCollection.get()).thenReturn(mockTask);
 
         doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener = 
+            com.google.android.gms.tasks.OnSuccessListener<QuerySnapshot> successListener =
                     invocation.getArgument(0);
             successListener.onSuccess(mockQuerySnapshot);
             return mockTask;
         }).when(mockTask).addOnSuccessListener(any(com.google.android.gms.tasks.OnSuccessListener.class));
 
-        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> {
-            return mockTask;
-        }).when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
+        doAnswer((Answer<Task<QuerySnapshot>>) invocation -> mockTask)
+                .when(mockTask).addOnFailureListener(any(com.google.android.gms.tasks.OnFailureListener.class));
 
         // Act - should not throw exception
         entrantMainModel.filterEvent(filter);
@@ -503,5 +484,3 @@ public class EntrantMainModelFilterTest {
         return event;
     }
 }
-
-
