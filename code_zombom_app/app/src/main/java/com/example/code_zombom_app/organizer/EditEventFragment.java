@@ -16,16 +16,33 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Location.Location;
+import com.example.code_zombom_app.Helpers.Mail.Mail;
+import com.example.code_zombom_app.Helpers.Mail.MailService;
 import com.example.code_zombom_app.R;
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
 import java.util.Date;
+import com.example.code_zombom_app.Helpers.Event.Event;
+import com.example.code_zombom_app.Helpers.Event.EventMapper;
+import com.example.code_zombom_app.organizer.EventForOrg;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Calendar;
+
+import kotlinx.coroutines.scheduling.Task;
 
 /**
  * Fragment that allows an organizer to edit an existing Event.
  *
- * @author Dang Nguyen, Teji
+ * @author Dang Nguyen, Teji, Robert Enstrom
  * @version 11/27/2025
  */
 public class EditEventFragment extends AddEventFragment {
@@ -182,8 +199,7 @@ public class EditEventFragment extends AddEventFragment {
         if (event.getGenre() != null && spinnerGenre != null &&
                 spinnerGenre.getAdapter() instanceof ArrayAdapter) {
 
-            ArrayAdapter<String> adapter =
-                    (ArrayAdapter<String>) spinnerGenre.getAdapter();
+            ArrayAdapter<String> adapter = (ArrayAdapter<String>) spinnerGenre.getAdapter();
             int pos = adapter.getPosition(event.getGenre());
             if (pos >= 0) {
                 spinnerGenre.setSelection(pos);
@@ -220,6 +236,9 @@ public class EditEventFragment extends AddEventFragment {
         baseEvent.setEventEndDate(getDateFromDatePicker(datePickerEndDate));
         baseEvent.setLocation(location);
 
+        // We notify users
+        notifyusers(baseEvent);
+
         try {
             int capacity = Integer.parseInt(maxPeopleEditText.getText().toString());
             baseEvent.setCapacity(capacity);
@@ -235,5 +254,27 @@ public class EditEventFragment extends AddEventFragment {
         }
 
         // NOTE: we do NOT touch waitlist entries, chosen list, etc.
+    }
+
+    /**
+     * Gets our event and sends notifications to all users inside of the registered list
+     * @param ourevent is our event.
+     */
+    void notifyusers (Event ourevent){
+        // We need to loop through the list of people and see if they have notifications turned on.
+        // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
+
+        // Get this list of entrants and then we loop through
+        ArrayList<String> people = ourevent.getRegisteredList();
+        if (people == null){return;}
+        for (int i = 0; i < people.size(); i++){
+            Mail noti = new Mail(people.get(i), people.get(i), Mail.MailType.EDITED_EVENT);
+            noti.setReceiver(people.get(i));
+            noti.setContent("An event you have entered into has been edited.");
+            noti.setRead(false);
+            noti.setHeader("Edited event");
+            noti.setTimestamp(Timestamp.now());
+            MailService.sendMail(noti);
+        }
     }
 }
