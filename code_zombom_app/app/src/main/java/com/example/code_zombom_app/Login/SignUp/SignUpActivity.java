@@ -78,7 +78,6 @@ public class SignUpActivity extends AppCompatActivity implements TView<SignUpMod
             textViewAddress.setText(displayAddress);
         }
 
-        //TODO: with sufficient time: Create a clear address button
     }
 
     /**
