@@ -206,7 +206,6 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
      *
      * @param model The control model of this view
      */
-    //TODO: Implement a sorting method as well
     private void openFilterPopUpWindow(EntrantMainModel model) {
         EventFilter filter = new EventFilter();
 

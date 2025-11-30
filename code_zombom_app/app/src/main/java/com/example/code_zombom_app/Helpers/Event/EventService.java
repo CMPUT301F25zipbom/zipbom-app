@@ -235,7 +235,6 @@ public class EventService {
 
     /**
      * Builds a QR payload string from the canonical event state, falling back to poster URL when available.
-     * TODO: Maybe in the future build a QR code that when scanned take the entrant to the event in the app ONLY
      */
     public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
