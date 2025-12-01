@@ -1,42 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:background="#4CAF50"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="12dp">
+    android:orientation="vertical"
+    android:background="#333333">
 
-    <!-- Top menu buttons -->
+    <!-- Container for the 4 Buttons -->
     <LinearLayout
-        android:orientation="horizontal"
-        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="3">
+        android:orientation="horizontal"
+        android:weightSum="4"
+        android:padding="4dp">
 
         <Button
             android:id="@+id/button_home_events"
-            style="@style/AdminTabButton"
-            android:text="Events"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Events"
+            android:textSize="10sp"
+            android:layout_marginEnd="2dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
         <Button
             android:id="@+id/button_home_profiles"
-            style="@style/AdminTabButton"
-            android:text="Profiles"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Profiles"
+            android:textSize="10sp"
+            android:layout_marginEnd="2dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
         <Button
             android:id="@+id/button_home_posters"
-            style="@style/AdminTabButton"
-            android:text="Posters"/>
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Posters"
+            android:textSize="10sp"
+            android:layout_marginEnd="2dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
 
+        <Button
+            android:id="@+id/button_home_logs"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Logs"
+            android:textSize="10sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"/>
     </LinearLayout>
 
-    <!-- Content area -->
+    <!-- Container for the inner fragments -->
     <FrameLayout
         android:id="@+id/admin_panel_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#FFFFFF"/>
+        android:layout_height="match_parent" />
 
 </LinearLayout>

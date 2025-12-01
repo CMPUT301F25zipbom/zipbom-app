@@ -16,9 +16,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.code_zombom_app.R;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+/**
+ * Handles Administrator authentication.
+ * Verifies a security code entered by the user against the code stored in Firestore
+ * before granting access to the Admin Dashboard.
+ */
 public class AdminLoginFragment extends Fragment {
 
     private EditText passwordInput;
@@ -32,6 +36,12 @@ public class AdminLoginFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_admin_login, container, false);
     }
 
+    /**
+     * Initializes UI components and sets up the login button listener.
+     *
+     * @param view               The View returned by onCreateView.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,6 +55,10 @@ public class AdminLoginFragment extends Fragment {
         loginButton.setOnClickListener(v -> verifyAdminCode());
     }
 
+    /**
+     * Validates the input code against the 'AdminData/security' document in Firestore.
+     * If the code matches, navigates to the admin dashboard. Otherwise, displays an error.
+     */
     private void verifyAdminCode() {
         String inputCode = passwordInput.getText().toString().trim();
 
@@ -53,11 +67,9 @@ public class AdminLoginFragment extends Fragment {
             return;
         }
 
-        // Hide error while checking
         errorText.setVisibility(View.GONE);
-        loginButton.setEnabled(false); // Prevent double clicks
+        loginButton.setEnabled(false);
 
-        // Check Firestore: Collection "AdminData", Document "security"
         db.collection("AdminData").document("security")
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -65,14 +77,11 @@ public class AdminLoginFragment extends Fragment {
                         String realCode = documentSnapshot.getString("adminCode");
 
                         if (realCode != null && realCode.equals(inputCode)) {
-                            // SUCCESS: Navigate to the Dashboard
                             navigateToAdminDashboard();
                         } else {
-                            // FAIL: Wrong code
                             showError("Invalid Admin Code");
                         }
                     } else {
-                        // Document doesn't exist (Forgot Step 1?)
                         showError("System Error: No Admin Config found.");
                     }
                     loginButton.setEnabled(true);
@@ -84,23 +93,27 @@ public class AdminLoginFragment extends Fragment {
                 });
     }
 
+    /**
+     * Displays an error message to the user.
+     *
+     * @param message The error string to display.
+     */
     private void showError(String message) {
         errorText.setText(message);
         errorText.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Navigates the user to the AdminHomeFragment upon successful login.
+     * Replaces the current fragment in the main activity container.
+     */
     private void navigateToAdminDashboard() {
         Toast.makeText(getContext(), "Admin Access Granted", Toast.LENGTH_SHORT).show();
 
-        // Navigate to your existing Tab View or Admin Home Fragment
-        // Assuming you have a fragment that holds the Profile/Event tabs:
-        Fragment adminHomeFragment = new AdminHomeFragment(); // OR whatever your main Admin container is called
-
-        // If you don't have a container and just want to go straight to Profiles:
-        // Fragment adminHomeFragment = new ProfileAdminFragment();
+        Fragment adminHomeFragment = new AdminHomeFragment();
 
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-        transaction.replace(R.id.nav_host_fragment_activity_main, adminHomeFragment); // Ensure this ID matches your Activity's container ID
+        transaction.replace(R.id.nav_host_fragment_activity_main, adminHomeFragment);
         transaction.addToBackStack(null);
         transaction.commit();
     }

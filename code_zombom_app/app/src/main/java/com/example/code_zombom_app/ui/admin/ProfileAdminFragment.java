@@ -28,6 +28,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.List;
 
+/**
+ * Admin fragment for managing User Profiles.
+ * Provides functionality to list all profiles, view details, and delete profiles.
+ */
 public class ProfileAdminFragment extends Fragment {
 
     private LinearLayout profilesContainer;
@@ -35,6 +39,9 @@ public class ProfileAdminFragment extends Fragment {
     private CollectionReference profilesDb;
     private static final String TAG = "ProfileAdminFragment";
 
+    /**
+     * Configures the layout for the profile list view.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -62,6 +69,9 @@ public class ProfileAdminFragment extends Fragment {
         return rootLayout;
     }
 
+    /**
+     * Initializes Firestore connection and starts listening for profile data.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -70,15 +80,24 @@ public class ProfileAdminFragment extends Fragment {
         loadProfilesFromDatabase();
     }
 
+    /**
+     * Listens for changes in the 'Profiles' collection and updates the UI in real-time.
+     */
     private void loadProfilesFromDatabase() {
         profilesDb.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e(TAG, "Error loading profiles", error);
                 return;
             }
+
+            if (!isAdded() || getContext() == null) {
+                return;
+            }
+
             if (profilesContainer != null) {
                 profilesContainer.removeAllViews();
             }
+
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
                     String name = snapshot.getString("name");
@@ -94,7 +113,7 @@ public class ProfileAdminFragment extends Fragment {
                             .append("Email: ").append(email).append("\n")
                             .append("Role: ").append(type);
 
-                    View profileView = LayoutInflater.from(requireContext())
+                    View profileView = LayoutInflater.from(getContext())
                             .inflate(R.layout.profile_admin_list, profilesContainer, false);
 
                     TextView textView = profileView.findViewById(R.id.profile_item_textview);
@@ -107,7 +126,7 @@ public class ProfileAdminFragment extends Fragment {
                     profilesContainer.addView(profileView);
                 }
             } else {
-                TextView noProfiles = new TextView(requireContext());
+                TextView noProfiles = new TextView(getContext());
                 noProfiles.setText("No profiles found.");
                 noProfiles.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
                 noProfiles.setTextSize(18);
@@ -117,6 +136,9 @@ public class ProfileAdminFragment extends Fragment {
         });
     }
 
+    /**
+     * Shows a dialog confirming profile deletion.
+     */
     private void showDeleteConfirmationDialog(QueryDocumentSnapshot snapshot) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Profile")
@@ -126,6 +148,9 @@ public class ProfileAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Prompts the administrator to enter a reason for deletion.
+     */
     private void showReasonInputDialog(QueryDocumentSnapshot snapshot) {
         final EditText input = new EditText(requireContext());
         input.setHint("Enter reason for deleting this profile");
@@ -149,6 +174,10 @@ public class ProfileAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Displays detailed profile information, including contact info and event history.
+     * Provides access to view notification logs for the user.
+     */
     private void showProfileDetailsDialog(QueryDocumentSnapshot snapshot) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.profile_pop_up, null);
@@ -158,7 +187,6 @@ public class ProfileAdminFragment extends Fragment {
         View notifBtn = dialogView.findViewById(R.id.button_notification_logs);
         View cancelBtn = dialogView.findViewById(R.id.button_cancel_profile_dialog);
 
-        // Get the EMAIL specifically for the query
         String name = snapshot.getString("name");
         String email = snapshot.getString("email");
         String phone = snapshot.getString("phone");
@@ -185,9 +213,7 @@ public class ProfileAdminFragment extends Fragment {
                 .create();
 
         if (notifBtn != null) {
-            // Check if email exists before querying
             if (email != null && !email.isEmpty()) {
-                // Pass the EMAIL to the notification logs function
                 notifBtn.setOnClickListener(v -> showNotificationLogs(email));
             } else {
                 notifBtn.setOnClickListener(v ->
@@ -204,8 +230,10 @@ public class ProfileAdminFragment extends Fragment {
     }
 
     /**
-     * Shows notification logs by querying the global 'Notifications' collection
-     * where 'reciever' matches the profile email.
+     * Fetches and displays notification logs specific to the selected user's email.
+     * Queries the root 'Notifications' collection.
+     *
+     * @param profileEmail The email of the profile whose notifications should be shown.
      */
     private void showNotificationLogs(String profileEmail) {
         View dialogView = LayoutInflater.from(requireContext())
@@ -218,9 +246,8 @@ public class ProfileAdminFragment extends Fragment {
                 .setView(dialogView)
                 .create();
 
-        // Query the root 'Notifications' collection for the specific email
         db.collection("Notifications")
-                .whereEqualTo("reciever", profileEmail) // Uses exact spelling from your DB
+                .whereEqualTo("reciever", profileEmail)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (queryDocumentSnapshots.isEmpty()) {
@@ -238,17 +265,14 @@ public class ProfileAdminFragment extends Fragment {
                             TextView tvMessage = itemView.findViewById(R.id.notif_item_message);
                             TextView tvDate = itemView.findViewById(R.id.notif_item_date);
 
-                            // Extract fields based on your provided data structure
                             String type = doc.getString("notificationtype");
-                            String timeStr = doc.getString("time"); // "Fri Nov 28 23:32:51 MST 2025"
+                            String timeStr = doc.getString("time");
 
-                            // Check if there is a message, otherwise construct one
                             String message = doc.getString("message");
                             if (message == null) {
                                 message = "Sent via " + (type != null ? type : "system");
                             }
 
-                            // Set Data
                             tvTitle.setText(type != null ? "Type: " + type : "Notification");
                             tvMessage.setText(message);
                             tvDate.setText(timeStr != null ? timeStr : "Unknown Date");
