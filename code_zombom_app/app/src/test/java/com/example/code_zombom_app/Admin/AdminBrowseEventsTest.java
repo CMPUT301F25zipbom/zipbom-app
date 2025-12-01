@@ -10,10 +10,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -21,6 +21,10 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+/**
+ * Verifies that EventsAdminFragment registers a snapshot listener on the "Events"
+ * collection when loading events for the admin to browse.
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class AdminBrowseEventsTest {
 
@@ -34,37 +38,43 @@ public class AdminBrowseEventsTest {
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
+        // Create fragment instance (no need to attach to an Activity/FragmentManager)
         fragment = new EventsAdminFragment();
 
+        // Inject mocked Firestore instance into private field 'db'
         Field dbField = EventsAdminFragment.class.getDeclaredField("db");
         dbField.setAccessible(true);
         dbField.set(fragment, mockFirestore);
 
+        // Inject mocked Events collection into private field 'eventsdb'
         Field eventsField = EventsAdminFragment.class.getDeclaredField("eventsdb");
         eventsField.setAccessible(true);
         eventsField.set(fragment, mockEventsCollection);
 
+        // When the fragment asks Firestore for the "Events" collection, return our mock
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
 
+        // Stub addSnapshotListener so it accepts any listener but does nothing
         doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
             EventListener<QuerySnapshot> listener =
                     (EventListener<QuerySnapshot>) invocation.getArgument(0);
-            // Do not invoke the listener to avoid UI dependencies.
+            // We intentionally do NOT invoke the listener to avoid UI / LiveData logic.
             return null;
         }).when(mockEventsCollection).addSnapshotListener(any(EventListener.class));
     }
 
     @Test
     public void loadEventsFromDatabase_AdminBrowsesEvents_RegistersSnapshotListener() throws Exception {
-        java.lang.reflect.Method method = EventsAdminFragment.class
-                .getDeclaredMethod("loadEventsFromDatabase");
+        // Call the private loadEventsFromDatabase() method via reflection
+        Method method = EventsAdminFragment.class.getDeclaredMethod("loadEventsFromDatabase");
         method.setAccessible(true);
         method.invoke(fragment);
 
+        // Verify Firestore "Events" collection was requested
         verify(mockFirestore, atLeastOnce()).collection("Events");
+
+        // Verify a snapshot listener was registered on that collection
         verify(mockEventsCollection, atLeastOnce()).addSnapshotListener(any(EventListener.class));
     }
 }

@@ -1,5 +1,4 @@
-// File: app/src/test/java/com/example/code_zombom_app/organizer/OrganizerEventSettingsTest.java
-package com.example.code_zombom_app.organizer;
+package com.example.code_zombom_app.Organizer;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Location.Location;

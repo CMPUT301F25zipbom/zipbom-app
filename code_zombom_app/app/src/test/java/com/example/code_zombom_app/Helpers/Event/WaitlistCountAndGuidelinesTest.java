@@ -23,13 +23,18 @@ public class WaitlistCountAndGuidelinesTest {
     public void getNumberOfWaiting_ReflectsJoinLeaveOperations() {
         Event event = new Event("Count Test");
 
+        assertEquals(0, event.getNumberOfWaiting());
+
         event.joinWaitingList("a@example.com");
+        assertEquals(1, event.getNumberOfWaiting());
+
         event.joinWaitingList("b@example.com");
         assertEquals(2, event.getNumberOfWaiting());
 
         event.leaveWaitingList("a@example.com");
         assertEquals(1, event.getNumberOfWaiting());
     }
+
 
     @Test
     public void lotteryGuidelines_AddAndRemoveGuideline() {

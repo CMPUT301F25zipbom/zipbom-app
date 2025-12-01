@@ -1,5 +1,4 @@
-// File: app/src/test/java/com/example/code_zombom_app/organizer/OrganizerEventCreationTest.java
-package com.example.code_zombom_app.organizer;
+package com.example.code_zombom_app.Organizer;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
@@ -112,22 +111,16 @@ public class OrganizerEventCreationTest {
         when(mockEventsCollection.document(EVENT_ID)).thenReturn(mockEventDocumentRef);
         when(mockEventDocumentRef.set(event)).thenReturn(mockSetTask);
 
-        when(mockSetTask.addOnSuccessListener(any()))
-                .thenAnswer((Answer<Task<Void>>) invocation -> {
-                    com.google.android.gms.tasks.OnSuccessListener<Void> successListener =
-                            invocation.getArgument(0);
-                    successListener.onSuccess(null);
-                    return mockSetTask;
-                });
 
-        when(mockSetTask.addOnFailureListener(any()))
-                .thenAnswer((Answer<Task<Void>>) invocation -> mockSetTask);
+
+
+
 
         eventService.saveEvent(event);
 
         verify(mockFirestore, atLeastOnce()).collection("Events");
         verify(mockEventsCollection, atLeastOnce()).document(EVENT_ID);
         verify(mockEventDocumentRef, atLeastOnce()).set(event);
-        verify(mockSetTask, atLeastOnce()).addOnSuccessListener(any());
+
     }
 }

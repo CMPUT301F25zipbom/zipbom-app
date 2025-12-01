@@ -1,5 +1,4 @@
-// File: app/src/test/java/com/example/code_zombom_app/organizer/OrganizerSelectionAndReplacementTest.java
-package com.example.code_zombom_app.organizer;
+package com.example.code_zombom_app.Organizer;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
@@ -26,6 +25,7 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
@@ -53,6 +53,38 @@ public class OrganizerSelectionAndReplacementTest {
     @Mock
     private Transaction mockTransaction;
 
+    // 🔽 NEW mocks for the stuff EventService touches in recordHistory / notifications
+    @Mock
+    private CollectionReference mockHistoryCollection;
+
+    @Mock
+    private DocumentReference mockHistoryDocumentRef;
+
+    @Mock
+    private CollectionReference mockProfilesCollection;
+
+    @Mock
+    private DocumentReference mockProfileDocumentRef;
+
+    @Mock
+    private CollectionReference mockResponsesCollection;
+
+    @Mock
+    private DocumentReference mockResponseDocumentRef;
+
+    @Mock
+    private CollectionReference mockNotificationsCollection;
+
+    @Mock
+    private DocumentReference mockNotificationDocumentRef;
+
+    @Mock
+    private CollectionReference mockNotificationPrefsCollection;
+
+    @Mock
+    private DocumentReference mockNotificationPrefDocumentRef;
+    // 🔼 END new mocks
+
     private EventService eventService;
 
     private static final String EVENT_ID = "org-lottery-event";
@@ -63,13 +95,50 @@ public class OrganizerSelectionAndReplacementTest {
         Event.setQrCodeGenerationEnabled(false);
 
         eventService = new EventService(mockFirestore);
+
+        // Existing wiring
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
         when(mockEventsCollection.document(EVENT_ID)).thenReturn(mockEventDocumentRef);
+
+        // 🔽 NEW wiring so recordHistory / isNotificationsEnabled don’t NPE
+
+        // Events/{eventId}/History
+        when(mockEventDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
+        when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
+
+        // Events/{eventId}/Responses
+        when(mockEventDocumentRef.collection("Responses")).thenReturn(mockResponsesCollection);
+        when(mockResponsesCollection.document(anyString())).thenReturn(mockResponseDocumentRef);
+
+        // Events/{eventId}/Notifications
+        when(mockEventDocumentRef.collection("Notifications")).thenReturn(mockNotificationsCollection);
+        when(mockNotificationsCollection.document()).thenReturn(mockNotificationDocumentRef);
+
+        // Profiles/{email}
+        when(mockFirestore.collection("Profiles")).thenReturn(mockProfilesCollection);
+        when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
+
+        // NotificationPreferences/{email}
+        when(mockFirestore.collection("NotificationPreferences")).thenReturn(mockNotificationPrefsCollection);
+        when(mockNotificationPrefsCollection.document(anyString())).thenReturn(mockNotificationPrefDocumentRef);
+        // 🔼 END wiring
     }
 
+    /**
+     * Make transaction.get(eventDoc) return our in-memory Event via mockEventSnapshot,
+     * and also make transaction.get(profile/prefs docs) return a harmless snapshot so
+     * isNotificationsEnabled() doesn't crash.
+     */
     private void mockTransactionGet(Event event) throws Exception {
+        // For the event document
         when(mockTransaction.get(mockEventDocumentRef)).thenReturn(mockEventSnapshot);
         when(mockEventSnapshot.toObject(Event.class)).thenReturn(event);
+
+        // For NotificationPreferences and Profiles, just return the same snapshot
+        // with `exists() == false` so isNotificationsEnabled falls back to default (true).
+        when(mockTransaction.get(mockNotificationPrefDocumentRef)).thenReturn(mockEventSnapshot);
+        when(mockTransaction.get(mockProfileDocumentRef)).thenReturn(mockEventSnapshot);
+        when(mockEventSnapshot.exists()).thenReturn(false);
     }
 
     private void mockSuccessfulTransaction() {
@@ -85,12 +154,28 @@ public class OrganizerSelectionAndReplacementTest {
         }).when(mockFirestore).runTransaction(any(Transaction.Function.class));
     }
 
-    private <T> T awaitTask(Task<T> task) throws ExecutionException {
+    private <T> T awaitTask(Task<T> task) throws Exception {
+        if (task == null) {
+            throw new NullPointerException("Task was null");
+        }
+
+        if (!task.isComplete()) {
+            throw new IllegalStateException("Task not complete");
+        }
+
         if (task.isSuccessful()) {
             return task.getResult();
         }
-        throw new ExecutionException(task.getException());
+
+        Exception e = task.getException();
+        if (e != null) {
+            // Just rethrow the real cause instead of wrapping in ExecutionException
+            throw e;
+        }
+
+        throw new Exception("Task failed with no exception");
     }
+
 
     @Test
     public void runLotteryDraw_SamplesUpToCapacityFromWaitingList() throws Exception {

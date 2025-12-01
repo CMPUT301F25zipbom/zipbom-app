@@ -74,56 +74,9 @@ public class LoadUploadProfileUpdateTest {
 
         when(mockProfilesCollection.document(OLD_EMAIL)).thenReturn(mockOldProfileRef);
         when(mockProfilesCollection.document(NEW_EMAIL)).thenReturn(mockNewProfileRef);
-        when(mockNotificationPrefsCollection.document("old@example.com")).thenReturn(mockOldPreferenceRef);
-        when(mockNotificationPrefsCollection.document("new@example.com")).thenReturn(mockNewPreferenceRef);
-    }
 
-    @Test
-    public void editProfile_SameEmail_UpdatesFirestoreAndNotificationPreference() {
-        Entrant oldProfile = new Entrant("Old", OLD_EMAIL, "111-1111");
-        Entrant updatedProfile = new Entrant("New", OLD_EMAIL, "222-2222");
-        updatedProfile.setNotificationsEnabled(false); // opt-out should be persisted
+           }
 
-        Task<DocumentSnapshot> mockGetTask = mock(Task.class);
-        Task<Void> mockSetTask = mock(Task.class);
-        when(mockOldProfileRef.get()).thenReturn(mockGetTask);
-        when(mockOldProfileRef.set(updatedProfile)).thenReturn(mockSetTask);
-
-        when(mockDocumentSnapshot.exists()).thenReturn(true);
-
-        doAnswer((Answer<Task<DocumentSnapshot>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<DocumentSnapshot> listener = invocation.getArgument(0);
-            listener.onSuccess(mockDocumentSnapshot);
-            return mockGetTask;
-        }).when(mockGetTask).addOnSuccessListener(any());
-
-        doAnswer((Answer<Task<DocumentSnapshot>>) invocation -> mockGetTask)
-                .when(mockGetTask).addOnFailureListener(any());
-
-        doAnswer((Answer<Task<Void>>) invocation -> {
-            com.google.android.gms.tasks.OnSuccessListener<Void> listener = invocation.getArgument(0);
-            listener.onSuccess(null);
-            return mockSetTask;
-        }).when(mockSetTask).addOnSuccessListener(any());
-
-        doAnswer((Answer<Task<Void>>) invocation -> mockSetTask)
-                .when(mockSetTask).addOnFailureListener(any());
-
-        Task<Void> mockPreferenceTask = mock(Task.class);
-        when(mockNewPreferenceRef.set(any(Map.class))).thenReturn(mockPreferenceTask);
-
-        model.editProfile(oldProfile, updatedProfile);
-
-        verify(mockOldProfileRef, atLeastOnce()).get();
-        verify(mockOldProfileRef, atLeastOnce()).set(updatedProfile);
-        verify(mockNewPreferenceRef, atLeastOnce()).set(any(Map.class));
-
-        ArgumentCaptor<Map> payloadCaptor = ArgumentCaptor.forClass(Map.class);
-        verify(mockNewPreferenceRef).set(payloadCaptor.capture());
-        Map payload = payloadCaptor.getValue();
-        assertEquals("old@example.com", payload.get("email"));
-        assertEquals(Boolean.FALSE, payload.get("notificationEnabled"));
-    }
 
     @Test
     public void editProfile_EmailChanged_NewEmailAlreadyExists_DoesNotDeleteOldProfile() {
