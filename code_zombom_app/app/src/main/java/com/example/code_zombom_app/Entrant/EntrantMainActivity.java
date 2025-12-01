@@ -46,6 +46,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Entrant's main activity.
+ *
+ *
+ */
 public class EntrantMainActivity extends AppCompatActivity implements TView<EntrantMainModel> {
     private String email;
     //private EntrantEventListViewModel eventViewModel;
@@ -165,11 +170,6 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         });
     }
 
-//    private void showFilterActivity() {
-//        Intent intent = new Intent(this, FilterSortActivity.class);
-//        intent.putExtra(FilterSortActivity.EXTRA_INITIAL_STATE, eventViewModel.getFilterSortState());
-//        filterLauncher.launch(intent);
-//    }
 
     @Override
     public void update(EntrantMainModel model) {
@@ -409,7 +409,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         LayoutInflater inflater = LayoutInflater.from(this);
         View view = inflater.inflate(R.layout.entrant_full_event_details, null, false);
 
-        // Map Event -> EventForOrg (like you did in adapter)
+        // Map Event -> EventForOrg
         EventForOrg dto = EventMapper.toDto(event);
 
         ImageView posterImageView = view.findViewById(R.id.imageView_entrant_full_details_poster);

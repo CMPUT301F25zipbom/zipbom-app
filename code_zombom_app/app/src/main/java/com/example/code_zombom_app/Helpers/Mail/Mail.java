@@ -211,12 +211,6 @@ public class Mail {
                     Log.e("Mail", "Cannot send this mail", e);
                 });
 
-        /*
-         * If you want to trigger a push notification:
-         * - Write a Cloud Function that listens to onCreate of documents in "Mails"
-         * - In that function, look up the receiver's FCM token and send an FCM message
-         * - The Android app handles FCM in FirebaseMessagingService and shows a notification
-         */
     }
 
     /**
