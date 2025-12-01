@@ -3,7 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#121212"> <!-- Dark Background -->
+    android:clickable="true"
+    android:focusable="true"
+    android:background="#121212"> <!-- 1. SOLID DARK BACKGROUND -->
 
     <TextView
         android:layout_width="match_parent"
