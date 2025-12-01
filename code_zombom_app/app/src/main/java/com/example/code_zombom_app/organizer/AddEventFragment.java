@@ -245,31 +245,6 @@ public class AddEventFragment extends Fragment {
     }
 
     /**
-     * Main action method triggered by the primary button (Save/Update).
-     * It validates input, gathers data, and starts the image upload process if needed.
-     */
-    protected void onSaveOrUpdateButtonClicked() {
-        if (!validateAllInput()) {
-            return; // Validation methods show Toasts.
-        }
-
-        // --- REFACTORED: Create or update the canonical Event object ---
-        Event event = gatherEventData();
-        if (event == null) {
-            Toast.makeText(getContext(), "Invalid event details. Please check your input.",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if (imageUri != null) {
-            uploadImageAndProcessEvent(event);
-        } else {
-            // No new image, just process the event object.
-            processEvent(event);
-        }
-    }
-
-    /**
      * uploads the event and its poster onto the firebase
      * @param event
      */
@@ -372,14 +347,6 @@ public class AddEventFragment extends Fragment {
     }
 
     /**
-     * Opens the device's gallery for the user to pick an image.
-     */
-    private void openGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        imagePickerLauncher.launch(intent);
-    }
-
-    /**
      * Main action method triggered by the primary button (Save/Update).
      * It validates input, gathers data, and starts the image upload process if needed.
      */
@@ -405,27 +372,6 @@ public class AddEventFragment extends Fragment {
             // No new image, just process the event object.
             processEvent(event);
         }
-    }
-
-    protected void uploadImageAndProcessEvent(Event event) {
-        StorageReference storageRef = storage.getReference().child("posters/" +
-                event.getEventId() + ".jpg");
-        storageRef.putFile(imageUri)
-                .addOnSuccessListener(taskSnapshot -> storageRef.getDownloadUrl()
-                        .addOnSuccessListener(uri -> {
-                            // --- REFACTORED: Set the poster URL on the event object ---
-                            event.setPosterUrl(uri.toString());
-                            processEvent(event); // Process the fully updated event
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(getContext(), "Failed to get poster URL.",
-                                    Toast.LENGTH_SHORT).show();
-                            processEvent(event); // Process without the poster URL
-                        }))
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Poster upload failed.", Toast.LENGTH_SHORT).show();
-                    processEvent(event); // Process without the poster URL
-                });
     }
 
 
