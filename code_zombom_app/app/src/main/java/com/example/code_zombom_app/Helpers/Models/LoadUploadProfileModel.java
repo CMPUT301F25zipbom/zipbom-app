@@ -6,18 +6,26 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.example.code_zombom_app.Helpers.MVC.GModel;
+import com.example.code_zombom_app.Helpers.Users.Admin;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
+import com.example.code_zombom_app.Helpers.Users.Organizer;
 import com.example.code_zombom_app.Helpers.Users.Profile;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
 public class LoadUploadProfileModel extends GModel {
     protected FirebaseFirestore db;
     protected static final String errorTag = "FireBaseFireStore Error"; // Tag to debug errors
     public LoadUploadProfileModel(FirebaseFirestore db) {
         super();
-        this.db = db; // Force the database to be initialized within a context
+        this.db = db; // Force the database to be initialized within a context.
     }
 
     /**
@@ -44,32 +52,30 @@ public class LoadUploadProfileModel extends GModel {
         db.collection("Profiles").document(email)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        state = State.LOGIN_SUCCESS;
-
-                        Profile profile = null;
-                        String type = snapshot.getString("type");
-                        if ("Entrant".equals(type)) {
-                            // Keep entrant-specific fields intact by deserializing into Entrant
-                            try {
-                                profile = snapshot.toObject(Entrant.class);
-                            } catch (RuntimeException e) {
-                                Log.e("Loading Profile Error", "Silently ignoring documents" +
-                                        "that not convertible to type Entrant", e);
-                            }
-                        } else {
-                            profile = snapshot.toObject(Profile.class);
-                        }
-
-                        if (profile != null) {
-                            setInterMsg("Profile", profile);
-                        }
-                        notifyViews();
-                    } else {
+                    if (!snapshot.exists()) {
                         state = State.LOGIN_FAILURE;
                         errorMsg = "Cannot find profile!";
                         notifyViews();
+                        return;
                     }
+
+                    Profile profile = deserializeProfile(snapshot, email);
+                    if (profile == null) {
+                        state = State.LOGIN_FAILURE;
+                        errorMsg = "Profile is missing required fields.";
+                        notifyViews();
+                        return;
+                    }
+
+                    try {
+                        setInterMsg("Profile", profile);
+                        state = State.LOGIN_SUCCESS;
+                    } catch (IllegalArgumentException e) {
+                        Log.e(errorTag, "Unable to pass profile to the view layer", e);
+                        state = State.LOGIN_FAILURE;
+                        errorMsg = "Cannot share profile data with the view.";
+                    }
+                    notifyViews();
 
                 })
                 .addOnFailureListener(e -> {
@@ -78,6 +84,61 @@ public class LoadUploadProfileModel extends GModel {
                     errorMsg = "Cannot query the database!";
                     notifyViews();
                 });
+    }
+
+    @Nullable
+    private Profile deserializeProfile(DocumentSnapshot snapshot, String email) {
+        if (snapshot == null) {
+            return null;
+        }
+
+        String rawType = snapshot.getString("type");
+        String resolvedType = rawType != null ? rawType.trim() : "";
+        if (resolvedType.isEmpty()) {
+            resolvedType = "Entrant";
+            Log.w("LoadUploadProfileModel", "Profile " + email +
+                    " missing type; defaulting to Entrant");
+        }
+
+        Profile profile = null;
+        boolean usedPlainProfile = false;
+        try {
+            switch (resolvedType) {
+                case "Organizer":
+                    profile = snapshot.toObject(Organizer.class);
+                    break;
+                case "Admin":
+                    profile = snapshot.toObject(Admin.class);
+                    break;
+                case "Entrant":
+                    profile = snapshot.toObject(Entrant.class);
+                    break;
+                default:
+                    profile = snapshot.toObject(Profile.class);
+                    usedPlainProfile = true;
+                    break;
+            }
+        } catch (RuntimeException e) {
+            Log.e("LoadUploadProfileModel", "Unable to map profile for " + email, e);
+        }
+
+        if (profile == null && !usedPlainProfile) {
+            try {
+                profile = snapshot.toObject(Profile.class);
+                usedPlainProfile = true;
+            } catch (RuntimeException e) {
+                Log.e("LoadUploadProfileModel", "Plain profile fallback failed for " + email, e);
+            }
+        }
+
+        if (profile != null) {
+            String profileType = profile.getType();
+            if (profileType == null || profileType.trim().isEmpty()) {
+                profile.setType(resolvedType);
+            }
+        }
+
+        return profile;
     }
 
     /**
@@ -96,6 +157,11 @@ public class LoadUploadProfileModel extends GModel {
         try {
             if (type.equals("Entrant"))
                 profile = new Entrant(name, email, phone);
+            else if (type.equals("Organizer")) {
+                profile = new Organizer(name, email, phone);
+            } else if (type.equals("Admin")) {
+                profile = new Admin(name, email, phone);
+            }
             if (location != null) {
                 assert profile != null;
                 profile.setLocation(location);
@@ -124,6 +190,7 @@ public class LoadUploadProfileModel extends GModel {
                         db.collection("Profiles").document(finalProfile.getEmail())
                                 .set(finalProfile)
                                 .addOnSuccessListener(aVoid -> {
+                                    syncNotificationPreference(finalProfile);
                                     state = State.SIGNUP_SUCCESS;
                                     notifyViews();
                                 })
@@ -167,6 +234,7 @@ public class LoadUploadProfileModel extends GModel {
                             db.collection("Profiles").document(oldProfile.getEmail())
                                     .set(newProfile)
                                     .addOnSuccessListener(aVoid -> {
+                                        syncNotificationPreference(newProfile);
                                         state = State.EDIT_PROFILE_SUCCESS;
                                         setInterMsg("Profile", newProfile);
                                         notifyViews();
@@ -205,10 +273,12 @@ public class LoadUploadProfileModel extends GModel {
                             db.collection("Profiles").document(oldProfile.getEmail())
                                     .delete()
                                     .addOnSuccessListener(aVoid -> {
+                                        deleteNotificationPreference(oldProfile.getEmail());
                                         // Now upload the new profile
                                         db.collection("Profiles").document(newProfile.getEmail())
                                                 .set(newProfile)
                                                 .addOnSuccessListener(aVoid2 -> {
+                                                    syncNotificationPreference(newProfile);
                                                     state = State.EDIT_PROFILE_SUCCESS;
                                                     setInterMsg("Profile", newProfile);
                                                     notifyViews();
@@ -251,6 +321,7 @@ public class LoadUploadProfileModel extends GModel {
         db.collection("Profiles").document(email)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
+                    deleteNotificationPreference(email);
                     state = State.DELETE_PROFILE_SUCCESS;
                     setInterMsg("Message", email);
                     notifyViews();
@@ -269,6 +340,42 @@ public class LoadUploadProfileModel extends GModel {
     public String getDeviceId(Context context) {
         return Settings.Secure.getString(
                 context.getContentResolver(), Settings.Secure.ANDROID_ID);
+    }
+
+    protected void syncNotificationPreference(@Nullable Profile profile) {
+        if (!(profile instanceof Entrant)) {
+            return;
+        }
+        if (profile == null || profile.getEmail() == null) {
+            return;
+        }
+        String normalized = normalizeNotificationKey(profile.getEmail());
+        if (normalized.isEmpty()) {
+            return;
+        }
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("email", profile.getEmail().trim());
+        payload.put("notificationEnabled", ((Entrant) profile).isNotificationEnabled());
+        db.collection("NotificationPreferences")
+                .document(normalized)
+                .set(payload);
+    }
+
+    protected void deleteNotificationPreference(@Nullable String email) {
+        String normalized = normalizeNotificationKey(email);
+        if (normalized.isEmpty()) {
+            return;
+        }
+        db.collection("NotificationPreferences")
+                .document(normalized)
+                .delete();
+    }
+
+    protected String normalizeNotificationKey(@Nullable String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     /**

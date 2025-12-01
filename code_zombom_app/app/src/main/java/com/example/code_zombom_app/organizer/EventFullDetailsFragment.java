@@ -162,7 +162,9 @@ public class EventFullDetailsFragment extends Fragment {
         nameValue.setText(eventForOrg.getName());
         dateValue.setText(eventForOrg.getDate());
         deadlineValue.setText(eventForOrg.getDeadline());
-        locationValue.setText(eventForOrg.getLocation());
+        locationValue.setText(eventForOrg.getLocation() != null
+                ? eventForOrg.getLocation().toString()
+                : "-");
         genreValue.setText(eventForOrg.getGenre());
         maxPeopleValue.setText(eventForOrg.getMax_People());
         waitlistMaxValue.setText(eventForOrg.getWait_List_Maximum());
@@ -171,7 +173,7 @@ public class EventFullDetailsFragment extends Fragment {
 
         // Set array values
         entrantsValue.setText(formatListToString((List<String>) eventForOrg.getEntrants()));
-        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
+        acceptedEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getLottery_Winners()));
         cancelledEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getCancelled_Entrants()));
         registeredEntrantsValue.setText(formatListToString((List<String>) eventForOrg.getAccepted_Entrants()));
 

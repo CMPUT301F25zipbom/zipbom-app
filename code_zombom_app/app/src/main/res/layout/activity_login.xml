@@ -4,13 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/quantum_bluegrey700">
+    android:background="@color/quantum_yellow100">
 
     <TextView
         android:id="@+id/logInTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/log_in"
+        android:textColor="@color/black"
         android:textSize="96sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -63,13 +64,13 @@
 
     <Button
         android:id="@+id/buttonSignInWithDevice"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="110dp"
+        android:layout_height="41dp"
         android:background="@android:color/transparent"
         android:padding="0dp"
         android:stateListAnimator="@null"
         android:text="@string/log_in_with_device"
-        android:textColor="@color/purple_500"
+        android:textColor="@color/black"
         android:textSize="11sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

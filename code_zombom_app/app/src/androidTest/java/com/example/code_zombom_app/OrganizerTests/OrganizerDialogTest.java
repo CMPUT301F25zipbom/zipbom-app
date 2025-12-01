@@ -132,7 +132,7 @@ public class OrganizerDialogTest {
                 new Instrumentation.ActivityResult(Activity.RESULT_OK, null));
 
         // Click the "Generate QR" button
-        onView(withId(R.id.genQRButton)).perform(click());
+        onView(withId(R.id.event_qr_code_imageview)).perform(click());
 
         // Verify that a chooser intent was launched
         intended(hasAction(Intent.ACTION_CHOOSER));

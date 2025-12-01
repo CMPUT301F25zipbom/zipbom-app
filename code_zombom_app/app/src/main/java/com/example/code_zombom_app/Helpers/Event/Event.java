@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,7 +51,7 @@ public class Event implements Comparable<Event> {
     private ArrayList<String> lotterySelectionGuidelines;
 
 
-    private ArrayList<String> lotteryWinners;
+    //private ArrayList<String> lotteryWinners;
 
     // Name of the event: MUST HAVE
     private String name;
@@ -102,6 +103,23 @@ public class Event implements Comparable<Event> {
     private String eventIdQRcode;
 
     /**
+     * Flag to control QR code generation in unit tests.
+     * When false, QR code generation is skipped to avoid Android SDK dependencies in JVM tests.
+     * Defaults to true for production behavior.
+     */
+    private static boolean qrCodeGenerationEnabled = true;
+
+    /**
+     * Sets whether QR code generation is enabled.
+     * This is primarily used in unit tests to avoid Android SDK dependencies.
+     *
+     * @param enabled true to enable QR code generation (default), false to disable
+     */
+    public static void setQrCodeGenerationEnabled(boolean enabled) {
+        qrCodeGenerationEnabled = enabled;
+    }
+
+    /**
      * Public no-arg constructor required by Firestore.
      * We also initialize sensible defaults here so objects created in code are usable.
      */
@@ -114,7 +132,7 @@ public class Event implements Comparable<Event> {
         restrictions = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
         cancelledList = new ArrayList<>();
-        lotteryWinners = new ArrayList<>();
+        //lotteryWinners = new ArrayList<>();
         createdDate = new Date(); // Get the current (created) date
         eventStartDate = null;
         eventEndDate = null;
@@ -130,10 +148,14 @@ public class Event implements Comparable<Event> {
         drawTimestamp = 0L;
         waitingEntrantCount = 0;
 
-        // Generate QR code, but never crash if it fails (important for Firestore deserialization)
-        try {
-            generateQRcode();
-        } catch (WriterException e) {
+        // Generate QR code only if enabled (disabled in unit tests to avoid Android SDK dependencies)
+        if (qrCodeGenerationEnabled) {
+            try {
+                generateQRcode();
+            } catch (WriterException e) {
+                eventIdQRcode = null;
+            }
+        } else {
             eventIdQRcode = null;
         }
     }
@@ -591,13 +613,13 @@ public class Event implements Comparable<Event> {
         this.eventId = eventId;
     }
 
-    public ArrayList<String> getLotteryWinners() {
-        return lotteryWinners;
-    }
-
-    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
-        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
-    }
+//    public ArrayList<String> getLotteryWinners() {
+//        return lotteryWinners;
+//    }
+//
+//    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
+//        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
+//    }
 
     public ArrayList<String> getCancelledList() {
         return cancelledList;
@@ -606,6 +628,17 @@ public class Event implements Comparable<Event> {
     public void setCancelledList(ArrayList<String> cancelledList) {
         this.cancelledList = (cancelledList == null) ? new ArrayList<>() : cancelledList;
     }
+
+    public void addCancelledEntrant(String email) {
+        if (!cancelledList.contains(email)) {
+            cancelledList.add(email);
+        }
+    }
+
+    public void leavePendingList(String email) {
+        pendingList.remove(email);
+    }
+
 
     /**
      * Define the natural sorting order for an event, which is by alphabetically sorting their name.

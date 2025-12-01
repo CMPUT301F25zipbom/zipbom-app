@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -28,9 +29,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.List;
 
 /**
- * Admin UI for managing PROFILES.
- * Displays all profiles stored in Firestore.
- * Allows admin to view details and delete profiles with reason input.
+ * Admin fragment for managing User Profiles.
+ * Provides functionality to list all profiles, view details, and delete profiles.
  */
 public class ProfileAdminFragment extends Fragment {
 
@@ -39,14 +39,15 @@ public class ProfileAdminFragment extends Fragment {
     private CollectionReference profilesDb;
     private static final String TAG = "ProfileAdminFragment";
 
+    /**
+     * Configures the layout for the profile list view.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        // Setup programmatic layout
         LinearLayout rootLayout = new LinearLayout(requireContext());
         rootLayout.setOrientation(LinearLayout.VERTICAL);
-        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50")); // Green background
+        rootLayout.setBackgroundColor(Color.parseColor("#4CAF50"));
         rootLayout.setLayoutParams(new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT));
@@ -68,22 +69,28 @@ public class ProfileAdminFragment extends Fragment {
         return rootLayout;
     }
 
+    /**
+     * Initializes Firestore connection and starts listening for profile data.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         db = FirebaseFirestore.getInstance();
-
-        // Ensure this matches your collection name exactly.
-        // Based on your previous output, it seems to be "Profiles"
         profilesDb = db.collection("Profiles");
-
         loadProfilesFromDatabase();
     }
 
+    /**
+     * Listens for changes in the 'Profiles' collection and updates the UI in real-time.
+     */
     private void loadProfilesFromDatabase() {
         profilesDb.addSnapshotListener((value, error) -> {
             if (error != null) {
                 Log.e(TAG, "Error loading profiles", error);
+                return;
+            }
+
+            if (!isAdded() || getContext() == null) {
                 return;
             }
 
@@ -93,12 +100,10 @@ public class ProfileAdminFragment extends Fragment {
 
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
-                    // match to database
                     String name = snapshot.getString("name");
                     String email = snapshot.getString("email");
-                    String type = snapshot.getString("type"); // DB uses "type", not "Role"
+                    String type = snapshot.getString("type");
 
-                    // Fallback if data is missing
                     if (name == null) name = "Unknown Name";
                     if (email == null) email = "No Email";
                     if (type == null) type = "Unknown Type";
@@ -108,8 +113,7 @@ public class ProfileAdminFragment extends Fragment {
                             .append("Email: ").append(email).append("\n")
                             .append("Role: ").append(type);
 
-                    // Inflate the row item
-                    View profileView = LayoutInflater.from(requireContext())
+                    View profileView = LayoutInflater.from(getContext())
                             .inflate(R.layout.profile_admin_list, profilesContainer, false);
 
                     TextView textView = profileView.findViewById(R.id.profile_item_textview);
@@ -122,8 +126,7 @@ public class ProfileAdminFragment extends Fragment {
                     profilesContainer.addView(profileView);
                 }
             } else {
-                // Show "No profiles" message
-                TextView noProfiles = new TextView(requireContext());
+                TextView noProfiles = new TextView(getContext());
                 noProfiles.setText("No profiles found.");
                 noProfiles.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white));
                 noProfiles.setTextSize(18);
@@ -133,6 +136,9 @@ public class ProfileAdminFragment extends Fragment {
         });
     }
 
+    /**
+     * Shows a dialog confirming profile deletion.
+     */
     private void showDeleteConfirmationDialog(QueryDocumentSnapshot snapshot) {
         new AlertDialog.Builder(requireContext())
                 .setTitle("Delete Profile")
@@ -142,6 +148,9 @@ public class ProfileAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Prompts the administrator to enter a reason for deletion.
+     */
     private void showReasonInputDialog(QueryDocumentSnapshot snapshot) {
         final EditText input = new EditText(requireContext());
         input.setHint("Enter reason for deleting this profile");
@@ -157,56 +166,129 @@ public class ProfileAdminFragment extends Fragment {
                         Toast.makeText(requireContext(), "Deletion cancelled — reason required.", Toast.LENGTH_SHORT).show();
                         return;
                     }
-
-                    Log.d(TAG, "Deleting profile " + snapshot.getId() + " because: " + reason);
-
                     profilesDb.document(snapshot.getId()).delete()
-                            .addOnSuccessListener(aVoid ->
-                                    Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show())
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(requireContext(), "Failed to delete profile", Toast.LENGTH_SHORT).show());
+                            .addOnSuccessListener(aVoid -> Toast.makeText(requireContext(), "Profile deleted", Toast.LENGTH_SHORT).show())
+                            .addOnFailureListener(e -> Toast.makeText(requireContext(), "Failed to delete profile", Toast.LENGTH_SHORT).show());
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
                 .show();
     }
 
+    /**
+     * Displays detailed profile information, including contact info and event history.
+     * Provides access to view notification logs for the user.
+     */
     private void showProfileDetailsDialog(QueryDocumentSnapshot snapshot) {
         View dialogView = LayoutInflater.from(requireContext())
                 .inflate(R.layout.profile_pop_up, null);
 
-        TextView title = dialogView.findViewById(R.id.profile_details_title); // Ensure this ID exists in XML
+        TextView title = dialogView.findViewById(R.id.profile_details_title);
         TextView body = dialogView.findViewById(R.id.profile_details_body);
         View notifBtn = dialogView.findViewById(R.id.button_notification_logs);
         View cancelBtn = dialogView.findViewById(R.id.button_cancel_profile_dialog);
 
-        // parse correcly
         String name = snapshot.getString("name");
         String email = snapshot.getString("email");
         String phone = snapshot.getString("phone");
 
-        // Handle Arrays safely
-        List<String> eventHistory = (List<String>) snapshot.get("eventHistory");
-        String eventHistoryStr = (eventHistory != null && !eventHistory.isEmpty())
-                ? TextUtils.join(", ", eventHistory)
-                : "None";
+        Object historyObj = snapshot.get("eventHistory");
+        String eventHistoryStr = "None";
+        if (historyObj instanceof List) {
+            List<String> list = (List<String>) historyObj;
+            if (!list.isEmpty()) {
+                eventHistoryStr = TextUtils.join(", ", list);
+            }
+        }
 
-        String details = "Name: " + name + "\n" +
-                "Email: " + email + "\n" +
+        String details = "Name: " + (name != null ? name : "Unknown") + "\n" +
+                "Email: " + (email != null ? email : "N/A") + "\n" +
                 "Phone: " + (phone != null ? phone : "N/A") + "\n\n" +
                 "Event History IDs:\n" + eventHistoryStr;
 
-        body.setText(details);
+        if (title != null) title.setText("Profile Details");
+        if (body != null) body.setText(details);
 
         AlertDialog dialog = new AlertDialog.Builder(requireContext())
                 .setView(dialogView)
                 .create();
 
-        notifBtn.setOnClickListener(v -> {
-            // TODO: Navigate to notification logs
-            Toast.makeText(getContext(), "Notification logs coming soon", Toast.LENGTH_SHORT).show();
-        });
+        if (notifBtn != null) {
+            if (email != null && !email.isEmpty()) {
+                notifBtn.setOnClickListener(v -> showNotificationLogs(email));
+            } else {
+                notifBtn.setOnClickListener(v ->
+                        Toast.makeText(getContext(), "No email associated with this profile.", Toast.LENGTH_SHORT).show()
+                );
+            }
+        }
 
-        cancelBtn.setOnClickListener(v -> dialog.dismiss());
+        if (cancelBtn != null) {
+            cancelBtn.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        dialog.show();
+    }
+
+    /**
+     * Fetches and displays notification logs specific to the selected user's email.
+     * Queries the root 'Notifications' collection.
+     *
+     * @param profileEmail The email of the profile whose notifications should be shown.
+     */
+    private void showNotificationLogs(String profileEmail) {
+        View dialogView = LayoutInflater.from(requireContext())
+                .inflate(R.layout.admin_notification_dialog, null);
+
+        LinearLayout listContainer = dialogView.findViewById(R.id.notification_list_container);
+        Button closeButton = dialogView.findViewById(R.id.button_close_notifications);
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .create();
+
+        db.collection("Notifications")
+                .whereEqualTo("reciever", profileEmail)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        TextView emptyView = new TextView(getContext());
+                        emptyView.setText("No notification logs found for: " + profileEmail);
+                        emptyView.setTextColor(Color.WHITE);
+                        emptyView.setPadding(10, 10, 10, 10);
+                        listContainer.addView(emptyView);
+                    } else {
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            View itemView = LayoutInflater.from(getContext())
+                                    .inflate(R.layout.admin_notification_item, listContainer, false);
+
+                            TextView tvTitle = itemView.findViewById(R.id.notif_item_title);
+                            TextView tvMessage = itemView.findViewById(R.id.notif_item_message);
+                            TextView tvDate = itemView.findViewById(R.id.notif_item_date);
+
+                            String type = doc.getString("notificationtype");
+                            String timeStr = doc.getString("time");
+
+                            String message = doc.getString("message");
+                            if (message == null) {
+                                message = "Sent via " + (type != null ? type : "system");
+                            }
+
+                            tvTitle.setText(type != null ? "Type: " + type : "Notification");
+                            tvMessage.setText(message);
+                            tvDate.setText(timeStr != null ? timeStr : "Unknown Date");
+
+                            listContainer.addView(itemView);
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching notifications", e);
+                    Toast.makeText(getContext(), "Failed to load notifications", Toast.LENGTH_SHORT).show();
+                });
+
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> dialog.dismiss());
+        }
 
         dialog.show();
     }

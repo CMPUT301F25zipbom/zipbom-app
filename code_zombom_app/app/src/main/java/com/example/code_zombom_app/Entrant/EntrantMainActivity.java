@@ -35,6 +35,8 @@ import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -56,17 +58,24 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
     private AlertDialog qrDialog;
 
     private Entrant entrant;
+    private ListenerRegistration notificationListener;
+    private boolean notificationsEnabled = true;
 
     @Override
     protected void onStart() {
         super.onStart();
         isActive = true;
+        loadNotificationPreferenceAndStartListener();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         isActive = false;
+        if (notificationListener != null) {
+            notificationListener.remove();
+            notificationListener = null;
+        }
     }
 
     @Override
@@ -197,7 +206,6 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
      *
      * @param model The control model of this view
      */
-    //TODO: Implement a sorting method as well
     private void openFilterPopUpWindow(EntrantMainModel model) {
         EventFilter filter = new EventFilter();
 
@@ -425,7 +433,10 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
             join.setEnabled(false);
             leave.setEnabled(true);
         } else {
-            join.setEnabled(true);
+            boolean alreadySelected = event != null && (event.getChosenList().contains(email)
+                    || event.getPendingList().contains(email)
+                    || event.getRegisteredList().contains(email));
+            join.setEnabled(!alreadySelected);
             leave.setEnabled(false);
         }
 
@@ -434,6 +445,14 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
             public void onClick(View v) {
                 try {
                     assert event != null;
+                    if (event.getChosenList().contains(email)
+                            || event.getPendingList().contains(email)
+                            || event.getRegisteredList().contains(email)) {
+                        Toast.makeText(v.getContext(),
+                                "You have already been selected for this event.",
+                                Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                     event.joinWaitingList(email);
                     for (Event e : events) {
                         if (e.getEventId().equals(event.getEventId())) {
@@ -479,7 +498,9 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         nameValue.setText(dto.getName());
         dateValue.setText(dto.getDate());
         deadlineValue.setText(dto.getDeadline());
-        locationValue.setText(dto.getLocation());
+        locationValue.setText(dto.getLocation() != null
+                ? dto.getLocation().toString()
+                : "-");
         genreValue.setText(dto.getGenre());
         maxPeopleValue.setText(dto.getMax_People());
         waitlistMaxValue.setText(dto.getWait_List_Maximum());
@@ -506,6 +527,84 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
                 .create();
 
         qrDialog.show();
+    }
+
+    private void loadNotificationPreferenceAndStartListener() {
+        if (email == null || email.trim().isEmpty()) {
+            return;
+        }
+        FirebaseFirestore.getInstance()
+                .collection("Profiles")
+                .document(email)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                    notificationsEnabled = enabled == null || enabled;
+                    if (notificationsEnabled) {
+                        startNotificationListener();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    // On failure, default to enabled so entrants still get critical updates
+                    notificationsEnabled = true;
+                    startNotificationListener();
+                });
+    }
+
+    private void startNotificationListener() {
+        if (notificationListener != null || email == null || email.trim().isEmpty()) {
+            return;
+        }
+        notificationListener = FirebaseFirestore.getInstance()
+                .collectionGroup("Notifications")
+                .whereEqualTo("recipientEmail", email.trim().toLowerCase())
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(1)
+                .addSnapshotListener((snap, error) -> {
+                    if (error != null || snap == null || snap.isEmpty()) {
+                        return;
+                    }
+                    snap.getDocuments().forEach(doc -> {
+                        Boolean seen = doc.getBoolean("seen");
+                        if (seen != null && seen) {
+                            return;
+                        }
+                        String type = doc.getString("type");
+                        String eventName = doc.getString("eventName");
+                        String message = doc.getString("message");
+                        showInAppNotification(eventName, message, type);
+                        doc.getReference().update("seen", true);
+                    });
+                });
+    }
+
+    private void showInAppNotification(String eventName, String message, String type) {
+        if (!isActive) {
+            return;
+        }
+        String title = (eventName == null || eventName.trim().isEmpty())
+                ? "Notification"
+                : eventName;
+        String body = (message == null || message.trim().isEmpty())
+                ? defaultMessage(type, eventName)
+                : message;
+
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(body)
+                .setPositiveButton("OK", (d, which) -> d.dismiss())
+                .show();
+    }
+
+    private String defaultMessage(String type, String eventName) {
+        String name = (eventName == null || eventName.trim().isEmpty()) ? "this event" : eventName;
+        if ("win".equalsIgnoreCase(type) || "org_selected".equalsIgnoreCase(type)) {
+            return "Congratulations! You are a lottery winner and have been selected for " + name;
+        } else if ("lose".equalsIgnoreCase(type)) {
+            return "You were not selected this time for " + name;
+        } else {
+            return "Update for " + name;
+        }
     }
 
     // You can reuse this helper from your adapter (or move it here)

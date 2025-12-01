@@ -38,7 +38,8 @@ public class Mail {
         INVITE_LOTTERY_WINNER,
         DECLINE_LOTTERY_LOSER,
         ACCEPT_INVITATION,
-        DECLINE_INVITATION
+        DECLINE_INVITATION,
+        EDITED_EVENT
         // Add more if needed
     }
 

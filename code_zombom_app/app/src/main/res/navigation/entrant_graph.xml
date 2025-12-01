@@ -3,17 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/entrant_graph"
-    app:startDestination="@id/entrantEventListFragment">
-
-    <fragment
-        android:id="@+id/entrantEventListFragment"
-        android:name="com.example.code_zombom_app.EntrantEventListFragment"
-        android:label="fragment_entrant_event_list"
-        tools:layout="@layout/fragment_entrant_event_list" >
-        <action
-            android:id="@+id/action_entrantEventListFragment_to_entrantEventDetailsFragment"
-            app:destination="@id/entrantEventDetailsFragment" />
-    </fragment>
+    app:startDestination="@id/homeFragment">
     <activity
         android:id="@+id/loginActivity"
         android:name="com.example.code_zombom_app.Login.LoginActivity"
@@ -41,17 +31,5 @@
     <action
         android:id="@+id/action_global_editProfileActivity"
         app:destination="@id/editProfileActivity" />
-    <activity
-        android:id="@+id/filterSortActivity"
-        android:name="com.example.code_zombom_app.FilterSortActivity"
-        android:label="FilterSortActivity" />
-    <action
-        android:id="@+id/action_global_filterSortActivity"
-        app:destination="@id/filterSortActivity" />
-    <fragment
-        android:id="@+id/entrantEventDetailsFragment"
-        android:name="com.example.code_zombom_app.EntrantEventDetailsFragment"
-        android:label="Entrant Event Details"
-        tools:layout="@layout/fragment_entrant_event_details" />
 
 </navigation>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#222222">
+
+    <!-- Title ID: matches dialogView.findViewById(R.id.event_details_title) -->
+    <TextView
+        android:id="@+id/event_details_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Details"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Body ID: matches dialogView.findViewById(R.id.event_details_body) -->
+    <TextView
+        android:id="@+id/event_details_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Loading details..."
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Button Container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <!-- Close Button ID: matches dialogView.findViewById(R.id.button_close_event_dialog) -->
+        <Button
+            android:id="@+id/button_close_event_dialog"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Close"
+            android:backgroundTint="#555555"
+            android:textColor="#FFFFFF" />
+
+    </LinearLayout>
+
+</LinearLayout>

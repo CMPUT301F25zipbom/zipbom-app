@@ -1,23 +1,25 @@
 package com.example.code_zombom_app.Helpers.Event;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.code_zombom_app.Helpers.Mail.Mail;
-import com.example.code_zombom_app.Helpers.Mail.MailService;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
-import com.example.code_zombom_app.organizer.EventForOrg;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Transaction;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,10 +31,18 @@ public class EventService {
 
     private final FirebaseFirestore firestore;
 
+    /**
+     * Constructs the service using the default Firestore instance. Intended for production use.
+     */
     public EventService() {
         this(FirebaseFirestore.getInstance());
     }
 
+    /**
+     * Constructs the service with an explicit Firestore dependency (useful for testing).
+     *
+     * @param firestore Firestore instance backing all event reads/writes
+     */
     public EventService(FirebaseFirestore firestore) {
         this.firestore = firestore;
     }
@@ -177,26 +187,32 @@ public class EventService {
 
             // Write winner/loser notifications under the event for entrant listeners
             for (String winner : winners) {
-                transaction.set(eventRef.collection("Notifications").document(),
-                        buildNotification(winner, "win", event.getName(), event.getDrawTimestamp()));
-
-                Mail mail = new Mail(event.getName(), winner, Mail.MailType.INVITE_LOTTERY_WINNER);
-                mail.setHeader("Invitation to register for event: " + event.getName());
-                mail.setContent("Congratulation " + winner + "! You have been selected! To accept " +
-                        "the invitation, pressed Accept. To decline, press Decline");
-                MailService.sendMail(mail);
+                if (isNotificationsEnabled(transaction, winner)) {
+                    transaction.set(eventRef.collection("Notifications").document(),
+                            buildNotification(
+                                    winner,
+                                    "win",
+                                    event.getName(),
+                                    event.getDrawTimestamp(),
+                                    event.getEventId(),
+                                    "Congratulations! You are a lottery winner and have been selected for " + event.getName()
+                            ));
+                }
             }
 
             for (String loser : losers) {
                 recordHistory(transaction, event, loser, Entrant.Status.NOT_SELECTED);
-                transaction.set(eventRef.collection("Notifications").document(),
-                        buildNotification(loser, "lose", event.getName(), event.getDrawTimestamp()));
-
-                Mail mail = new Mail(event.getName(), loser, Mail.MailType.DECLINE_LOTTERY_LOSER);
-                mail.setHeader("Better luck next time");
-                mail.setContent("We regret to inform that you have not been selected for the event: "
-                + event.getName() + "!");
-                MailService.sendMail(mail);
+                if (isNotificationsEnabled(transaction, loser)) {
+                    transaction.set(eventRef.collection("Notifications").document(),
+                            buildNotification(
+                                    loser,
+                                    "lose",
+                                    event.getName(),
+                                    event.getDrawTimestamp(),
+                                    event.getEventId(),
+                                    "Sorry! You were not selected. You coudd still get a chance if a selected entrant declines. " + event.getName()
+                            ));
+                }
             }
             return null;
         });
@@ -208,12 +224,23 @@ public class EventService {
     public Task<Void> deleteEvent(@NonNull String documentId) {
         return firestore.collection("Events").document(documentId).delete();
     }
-
-    private Map<String, Object> buildNotification(String recipientEmail, String type, String eventName, long drawTimestamp) {
+    // constructs the payload with fields for notification
+    /**
+     * Builds a Firestore document payload for a notification entry targeted to a specific entrant.
+     */
+    private Map<String, Object> buildNotification(String recipientEmail,
+                                                  String type,
+                                                  String eventName,
+                                                  long drawTimestamp,
+                                                  String eventId,
+                                                  @Nullable String message) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("recipientEmail", recipientEmail == null ? "" : recipientEmail.trim().toLowerCase());
         payload.put("type", type); // "win" or "lose"
         payload.put("eventName", eventName != null ? eventName : "");
+        payload.put("eventId", eventId != null ? eventId : "");
+        payload.put("message", message != null ? message : "");
+        payload.put("seen", false);
         payload.put("drawTimestamp", drawTimestamp);
         payload.put("createdAt", System.currentTimeMillis());
         return payload;
@@ -221,14 +248,18 @@ public class EventService {
 
     /**
      * Builds a QR payload string from the canonical event state, falling back to poster URL when available.
-     * //TODO: Maybe in the future build a QR code that when scanned take the entrant to the event in the app ONLY
      */
     public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
         qrDataBuilder.append("Event: ").append(event != null ? nullToEmpty(event.getName()) : "").append("\n");
-        qrDataBuilder.append("Location: ").append(event != null ? nullToEmpty(event.getLocation().toString()) : "").append("\n");
-        qrDataBuilder.append("Date: ").append(event != null ? nullToEmpty(event.getEventStartDate().toString()) : "").append("\n");
-        qrDataBuilder.append("Deadline: ").append(event != null ? nullToEmpty(event.getEventEndDate().toString()) : "").append("\n");
+        String locationText = (event != null && event.getLocation() != null)
+                ? event.getLocation().toString()
+                : "";
+        qrDataBuilder.append("Location: ").append(locationText).append("\n");
+        qrDataBuilder.append("Date: ").append(event != null && event.getEventStartDate() != null
+                ? event.getEventStartDate().toString() : "").append("\n");
+        qrDataBuilder.append("Deadline: ").append(event != null && event.getEventEndDate() != null
+                ? event.getEventEndDate().toString() : "").append("\n");
         qrDataBuilder.append("Description: ").append(event != null ? nullToEmpty(event.getDescription()) : "").append("\n");
         if (posterUrl != null && !posterUrl.isEmpty()) {
             qrDataBuilder.append("Poster: ").append(posterUrl);
@@ -244,13 +275,9 @@ public class EventService {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
             DocumentReference eventRef = firestore.collection("Events").document(documentId);
-            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
-            if (dto == null) {
-                throw new IllegalStateException("Event not found");
-            }
-            Event event = EventMapper.toDomain(dto, documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
             if (event == null) {
-                throw new IllegalStateException("Invalid event data");
+                throw new IllegalStateException("Event not found");
             }
 
             if (!event.getChosenList().contains(normalizedEmail)) {
@@ -263,14 +290,10 @@ public class EventService {
             event.addPendingEntrant(normalizedEmail);
             event.removeChosenEntrant(normalizedEmail);
             recordHistory(transaction, event, normalizedEmail, Entrant.Status.CONFIRMED);
-            EventForOrg updatedDto = EventMapper.toDto(event);
-            // Ensure the entrant is no longer marked as cancelled if they accept later
-            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
-                    ? new ArrayList<>(dto.getCancelled_Entrants())
-                    : new ArrayList<>();
+            ArrayList<String> cancelled = event.getCancelledList();
             cancelled.remove(normalizedEmail);
-            updatedDto.setCancelled_Entrants(cancelled);
-            transaction.set(eventRef, updatedDto);
+            event.setCancelledList(cancelled);
+            transaction.set(eventRef, event);
             // Persist the entrant's response so the UI can restore state after navigation/restart.
             transaction.set(eventRef.collection("Responses").document(normalizedEmail),
                     buildResponsePayload(normalizedEmail, "accepted",
@@ -287,13 +310,9 @@ public class EventService {
         final String normalizedEmail = entrantEmail.trim();
         return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
             DocumentReference eventRef = firestore.collection("Events").document(documentId);
-            EventForOrg dto = transaction.get(eventRef).toObject(EventForOrg.class);
-            if (dto == null) {
-                throw new IllegalStateException("Event not found");
-            }
-            Event event = EventMapper.toDomain(dto, documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
             if (event == null) {
-                throw new IllegalStateException("Invalid event data");
+                throw new IllegalStateException("Event not found");
             }
 
             if (!event.getChosenList().contains(normalizedEmail)) {
@@ -303,15 +322,12 @@ public class EventService {
             event.removeChosenEntrant(normalizedEmail);
             event.removePendingEntrant(normalizedEmail);
             recordHistory(transaction, event, normalizedEmail, Entrant.Status.DECLINED);
-            EventForOrg updatedDto = EventMapper.toDto(event);
-            ArrayList<String> cancelled = dto.getCancelled_Entrants() != null
-                    ? new ArrayList<>(dto.getCancelled_Entrants())
-                    : new ArrayList<>();
+            ArrayList<String> cancelled = event.getCancelledList();
             if (!cancelled.contains(normalizedEmail)) {
                 cancelled.add(normalizedEmail);
             }
-            updatedDto.setCancelled_Entrants(cancelled);
-            transaction.set(eventRef, updatedDto);
+            event.setCancelledList(cancelled);
+            transaction.set(eventRef, event);
             // Persist the entrant's response so the UI can restore state after navigation/restart.
             transaction.set(eventRef.collection("Responses").document(normalizedEmail),
                     buildResponsePayload(normalizedEmail, "declined",
@@ -320,6 +336,55 @@ public class EventService {
         });
     }
 
+    /**
+     * Converts a pending entrant into a fully registered participant and emits a confirmation
+     * notification that honours the entrant's notification preference.
+     */
+    public Task<Void> completeRegistration(@NonNull String documentId,
+                                           @NonNull String entrantEmail) {
+        final String normalizedEmail = entrantEmail.trim();
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
+                throw new IllegalStateException("Event not found");
+            }
+            if (!event.getPendingList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("Please accept the invitation before registering.");
+            }
+            if (event.getRegisteredList().contains(normalizedEmail)) {
+                throw new IllegalArgumentException("You have already registered for this event.");
+            }
+
+            event.removePendingEntrant(normalizedEmail);
+            event.addRegisteredEntrant(normalizedEmail);
+            recordHistory(transaction, event, normalizedEmail, Entrant.Status.REGISTERED);
+
+            transaction.set(eventRef, event);
+
+            String successMessage = registrationSuccessMessage(event.getName());
+            // Update the response record so UIs can detect that registration is complete.
+            transaction.set(eventRef.collection("Responses").document(normalizedEmail),
+                    buildResponsePayload(normalizedEmail, "registered", successMessage));
+
+            if (isNotificationsEnabled(transaction, normalizedEmail)) {
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(
+                                normalizedEmail,
+                                "signup_success",
+                                event.getName(),
+                                System.currentTimeMillis(),
+                                event.getEventId(),
+                                successMessage
+                        ));
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Persists the acceptance/registration response from an entrant so the UI can resume state.
+     */
     private Map<String, Object> buildResponsePayload(String email, String status, String message) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("email", email == null ? "" : email.trim());
@@ -329,6 +394,9 @@ public class EventService {
         return payload;
     }
 
+    /**
+     * Formats an event name for use in user-facing response messages.
+     */
     private String formatEventSuffix(@Nullable String eventName) {
         if (eventName == null || eventName.trim().isEmpty()) {
             return ".";
@@ -339,7 +407,7 @@ public class EventService {
     /**
      * Writes/updates a history record for an entrant inside the current transaction so that
      * their timeline reflects the latest interaction with this event (waitlisted, selected,
-     * confirmed, declined, etc.). Also mirrors the status into the profile's eventHistory map
+     * confirmed, declined, registered). Also mirrors the status into the profile's eventHistory map
      * for quick lookup without an additional read.
      *
      * @param transaction active Firestore transaction
@@ -358,7 +426,7 @@ public class EventService {
         DocumentReference historyRef = firestore.collection("Profiles")
                 .document(normalizedEmail)
                 .collection("History")
-                .document(event.getEventId());
+                .document(); // generate unique entry per status change
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("eventId", event.getEventId());
@@ -377,6 +445,207 @@ public class EventService {
         historyMapUpdate.put("eventHistory." + event.getEventId(), status.name());
         transaction.set(profileRef, historyMapUpdate, SetOptions.merge());
     }
+
+    /**
+     * Checks if the entrant has notifications enabled. Defaults to true when the profile
+     * is missing the flag or the profile document does not exist.
+     * Determines whether organizer/admin notifications should be sent to the given entrant.
+     */
+    private boolean isNotificationsEnabled(@NonNull Transaction transaction, @NonNull String email) {
+        String normalized = normalizeEmailKey(email);
+        if (normalized.isEmpty()) {
+            return false;
+        }
+
+        DocumentReference preferenceRef = firestore.collection("NotificationPreferences")
+                .document(normalized);
+        try {
+            DocumentSnapshot snapshot = transaction.get(preferenceRef);
+            if (snapshot.exists()) {
+                Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                if (enabled != null) {
+                    return enabled;
+                }
+            }
+        } catch (Exception ignored) {
+            // fall back to profile lookups
+        }
+
+        List<String> profileKeys = Arrays.asList(email.trim(), normalized);
+        for (String key : profileKeys) {
+            if (key.isEmpty()) {
+                continue;
+            }
+            DocumentReference profileRef = firestore.collection("Profiles").document(key);
+            try {
+                DocumentSnapshot snapshot = transaction.get(profileRef);
+                if (!snapshot.exists()) {
+                    continue;
+                }
+                Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                if (enabled != null) {
+                    return enabled;
+                }
+            } catch (Exception ignored) {
+                // try next
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Normalizes an email address for collection/document keys.
+     */
+    private String normalizeEmailKey(@Nullable String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase(Locale.ROOT);
+    }
+
+    public Task<Void> notifyWaitlistEntrants(@NonNull String eventId, @Nullable String message) {
+        return notifyGroup(eventId, NotificationGroup.WAITLIST, "org_waitlist", message);
+    }
+
+    public Task<Void> notifySelectedEntrants(@NonNull String eventId, @Nullable String message) {
+        return notifyGroup(eventId, NotificationGroup.SELECTED, "org_selected", message);
+    }
+
+    public Task<Void> notifyCancelledEntrants(@NonNull String eventId, @Nullable String message) {
+        return notifyGroup(eventId, NotificationGroup.CANCELLED, "org_cancelled", message);
+    }
+
+    /**
+     * Moves all entrants from the pending (accepted invite) list to the cancelled list.
+     * This is intended for use after a lottery draw and acceptance period have concluded.
+     *
+     * @param documentId The event's document id
+     * @return Task representing completion of the transaction.
+     */
+    public Task<Void> cancelUnregisteredEntrants(@NonNull String documentId) {
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
+                // This will trigger the error you saw before if the object can't be created
+                throw new IllegalStateException("Error converting document to Event object. Check Firestore field names!");
+            }
+
+            // Get the current lists from the event object
+            ArrayList<String> chosenList = event.getChosenList();
+            ArrayList<String> cancelledList = event.getCancelledList();
+
+            // Nothing to do if the pending list is already empty
+            if (chosenList == null || chosenList.isEmpty()) {
+                return null;
+            }
+            // Iterate through a copy of the pending list to avoid modification issues during the loop
+            for (String entrantEmail : new ArrayList<>(chosenList)) {
+                // Add the entrant to the cancelled list if they aren't already there
+                if (!cancelledList.contains(entrantEmail)) {
+                    cancelledList.add(entrantEmail);
+                }
+                // Record this specific action in the entrant's history
+                recordHistory(transaction, event, entrantEmail, Entrant.Status.CANCELLED);
+            }
+
+            // Clear the original pending list completely
+            chosenList.clear();
+
+            // Set the modified lists back to the event object to ensure they are saved
+            event.setChosenList(chosenList);
+            event.setCancelledList(cancelledList);
+
+            // Persist all the changes to the event document in Firestore.
+            transaction.set(eventRef, event);
+            return null;
+        });
+    }
+
+    private enum NotificationGroup { WAITLIST, SELECTED, CANCELLED }
+
+    /**
+     * Writes organizer-triggered notifications to the chosen entrant group within an event.
+     */
+    private Task<Void> notifyGroup(@NonNull String eventId,
+                                   @NonNull NotificationGroup group,
+                                   @NonNull String type,
+                                   @Nullable String message) {
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(eventId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
+                throw new IllegalStateException("Event not found");
+            }
+
+            List<String> recipients = new ArrayList<>();
+            switch (group) {
+                case WAITLIST:
+                    recipients.addAll(event.getWaitingList());
+                    break;
+                case SELECTED:
+                    recipients.addAll(event.getChosenList());
+                    recipients.addAll(event.getPendingList());
+                    break;
+                case CANCELLED:
+                    recipients.addAll(event.getCancelledList());
+                    break;
+            }
+
+            String finalMessage = (message != null && !message.trim().isEmpty())
+                    ? message
+                    : defaultMessageForType(type, event.getName());
+
+            for (String recipient : recipients) {
+                if (!isNotificationsEnabled(transaction, recipient)) {
+                    continue;
+                }
+                transaction.set(eventRef.collection("Notifications").document(),
+                        buildNotification(
+                                recipient,
+                                type,
+                                event.getName(),
+                                System.currentTimeMillis(),
+                                event.getEventId(),
+                                finalMessage
+                        ));
+            }
+            return null;
+        });
+    }
+
+    /**
+     * Provides a default notification message when the organizer does not supply one explicitly.
+     */
+    private String defaultMessageForType(String type, @Nullable String eventName) {
+        String name = (eventName == null || eventName.trim().isEmpty()) ? "this event" : eventName;
+        switch (type) {
+            case "org_waitlist":
+                return "You have been added to the waiting list for " + name;
+            case "org_selected":
+                return "Congratulations! You are a lottery winner and have been selected for " + name;
+            case "org_cancelled":
+                return "Your selection has been cancelled for " + name;
+            case "win":
+                return "Congratulations! You are a lottery winner and have been selected for " + name;
+            case "lose":
+                return "You were not selected this time for " + name + "but you can still get a chance if a selected entrant declines";
+            case "signup_success":
+                return registrationSuccessMessage(eventName);
+            default:
+                return "Update for " + name;
+        }
+    }
+
   private static String nullToEmpty( @Nullable String value) {return value == null? "" : value;
-                                                             }
+                                                               }
+
+    /**
+     * Formats the confirmation message sent after an entrant completes registration.
+     */
+    private String registrationSuccessMessage(@Nullable String eventName) {
+        String name = (eventName == null || eventName.trim().isEmpty()) ? "this event" : eventName;
+        return "You have successfully been registered to participate in " + name;
+    }
 }

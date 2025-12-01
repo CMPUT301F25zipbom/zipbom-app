@@ -33,7 +33,9 @@ public class Entrant extends Profile {
         LEAVE,
         SELECTED,
         CONFIRMED,
+        REGISTERED,
         DECLINED,
+        CANCELLED,
 
     }
 

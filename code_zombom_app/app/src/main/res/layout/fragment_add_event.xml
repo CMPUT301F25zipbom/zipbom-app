@@ -44,7 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start_date"
-            android:textColor="#FFFFFF"
+            android:textColor="#000000"
             android:layout_marginBottom="4dp" />
 
         <DatePicker
@@ -53,7 +53,8 @@
             android:layout_height="wrap_content"
             android:calendarViewShown="false"
             android:spinnersShown="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:theme="@style/DatePickerWhiteText" />
 
         <!-- Deadline Date (Scroll Wheel Picker) -->
         <TextView
@@ -69,7 +70,8 @@
             android:layout_height="wrap_content"
             android:calendarViewShown="false"
             android:spinnersShown="true"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            android:theme="@style/DatePickerWhiteText"/>
 
         <Spinner
             android:id="@+id/spinnerGenre"
@@ -87,7 +89,7 @@
             android:id="@+id/maxamountofentrants"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Max Entrants (optional)"
+            android:hint="Waitlist Max (optional)"
             android:inputType="number"
             android:textColor="#FFFFFF"
             android:textColorHint="#BCBCBC"
@@ -108,8 +110,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Add Poster"
-            android:textColor="#FFFFFF"
             android:backgroundTint="#2E2E2E"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#BCBCBC"
             android:layout_marginBottom="12dp" />
 
         <ImageView
@@ -126,8 +129,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/save"
-            android:textColor="#FFFFFF"
             android:backgroundTint="#2E2E2E"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#BCBCBC"
             android:layout_marginBottom="24dp" />
 
     </LinearLayout>

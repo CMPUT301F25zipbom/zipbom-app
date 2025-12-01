@@ -94,12 +94,14 @@ public final class EventMapper {
         dto.setDate(event.getEventStartDate().toString());
         dto.setDeadline(event.getEventEndDate().toString());
         dto.setGenre(event.getGenre());
-        if (event.getLocation() != null)
-            dto.setLocation(event.getLocation().toString());
+        if (event.getLocation() != null) {
+            dto.setLocation(event.getLocation());
+        }
         dto.setDescription(event.getDescription());
         dto.setMax_People(String.valueOf(event.getCapacity()));
         dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
         dto.setEntrants(event.getWaitingList());
+        dto.setCancelled_Entrants(event.getCancelledList());
         dto.setAccepted_Entrants(event.getPendingList());
         dto.setLottery_Winners(event.getChosenList());
         dto.setPosterUrl(event.getPosterUrl());

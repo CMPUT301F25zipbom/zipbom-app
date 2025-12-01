@@ -49,14 +49,26 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
     public void update(LoadUploadProfileModel model) {
         if (model.getState() == GModel.State.LOGIN_SUCCESS) {
             Profile profile = (Profile) model.getInterMsg("Profile");
+            if (profile == null) {
+                Toast.makeText(this, "Unable to load profile information.",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
             String email = profile.getEmail();
             Toast.makeText(this, "Welcome " + email, Toast.LENGTH_SHORT).show();
 
-            if (profile.getType().equals("Entrant")) {
+            String profileType = profile.getType();
+            if ("Entrant".equalsIgnoreCase(profileType)) {
                 Intent entrantMain = new Intent(this, EntrantMainActivity.class);
                 entrantMain.putExtra("Email", email); // Send the email address to the next activity
                 startActivity(entrantMain);
                 finish();
+            } else {
+                String typeLabel = (profileType == null || profileType.isEmpty())
+                        ? "Unknown"
+                        : profileType;
+                Toast.makeText(this, "Unsupported profile type: " + typeLabel,
+                        Toast.LENGTH_SHORT).show();
             }
 
         } else if (model.getState() == GModel.State.LOGIN_FAILURE) {

@@ -1,6 +1,7 @@
 package com.example.code_zombom_app.Entrant.EditProfile;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
@@ -170,6 +171,18 @@ public class EditProfileModel extends LoadUploadProfileModel {
      */
     public void setNotification(Boolean notification) {
         newEntrant.setNotificationsEnabled(notification);
+        if (currentEntrant != null) {
+            currentEntrant.setNotificationsEnabled(notification);
+            syncNotificationPreference(currentEntrant);
+            String email = currentEntrant.getEmail();
+            if (email != null && !email.trim().isEmpty()) {
+                db.collection("Profiles").document(email.trim())
+                        .update("notificationEnabled", notification)
+                        .addOnFailureListener(e -> {
+                            Log.e(errorTag, "Failed to update notification preference", e);
+                        });
+            }
+        }
         state = State.NOTIFICATION_TOGGLE;
         setInterMsg("Message", notification);
         notifyViews();
