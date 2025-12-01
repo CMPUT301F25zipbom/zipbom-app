@@ -359,19 +359,35 @@ public class Event implements Comparable<Event> {
         return this.name;
     }
 
+    /**
+     * Get the genre of the event.
+     * @return The genre of the event
+     */
     public String getGenre() {
         return genre;
     }
 
+    /**
+     * Set the genre of the event.
+     * @param genre The genre of the event
+     */
     public void setGenre(String genre) {
         // Optional: enforce checkCategory/normalizeCategory here if you want.
         this.genre = genre;
     }
 
+    /**
+     * Get the maximum number of entrants that can join the event.
+     * @return The maximum number of entrants that can join the event
+     */
     public int getMaxEntrants() {
         return maxEntrants;
     }
 
+    /**
+     * Set the maximum number of entrants that can join the event.
+     * @param maxEntrants
+     */
     public void setMaxEntrants(int maxEntrants) {
         if (maxEntrants < 0) {
             maxEntrants = 0;
@@ -393,7 +409,10 @@ public class Event implements Comparable<Event> {
         return new Date(this.createdDate.getTime());
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the created date of the event
+     * @param createdDate
+     */
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
@@ -473,7 +492,10 @@ public class Event implements Comparable<Event> {
         return new ArrayList<>(this.chosenList);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the list of chosen entrants (winners)
+     * @param chosenList
+     */
     public void setChosenList(ArrayList<String> chosenList) {
         this.chosenList = (chosenList == null) ? new ArrayList<>() : chosenList;
     }
@@ -555,7 +577,10 @@ public class Event implements Comparable<Event> {
         return new ArrayList<>(this.registeredList);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the list of registered entrants
+     * @param registeredList
+     */
     public void setRegisteredList(ArrayList<String> registeredList) {
         this.registeredList = (registeredList == null) ? new ArrayList<>() : registeredList;
     }
@@ -592,7 +617,10 @@ public class Event implements Comparable<Event> {
         return new ArrayList<>(this.lotterySelectionGuidelines);
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the list of lottery guidelines
+     * @param lotterySelectionGuidelines
+     */
     public void setLotterySelectionGuidelines(ArrayList<String> lotterySelectionGuidelines) {
         this.lotterySelectionGuidelines =
                 (lotterySelectionGuidelines == null) ? new ArrayList<>() : lotterySelectionGuidelines;
@@ -608,33 +636,44 @@ public class Event implements Comparable<Event> {
         return this.eventId;
     }
 
-    @SuppressWarnings("unused")
+    /**
+     * Set the event identifier
+     * @param eventId
+     */
     public void setEventId(String eventId) {
         this.eventId = eventId;
     }
 
-//    public ArrayList<String> getLotteryWinners() {
-//        return lotteryWinners;
-//    }
-//
-//    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
-//        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
-//    }
-
+    /**
+     * Get the cancelled list
+     * @return A deep-copy of the cancelled list
+     */
     public ArrayList<String> getCancelledList() {
         return cancelledList;
     }
 
+    /**
+     * Set the cancelled list
+     * @param cancelledList
+     */
     public void setCancelledList(ArrayList<String> cancelledList) {
         this.cancelledList = (cancelledList == null) ? new ArrayList<>() : cancelledList;
     }
 
+    /**
+     * Add an entrant to the cancelled list (when they cancel their invitation)
+     * @param email
+     */
     public void addCancelledEntrant(String email) {
         if (!cancelledList.contains(email)) {
             cancelledList.add(email);
         }
     }
 
+    /**
+     * Remove an entrant from the pending list (when they decline the invitation)
+     * @param email
+     */
     public void leavePendingList(String email) {
         pendingList.remove(email);
     }
@@ -770,18 +809,34 @@ public class Event implements Comparable<Event> {
         return posterUrl;
     }
 
+    /**
+     * Set the draw complete status.
+     * @param drawComplete
+     */
     public void setDrawComplete(boolean drawComplete) {
         this.drawComplete = drawComplete;
     }
 
+    /**
+     * Get the draw complete status.
+     * @return The draw complete status
+     */
     public boolean isDrawComplete() {
         return drawComplete;
     }
 
+    /**
+     * Set the timestamp (ms since epoch) when the draw completed; 0 when not set.
+     * @param drawTimestamp
+     */
     public void setDrawTimestamp(long drawTimestamp) {
         this.drawTimestamp = drawTimestamp;
     }
 
+    /**
+     * Get the timestamp (ms since epoch) when the draw completed; 0 when not set.
+     * @return The timestamp (ms since epoch) when the draw completed; 0 when not set
+     */
     public long getDrawTimestamp() {
         return drawTimestamp;
     }

@@ -154,6 +154,9 @@ public class OrganizerDialog extends Dialog {
         });
     }
 
+    /**
+     * Popup with options for sending notifications to entrant groups.
+     */
     private void showBroadcastOptions() {
         final CharSequence[] options = {"Waitlist", "Selected", "Cancelled"};
         new android.app.AlertDialog.Builder(getContext())
@@ -163,7 +166,10 @@ public class OrganizerDialog extends Dialog {
                 })
                 .show();
     }
-
+    /**
+     * Prompts the user for a custom message to send to the selected entrants.
+     * @param optionIndex
+     */
     private void promptForCustomMessage(int optionIndex) {
         final android.widget.EditText input = new android.widget.EditText(getContext());
         input.setHint("Enter message (optional)");
@@ -181,6 +187,11 @@ public class OrganizerDialog extends Dialog {
                 .show();
     }
 
+    /**
+     * Sends a notification to the selected entrants.
+     * @param optionIndex
+     * @param message
+     */
     private void sendNotification(int optionIndex, String message) {
         switch (optionIndex) {
             case 0:

@@ -298,9 +298,6 @@ public class AddEventFragment extends Fragment {
      * Main action method triggered by the primary button (Save/Update).
      * It validates input, gathers data, and starts the image upload process if needed.
      */
-    /**
-     * Main action method. It now creates an Event object instead of a Map.
-     */
     protected void onSaveOrUpdateButtonClicked() {
         if (!validateAllInput()) {
             return; // Validation methods show Toasts.
@@ -322,6 +319,10 @@ public class AddEventFragment extends Fragment {
         }
     }
 
+    /**
+     * uploads the event and its poster onto the firebase
+     * @param event
+     */
     protected void uploadImageAndProcessEvent(Event event) {
         StorageReference storageRef = storage.getReference().child("posters/" +
                 event.getEventId() + ".jpg");
