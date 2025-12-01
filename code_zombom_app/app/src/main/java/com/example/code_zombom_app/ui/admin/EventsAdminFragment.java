@@ -29,6 +29,11 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Map;
 
+/**
+ * Admin fragment for managing Events.
+ * Allows administrators to view a list of all events, view event details,
+ * and delete events from the database.
+ */
 public class EventsAdminFragment extends Fragment {
 
     public LinearLayout eventsContainer;
@@ -36,10 +41,18 @@ public class EventsAdminFragment extends Fragment {
     private CollectionReference eventsdb;
     private EventService eventService = new EventService();
 
+    /**
+     * Creates and configures the root view for the fragment.
+     * Sets up a ScrollView containing a linear layout to hold the dynamic list of events.
+     *
+     * @param inflater           The LayoutInflater object that can be used to inflate any views in the fragment.
+     * @param container          If non-null, this is the parent view that the fragment's UI should be attached to.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     * @return The View for the fragment's UI.
+     */
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Root layout setup
         LinearLayout rootLayout = new LinearLayout(getContext());
         rootLayout.setOrientation(LinearLayout.VERTICAL);
         rootLayout.setBackgroundColor(Color.parseColor("#4CAF50"));
@@ -63,6 +76,13 @@ public class EventsAdminFragment extends Fragment {
         return rootLayout;
     }
 
+    /**
+     * Called immediately after the view has been created.
+     * Initializes the Firestore connection and begins listening for database updates.
+     *
+     * @param view               The View returned by onCreateView.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -71,11 +91,22 @@ public class EventsAdminFragment extends Fragment {
         loadEventsFromDatabase();
     }
 
+    /**
+     * Dependency injection method for testing purposes.
+     * Allows setting a mock Firestore instance.
+     *
+     * @param mockDb               The mock FirebaseFirestore instance.
+     * @param mockEventsCollection The mock CollectionReference.
+     */
     public void setMockDatabase(FirebaseFirestore mockDb, CollectionReference mockEventsCollection) {
         this.db = mockDb;
         this.eventsdb = mockEventsCollection;
     }
 
+    /**
+     * Sets up a real-time listener on the 'Events' collection.
+     * Automatically updates the UI whenever events are added, removed, or modified.
+     */
     private void loadEventsFromDatabase() {
         eventsdb.addSnapshotListener((value, error) -> {
             if (error != null) {
@@ -92,9 +123,6 @@ public class EventsAdminFragment extends Fragment {
 
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
-
-                    // We cannot use EventForOrg here because the field names don't match.
-
                     String eventDetails = formatEventString(snapshot);
 
                     View eventView = safeInflater.inflate(R.layout.event_admin_list_item, eventsContainer, false);
@@ -104,7 +132,6 @@ public class EventsAdminFragment extends Fragment {
 
                     eventTextView.setText(eventDetails);
 
-                    // Click listeners
                     eventTextView.setOnClickListener(v -> showEventDetailsDialog(snapshot));
                     deleteButton.setOnClickListener(v -> showDeleteConfirmationDialog(snapshot));
 
@@ -122,39 +149,35 @@ public class EventsAdminFragment extends Fragment {
     }
 
     /**
-     * Helper method to extract fields using the EXACT keys from your Firebase Data
+     * Helper method to format event data into a readable string.
+     * Extracts fields such as name, capacity, dates, and location from the Firestore document.
+     *
+     * @param snapshot The QueryDocumentSnapshot containing event data.
+     * @return A formatted string representation of the event.
      */
     private String formatEventString(QueryDocumentSnapshot snapshot) {
-        // 1. Strings (using lowercase keys from your data)
         String name = snapshot.getString("name");
         String genre = snapshot.getString("genre");
-        String description = snapshot.getString("description");
 
-        // 2. Numbers (capacity is a number in your DB, not a string)
         Long capacity = snapshot.getLong("capacity");
 
-        // 3. Timestamps (Your DB uses Timestamp objects, not strings)
         Timestamp startTs = snapshot.getTimestamp("eventStartDate");
         Timestamp endTs = snapshot.getTimestamp("eventEndDate");
 
-        // Format Dates
         SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy h:mm a", Locale.US);
         String startStr = (startTs != null) ? sdf.format(startTs.toDate()) : "N/A";
         String endStr = (endTs != null) ? sdf.format(endTs.toDate()) : "N/A";
 
-        // 4. Location (Your DB has a Map, not a String)
         StringBuilder locBuilder = new StringBuilder();
         Object locObj = snapshot.get("location");
         if (locObj instanceof Map) {
             Map<String, Object> locMap = (Map<String, Object>) locObj;
-            // Extract specific fields from the location map
             if (locMap.get("street") != null) locBuilder.append(locMap.get("street"));
             if (locMap.get("city") != null) locBuilder.append(", ").append(locMap.get("city"));
         } else {
             locBuilder.append("Unknown Location");
         }
 
-        // Build the string
         return "Name: " + (name != null ? name : "Unknown") + "\n" +
                 "Capacity: " + (capacity != null ? capacity : 0) + "\n" +
                 "Date: " + startStr + "\n" +
@@ -163,6 +186,11 @@ public class EventsAdminFragment extends Fragment {
                 "Location: " + locBuilder.toString();
     }
 
+    /**
+     * Displays a confirmation dialog before deleting an event.
+     *
+     * @param snapshot The document snapshot of the event to be deleted.
+     */
     private void showDeleteConfirmationDialog(QueryDocumentSnapshot snapshot) {
         new AlertDialog.Builder(getContext())
                 .setTitle("Delete Event")
@@ -172,6 +200,12 @@ public class EventsAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Displays a dialog requesting a reason for the deletion.
+     * If confirmed, the event is deleted via the EventService.
+     *
+     * @param snapshot The document snapshot of the event to be deleted.
+     */
     private void showReasonInputDialog(QueryDocumentSnapshot snapshot) {
         final android.widget.EditText input = new android.widget.EditText(getContext());
         input.setHint("Enter reason for deleting this event");
@@ -195,41 +229,36 @@ public class EventsAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Displays detailed information about a selected event in a custom dialog.
+     *
+     * @param snapshot The document snapshot containing the event details.
+     */
     private void showEventDetailsDialog(QueryDocumentSnapshot snapshot) {
-        // 1. Inflate the custom dark layout
         View dialogView = LayoutInflater.from(getContext())
                 .inflate(R.layout.event_pop_up, null);
 
-        // 2. Find Views inside the new layout
         TextView title = dialogView.findViewById(R.id.event_details_title);
         TextView body = dialogView.findViewById(R.id.event_details_body);
         View closeBtn = dialogView.findViewById(R.id.button_close_event_dialog);
 
-        // 3. Prepare the data string using your formatting logic
-        // We reuse the existing formatEventString method, then add the description
         String baseDetails = formatEventString(snapshot);
         String description = snapshot.getString("description");
-
-        // Add ID or other specific fields if needed
         String fullDetails = baseDetails + "\nDescription: " + (description != null ? description : "None");
 
-        // 4. Set the text
         if (body != null) {
             body.setText(fullDetails);
         }
 
-        // Optional: Set title with Event Name if you want
         if (title != null) {
             String name = snapshot.getString("name");
             title.setText("Details: " + (name != null ? name : "Event"));
         }
 
-        // 5. Create and Show the Dialog
         AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(dialogView) // This is important! Sets the custom view
+                .setView(dialogView)
                 .create();
 
-        // 6. Handle the Close button
         if (closeBtn != null) {
             closeBtn.setOnClickListener(v -> dialog.dismiss());
         }

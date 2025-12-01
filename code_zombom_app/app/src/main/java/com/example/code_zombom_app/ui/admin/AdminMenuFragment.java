@@ -13,6 +13,10 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.code_zombom_app.R;
 
+/**
+ * A simplified navigation menu for the Admin interface.
+ * Allows switching between Events and Profiles management views.
+ */
 public class AdminMenuFragment extends Fragment {
 
     @Nullable
@@ -23,6 +27,13 @@ public class AdminMenuFragment extends Fragment {
         return inflater.inflate(R.layout.admin_menu, container, false);
     }
 
+    /**
+     * Sets up the navigation buttons for Events and Profiles.
+     * Loads the Events fragment by default.
+     *
+     * @param view               The View returned by onCreateView.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed from a previous saved state.
+     */
     @Override
     public void onViewCreated(@NonNull View view,
                               @Nullable Bundle savedInstanceState) {
@@ -38,6 +49,11 @@ public class AdminMenuFragment extends Fragment {
         profilesBtn.setOnClickListener(v -> loadInnerFragment(new ProfileAdminFragment()));
     }
 
+    /**
+     * Helper method to replace the content of the admin container.
+     *
+     * @param fragment The fragment to display (EventsAdminFragment or ProfileAdminFragment).
+     */
     private void loadInnerFragment(Fragment fragment) {
         FragmentTransaction ft = getChildFragmentManager().beginTransaction();
         ft.replace(R.id.admin_content_container, fragment);

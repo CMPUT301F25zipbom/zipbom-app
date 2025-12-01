@@ -22,6 +22,11 @@ import com.google.firebase.storage.StorageReference;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fragment for managing event posters.
+ * Displays a grid of all events that have an uploaded poster, allowing admins
+ * to view and delete inappropriate images.
+ */
 public class PostersAdminFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -35,6 +40,9 @@ public class PostersAdminFragment extends Fragment {
         super(R.layout.fragment_posters_admin);
     }
 
+    /**
+     * Initializes the RecyclerView grid layout and fetches poster data.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -45,7 +53,6 @@ public class PostersAdminFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recycler_view_posters);
         progressBar = view.findViewById(R.id.progress_bar_posters);
 
-        // 2 Columns for the grid
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
 
         adapter = new PostersAdapter(getContext(), posterEvents, this::confirmDeletePoster);
@@ -54,13 +61,16 @@ public class PostersAdminFragment extends Fragment {
         fetchPosters();
     }
 
+    /**
+     * Fetches events from Firestore that contain a 'posterUrl'.
+     * Updates the adapter upon successful retrieval.
+     */
     private void fetchPosters() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
         db.collection("Events")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // --- SAFETY CHECK ---
                     if (!isAdded() || getContext() == null) {
                         return;
                     }
@@ -68,7 +78,6 @@ public class PostersAdminFragment extends Fragment {
                     posterEvents.clear();
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
                         String url = doc.getString("posterUrl");
-                        // Only add to the list if there is a valid URL
                         if (url != null && !url.isEmpty()) {
                             posterEvents.add(doc);
                         }
@@ -82,7 +91,6 @@ public class PostersAdminFragment extends Fragment {
                     }
                 })
                 .addOnFailureListener(e -> {
-                    // --- SAFETY CHECK ---
                     if (!isAdded() || getContext() == null) return;
 
                     Log.e(TAG, "Error fetching posters", e);
@@ -91,8 +99,10 @@ public class PostersAdminFragment extends Fragment {
                 });
     }
 
+    /**
+     * Shows a confirmation dialog before deleting a poster image.
+     */
     private void confirmDeletePoster(DocumentSnapshot eventSnapshot) {
-        // Simple safety check before showing dialog
         if (getContext() == null) return;
 
         new AlertDialog.Builder(getContext())
@@ -103,39 +113,40 @@ public class PostersAdminFragment extends Fragment {
                 .show();
     }
 
+    /**
+     * Deletes the poster image from Firebase Storage first, then updates the Firestore document
+     * to remove the reference.
+     */
     private void deletePosterImage(DocumentSnapshot eventSnapshot) {
         String posterUrl = eventSnapshot.getString("posterUrl");
         String eventId = eventSnapshot.getId();
 
         if (posterUrl == null || posterUrl.isEmpty()) return;
 
-        // 1. Delete from Storage
         StorageReference imageRef = FirebaseStorage.getInstance().getReferenceFromUrl(posterUrl);
         imageRef.delete().addOnSuccessListener(aVoid -> {
-            // 2. Delete reference from Database
             removePosterReferenceFromFirestore(eventId);
         }).addOnFailureListener(e -> {
-            // --- SAFETY CHECK ---
             if (!isAdded() || getContext() == null) return;
 
-            // If it fails to delete file, remove from DB anyway
             Toast.makeText(getContext(), "Storage delete failed, removing from DB...", Toast.LENGTH_SHORT).show();
             removePosterReferenceFromFirestore(eventId);
         });
     }
 
+    /**
+     * Updates the Event document in Firestore to set 'posterUrl' to null.
+     */
     private void removePosterReferenceFromFirestore(String eventId) {
         db.collection("Events").document(eventId)
-                .update("posterUrl", null) // Set field to null
+                .update("posterUrl", null)
                 .addOnSuccessListener(aVoid -> {
-                    // --- SAFETY CHECK (This was likely the crash cause) ---
                     if (!isAdded() || getContext() == null) return;
 
                     Toast.makeText(getContext(), "Poster removed successfully", Toast.LENGTH_SHORT).show();
-                    fetchPosters(); // Refresh list
+                    fetchPosters();
                 })
                 .addOnFailureListener(e -> {
-                    // --- SAFETY CHECK ---
                     if (!isAdded() || getContext() == null) return;
 
                     Toast.makeText(getContext(), "Failed to update database", Toast.LENGTH_SHORT).show();

@@ -14,17 +14,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.code_zombom_app.ui.admin.AdminNotificationLog;
 import com.example.code_zombom_app.R;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * Fragment responsible for fetching and displaying all notification logs from the database.
+ * Uses a Firestore Collection Group Query to retrieve notifications from across all events.
+ */
 public class AdminNotificationLogsFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -56,13 +58,20 @@ public class AdminNotificationLogsFragment extends Fragment {
         fetchLogs();
     }
 
+    /**
+     * Fetches notification logs using a Collection Group Query.
+     * Iterates through all collections named "Notifications" in the Firestore database.
+     * <p>
+     * Note: This method currently uses debug logging to assist with tracing data issues.
+     * Sorting is temporarily disabled to avoid potential missing index errors during debugging.
+     */
     private void fetchLogs() {
         if (progressBar != null) progressBar.setVisibility(View.VISIBLE);
 
         Log.d("DEBUG_LOGS", "Starting to fetch from collectionGroup 'Notifications'...");
 
-        db.collectionGroup("Notifications") // Ensure this matches the Case in Firebase
-                .get() // Removed .orderBy for now to rule out Index issues
+        db.collectionGroup("Notifications") // Matches case in Firebase
+                .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!isAdded() || getContext() == null) return;
 
@@ -71,7 +80,6 @@ public class AdminNotificationLogsFragment extends Fragment {
                     logList.clear();
 
                     for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        // Print the raw data of every document found
                         Log.d("DEBUG_LOGS", "Found Doc ID: " + doc.getId() + " | Data: " + doc.getData());
 
                         try {
@@ -81,7 +89,6 @@ public class AdminNotificationLogsFragment extends Fragment {
                             String email = doc.getString("recipientEmail");
                             String type = doc.getString("type");
 
-                            // Log the parsed values
                             Log.d("DEBUG_LOGS", "Parsed -> Event: " + eventName + ", Email: " + email);
 
                             logList.add(new AdminNotificationLog(eventName, message, email, type, date));
@@ -105,8 +112,12 @@ public class AdminNotificationLogsFragment extends Fragment {
     }
 
     /**
-     * LOGIC COPIED FROM ENTRANT CODE
-     * Handles cases where 'createdAt' is a Number OR a Firestore Timestamp
+     * Helper method to safely extract a Date object from a Firestore field.
+     * Handles cases where the database field might be stored as a Firestore {@link Timestamp}
+     * or a primitive {@link Long}.
+     *
+     * @param raw The raw Object retrieved from the document snapshot.
+     * @return A {@link Date} object if extraction is successful, or null otherwise.
      */
     private Date extractDate(@Nullable Object raw) {
         if (raw instanceof Timestamp) {
