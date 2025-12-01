@@ -27,7 +27,9 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Displays a list of notifications targeted to the signed-in entrant.
+ * Shows a scrollable feed of in-app notifications for the currently signed-in entrant.
+ * The activity enforces the entrant's notification preferences, lets them accept or decline
+ * invitations, and allows direct registration once an invitation has been accepted.
  */
 public class EntrantNotificationsActivity extends AppCompatActivity {
 
@@ -123,6 +125,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                                     Boolean.TRUE.equals(doc.getBoolean("seen")),
                                     Boolean.TRUE.equals(doc.getBoolean("responded"))
                             ));
+                            fetchResponseStatus(notifications.get(notifications.size() - 1));
                         }
                         adapter.notifyDataSetChanged();
                         progressBar.setVisibility(View.GONE);
@@ -134,6 +137,43 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
                         emptyView.setText(R.string.history_load_error);
                     });
         });
+    }
+
+    private void fetchResponseStatus(@NonNull EntrantNotification notification) {
+        if (!isInvitation(notification.type)) {
+            return;
+        }
+        if (email == null || email.trim().isEmpty()) {
+            return;
+        }
+        if (notification.eventId.isEmpty()) {
+            return;
+        }
+        firestore.collection("Events")
+                .document(notification.eventId)
+                .collection("Responses")
+                .document(email.trim())
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (!snapshot.exists()) {
+                        return;
+                    }
+                    String status = snapshot.getString("status");
+                    if (status == null) {
+                        return;
+                    }
+                    switch (status.toLowerCase(Locale.ROOT)) {
+                        case "registered":
+                            notification.accepted = true;
+                            notification.registered = true;
+                            notification.responded = true;
+                            break;
+                        case "accepted":
+                            notification.accepted = true;
+                            break;
+                    }
+                    adapter.notifyDataSetChanged();
+                });
     }
 
     private void resolveNotificationPreference(@NonNull String rawEmail,
@@ -208,27 +248,89 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
     }
 
     private void showNotificationDialog(@NonNull EntrantNotification n) {
-        if (isInvitation(n.type) && n.eventId != null && !n.eventId.trim().isEmpty() && !n.responded) {
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle(n.title)
-                    .setMessage(n.message)
-                    .setPositiveButton(R.string.accept, (d, w) -> handleInvitationResponse(n, true))
-                    .setNegativeButton(R.string.decline, (d, w) -> handleInvitationResponse(n, false))
-                    .setNeutralButton(android.R.string.ok, (d, w) -> {
-                        markSeen(n);
-                        d.dismiss();
-                    })
-                    .show();
+        if (isInvitation(n.type) && n.eventId != null && !n.eventId.trim().isEmpty()) {
+            if (n.registered || n.responded) {
+                showBasicNotificationDialog(n);
+            } else if (n.accepted) {
+                showSignupPrompt(n);
+            } else {
+                showInvitationDecisionDialog(n);
+            }
         } else {
-            new android.app.AlertDialog.Builder(this)
-                    .setTitle(n.title)
-                    .setMessage(n.message)
-                    .setPositiveButton(android.R.string.ok, (d, w) -> {
-                        markSeen(n);
-                        d.dismiss();
-                    })
-                    .show();
+            showBasicNotificationDialog(n);
         }
+    }
+
+    private void showInvitationDecisionDialog(@NonNull EntrantNotification n) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(n.title)
+                .setMessage(n.message)
+                .setPositiveButton(R.string.accept, (d, w) -> handleInvitationResponse(n, true))
+                .setNegativeButton(R.string.decline, (d, w) -> handleInvitationResponse(n, false))
+                .setNeutralButton(android.R.string.ok, (d, w) -> {
+                    markSeen(n);
+                    d.dismiss();
+                })
+                .show();
+    }
+
+    private void showBasicNotificationDialog(@NonNull EntrantNotification n) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(n.title)
+                .setMessage(n.message)
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
+                    markSeen(n);
+                    d.dismiss();
+                })
+                .show();
+    }
+
+    private void showSignupPrompt(@NonNull EntrantNotification n) {
+        markSeen(n);
+        String eventName = (n.title == null || n.title.trim().isEmpty())
+                ? getString(R.string.notification_title)
+                : n.title;
+        String message = getString(R.string.entrant_signup_prompt_message, eventName);
+        new android.app.AlertDialog.Builder(this)
+                .setTitle(R.string.entrant_signup_prompt_title)
+                .setMessage(message)
+                .setPositiveButton(R.string.sign_up, (dialog, which) -> executeRegistration(n))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void executeRegistration(@NonNull EntrantNotification n) {
+        if (email == null || email.trim().isEmpty()) {
+            Toast.makeText(this, R.string.history_missing_email, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        new EventService().completeRegistration(n.eventId, email.trim())
+                .addOnSuccessListener(unused -> {
+                    n.accepted = true;
+                    n.registered = true;
+                    markInvitationHandled(n);
+                    String successMessage = getString(R.string.entrant_signup_success_message,
+                            n.title == null ? getString(R.string.notification_title) : n.title);
+                    Toast.makeText(this, successMessage, Toast.LENGTH_LONG).show();
+                    loadNotifications();
+                })
+                .addOnFailureListener(e -> {
+                    String error = e.getMessage();
+                    if (error != null && error.toLowerCase(Locale.ROOT).contains("already registered")) {
+                        n.accepted = true;
+                        n.registered = true;
+                        markInvitationHandled(n);
+                        Toast.makeText(this,
+                                getString(R.string.entrant_signup_success_message,
+                                        n.title == null ? getString(R.string.notification_title) : n.title),
+                                Toast.LENGTH_LONG).show();
+                        loadNotifications();
+                    } else {
+                        Toast.makeText(this,
+                                error != null ? error : getString(R.string.history_load_error),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void handleInvitationResponse(@NonNull EntrantNotification n, boolean accept) {
@@ -238,16 +340,25 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         }
         EventService service = new EventService();
         if (accept) {
-            service.acceptInvitation(n.eventId, email)
+            service.acceptInvitation(n.eventId, email.trim())
                     .addOnSuccessListener(ignored -> {
-                        markInvitationHandled(n);
+                        n.accepted = true;
                         Toast.makeText(this, R.string.accept, Toast.LENGTH_SHORT).show();
+                        showSignupPrompt(n);
                     })
-                    .addOnFailureListener(e -> Toast.makeText(this,
-                            e.getMessage() != null ? e.getMessage() : getString(R.string.history_load_error),
-                            Toast.LENGTH_SHORT).show());
+                    .addOnFailureListener(e -> {
+                        String message = e.getMessage();
+                        if (message != null && message.toLowerCase(Locale.ROOT).contains("already accepted")) {
+                            n.accepted = true;
+                            showSignupPrompt(n);
+                        } else {
+                            Toast.makeText(this,
+                                    message != null ? message : getString(R.string.history_load_error),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
         } else {
-            service.declineInvitation(n.eventId, email)
+            service.declineInvitation(n.eventId, email.trim())
                     .addOnSuccessListener(ignored -> {
                         markInvitationHandled(n);
                         Toast.makeText(this, R.string.decline, Toast.LENGTH_SHORT).show();
@@ -274,6 +385,8 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         final Date createdAt;
         boolean seen;
         boolean responded;
+        boolean accepted;
+        boolean registered;
 
         EntrantNotification(String id,
                             com.google.firebase.firestore.DocumentReference ref,
@@ -293,6 +406,8 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
             this.createdAt = createdAt;
             this.seen = seen;
             this.responded = responded;
+            this.accepted = false;
+            this.registered = false;
         }
 
         @NonNull

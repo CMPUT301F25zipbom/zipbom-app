@@ -19,22 +19,7 @@
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="back">Back</string>
-    <string name="filter_sort_title">Filter</string>
-    <string name="filter_sort_filter_section">Filter</string>
-    <string name="filter_sort_filter_interests">Interests</string>
-    <string name="filter_sort_filter_availability">Availability</string>
-    <string name="filter_sort_interest_sport">Sport</string>
-    <string name="filter_sort_interest_esport">eSport</string>
-    <string name="filter_sort_interest_food">Food</string>
-    <string name="filter_sort_interest_music">Music</string>
-    <string name="filter_sort_interest_engineering">Engineering</string>
-    <string name="filter_sort_select_range">Select date range</string>
-    <string name="filter_sort_range_placeholder">No range selected</string>
-    <string name="filter_sort_range_error">End date cannot be before the start date</string>
-    <string name="filter_sort_apply">Apply</string>
     <string name="filter_sort_reset">Reset</string>
-    <string name="filter_sort_applied_summary">Filters applied</string>
-    <string name="filter_sort_reset_summary">Filters cleared</string>
     <string name="save">Save</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
@@ -62,6 +47,12 @@
     <string name="view_history">History</string>
     <string name="view_notifications">Notifications</string>
     <string name="notifications_disabled_message">Notifications are disabled for this profile.</string>
+    <string name="entrant_signup_prompt_title">Complete Registration</string>
+    <string name="entrant_signup_prompt_message">You accepted the invitation for %1$s. Tap Sign Up to finalize your spot.</string>
+    <string name="entrant_signup_success_message">You have successfully been registered to participate in %1$s</string>
+    <string name="lottery_guidelines_title">Lottery Selection Guidelines</string>
+    <string name="lottery_guidelines_body">- Organizers run the lottery once registration closes.\n- Eligible entrants are randomly drawn from the waiting list.\n- Selected entrants must check in within 24 hours or their spot returns to the pool.</string>
+    <string name="lottery_guidelines_close_content_description">Close lottery guidelines</string>
 
     <string-array name="user_types">
         <item>Entrant</item>

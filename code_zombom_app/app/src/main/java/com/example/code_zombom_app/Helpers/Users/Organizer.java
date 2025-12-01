@@ -34,6 +34,7 @@ public class Organizer extends Profile{
         LEAVE,
         SELECTED,
         CONFIRMED,
+        REGISTERED,
         DECLINED,
 
     }
