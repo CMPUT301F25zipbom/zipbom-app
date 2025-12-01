@@ -1,13 +1,6 @@
 package com.example.code_zombom_app.organizer;
 
-import android.Manifest;
-import android.content.ContentValues;
-import android.content.pm.PackageManager;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Build;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 import android.app.Dialog;
@@ -15,37 +8,17 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.Helpers.Location.EventHeatMapActivity;
-import com.example.code_zombom_app.Helpers.Location.Location;
-import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.io.ByteArrayOutputStream;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Tejwinder Johal
@@ -57,11 +30,7 @@ public class OrganizerDialog extends Dialog {
     private final EventForOrg eventForOrg;
     private final Event event;
     private final NavController navController;
-    //    private final View fragmentView;
-//    private final Map<String, Bitmap> qrCodeBitmaps;
-    private final ImageView qrCodeImageView; // Direct reference to the ImageView
-    private final Bitmap qrCodeBitmap;       // The specific bitmap for this event
-    private final Runnable requestExportPermissionTask; // <-- Add this property
+    private final Runnable requestExportPermissionTask;
 
     private final EventService eventService = new EventService(FirebaseFirestore.getInstance());
 
@@ -72,18 +41,13 @@ public class OrganizerDialog extends Dialog {
      * @param event The Event object. It is here because there is no good way to map EventForOrg
      *              -> Event
      * @param navController sets the organizerdialog navController
-     * @param qrCodeImageView sets the organizerdialog fragmentView
      */
     public OrganizerDialog(@NonNull Context context, EventForOrg eventForOrg, Event event,
-                           NavController navController, ImageView qrCodeImageView,
-                           Bitmap qrCodeBitmap,
-                           Runnable requestExportPermissionTask) { // Pass ImageView and Bitmap directly
+                           NavController navController, Runnable requestExportPermissionTask) { // Pass ImageView and Bitmap directly
         super(context);
         this.eventForOrg = eventForOrg;
         this.event = event;
         this.navController = navController;
-        this.qrCodeImageView = qrCodeImageView; // Store the direct reference
-        this.qrCodeBitmap = qrCodeBitmap;       // Store the specific bitmap
         this.requestExportPermissionTask = requestExportPermissionTask; // <-- Store the task
     }
 
@@ -148,7 +112,7 @@ public class OrganizerDialog extends Dialog {
         seeDetsButton.setOnClickListener(v -> {
             dismiss();
             Bundle bundle = new Bundle();
-            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object    // Navigate to the full details fragment
+            bundle.putString("eventId", eventForOrg.getEventId()); // Get ID from the object
 
             // Navigate to the full details fragment
             navController.navigate(
@@ -242,48 +206,6 @@ public class OrganizerDialog extends Dialog {
                 break;
             default:
                 break;
-        }
-    }
-    private void exportEntrantsToCsv() {
-        ArrayList<String> entrants = eventForOrg.getAccepted_Entrants();
-
-        if (entrants == null || entrants.isEmpty()) {
-            Toast.makeText(getContext(), "No entrants to export.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Create a unique filename based on event name and date
-        String fileName = "entrants_" + eventForOrg.getName().replaceAll("\\s+", "_") + ".csv";
-
-        // Use StringBuilder to efficiently build the CSV content
-        StringBuilder csvContent = new StringBuilder();
-        csvContent.append("Accepted Entrants\n"); // CSV Header
-        for (String entrantId : entrants) {
-            csvContent.append(entrantId).append("\n");
-        }
-
-        // Use MediaStore to save the file to the public "Downloads" directory
-        // This is the modern, recommended way to handle file saving.
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "text/csv");
-        values.put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/");
-
-        Uri uri = getContext().getContentResolver().insert(MediaStore.Files.getContentUri("external"), values);
-
-        if (uri != null) {
-            try (OutputStream outputStream = getContext().getContentResolver().openOutputStream(uri)) {
-                if (outputStream != null) {
-                    outputStream.write(csvContent.toString().getBytes());
-                    Toast.makeText(getContext(), "Exported to Downloads folder!", Toast.LENGTH_LONG).show();
-                    dismiss(); // Close dialog on success
-                }
-            } catch (Exception e) {
-                Log.e("CSV_EXPORT", "Error writing to file", e);
-                Toast.makeText(getContext(), "Failed to export file.", Toast.LENGTH_SHORT).show();
-            }
-        } else {
-            Toast.makeText(getContext(), "Failed to create file in Downloads.", Toast.LENGTH_SHORT).show();
         }
     }
 }

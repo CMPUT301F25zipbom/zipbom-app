@@ -6,12 +6,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * A model class representing an event. This Plain Old Java Object (POJO)
+ * A model class representing an event. This POJO
  * is used for direct mapping with Firestore documents.
  */
 public class EventForOrg implements Serializable { // Serializable is good practice for passing objects in Bundles
 
-    // --- Properties that map directly to Firestore fields ---
+    // Properties that map directly to Firestore fields
     private String Name;
     private String Date;
     private String Deadline;
@@ -31,14 +31,10 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     private ArrayList<String> Lottery_Winners;
 
 
-    // --- Properties that are NOT in Firestore ---
+    // Properties that are NOT in Firestore
     @Exclude // This annotation tells Firestore to ignore this field
     private String eventId;
 
-
-    // --- Constructors ---
-
-    // IMPORTANT: A public no-argument constructor is required for Firestore's automatic data mapping.
     public EventForOrg() {
         Name = "";
         Date = "";
@@ -85,7 +81,6 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     public String getMax_People() { return Max_People; }
     public void setMax_People(String max_People) { this.Max_People = max_People; }
     public Boolean getQrCodeExists() { return qrCodeExists; }
-    public void setQrCodeExists(Boolean qrCodeExists) { this.qrCodeExists = qrCodeExists; }
 
     public String getWait_List_Maximum() { return Wait_List_Maximum; }
     public void setWait_List_Maximum(String wait_List_Maximum) { this.Wait_List_Maximum = wait_List_Maximum; }
@@ -109,29 +104,10 @@ public class EventForOrg implements Serializable { // Serializable is good pract
     public void setDrawTimestamp(Long drawTimestamp) { this.drawTimestamp = drawTimestamp; }
 
 
-    // --- Excluded (local-only) properties ---
+    // Excluded (local-only) properties
 
     @Exclude
     public String getEventId() { return eventId; }
     public void setEventId(String eventId) { this.eventId = eventId; }
 
-
-    // --- Convenience Methods ---
-
-    /**
-     * Generates the display text for the main organizer list.
-     * @return A formatted string with the event's basic details.
-     */
-    public String getEventListDisplayText() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Name: ").append(Name != null ? Name : "").append("\n");
-        sb.append("Max People: ").append(Max_People != null ? Max_People : "").append("\n");
-        sb.append("Date: ").append(Date != null ? Date : "").append("\n");
-        sb.append("Deadline: ").append(Deadline != null ? Deadline : "").append("\n");
-        sb.append("Genre: ").append(Genre != null ? Genre : "").append("\n");
-        if (Location != null) {
-            sb.append("Location: ").append(Location.toString());
-        }
-        return sb.toString();
-    }
 }
