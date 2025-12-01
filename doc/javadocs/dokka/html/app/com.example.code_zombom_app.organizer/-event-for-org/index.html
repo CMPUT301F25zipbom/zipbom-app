@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EventForOrg</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            app
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":app:dokkaHtml/main">main</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="app::com.example.code_zombom_app.organizer/EventForOrg///PointingToDeclaration//1745091852">
+  <div class="breadcrumbs"><a href="../../../index.html">app</a><span class="delimiter">/</span><a href="../index.html">com.example.code_zombom_app.organizer</a><span class="delimiter">/</span><span class="current">EventForOrg</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Event</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Org</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="index.html">EventForOrg</a> : <a href="https://developer.android.com/reference/kotlin/java/io/Serializable.html">Serializable</a></div><p class="paragraph">A model class representing an event. This POJO is used for direct mapping with Firestore documents.</p></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-626209531%2FConstructors%2F1745091852" anchor-label="EventForOrg" id="-626209531%2FConstructors%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-event-for-org.html"><span>Event</span><wbr></wbr><span>For</span><wbr></wbr><span><span>Org</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-626209531%2FConstructors%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1001929917%2FProperties%2F1745091852" anchor-label="drawComplete" id="-1001929917%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="draw-complete.html"><span>draw</span><wbr></wbr><span><span>Complete</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1001929917%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">var </span><a href="draw-complete.html">drawComplete</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/Boolean.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1376197464%2FProperties%2F1745091852" anchor-label="drawTimestamp" id="-1376197464%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="draw-timestamp.html"><span>draw</span><wbr></wbr><span><span>Timestamp</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1376197464%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">var </span><a href="draw-timestamp.html">drawTimestamp</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/Long.html">Long</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-809003355%2FProperties%2F1745091852" anchor-label="eventId" id="-809003355%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="event-id.html"><span>event</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-809003355%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">var </span><a href="event-id.html">eventId</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-128149384%2FProperties%2F1745091852" anchor-label="posterUrl" id="-128149384%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="poster-url.html"><span>poster</span><wbr></wbr><span><span>Url</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-128149384%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">var </span><a href="poster-url.html">posterUrl</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1052572886%2FProperties%2F1745091852" anchor-label="qrCodeExists" id="1052572886%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="qr-code-exists.html"><span>qr</span><wbr></wbr><span>Code</span><wbr></wbr><span><span>Exists</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1052572886%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="qr-code-exists.html">qrCodeExists</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/Boolean.html">Boolean</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="-1272240117%2FFunctions%2F1745091852" anchor-label="getAccepted_Entrants" id="-1272240117%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-accepted_-entrants.html"><span>get</span><wbr></wbr><span><span>Accepted_Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1272240117%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-accepted_-entrants.html"><span class="token function">getAccepted_Entrants</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></div><div class="brief ">This method is used to get the entrants who've accepted the invide.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="647378275%2FFunctions%2F1745091852" anchor-label="getCancelled_Entrants" id="647378275%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-cancelled_-entrants.html"><span>get</span><wbr></wbr><span><span>Cancelled_Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="647378275%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-cancelled_-entrants.html"><span class="token function">getCancelled_Entrants</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></div><div class="brief ">This method is used to get the cancelled entrants.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2102857034%2FFunctions%2F1745091852" anchor-label="getDate" id="-2102857034%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-date.html"><span>get</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2102857034%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-date.html"><span class="token function">getDate</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the date.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="752332748%2FFunctions%2F1745091852" anchor-label="getDeadline" id="752332748%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-deadline.html"><span>get</span><wbr></wbr><span><span>Deadline</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="752332748%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-deadline.html"><span class="token function">getDeadline</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the deadline.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1809567110%2FFunctions%2F1745091852" anchor-label="getDescription" id="-1809567110%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-description.html"><span>get</span><wbr></wbr><span><span>Description</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1809567110%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-description.html"><span class="token function">getDescription</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the description.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1787375025%2FFunctions%2F1745091852" anchor-label="getEntrants" id="1787375025%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-entrants.html"><span>get</span><wbr></wbr><span><span>Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1787375025%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-entrants.html"><span class="token function">getEntrants</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></div><div class="brief ">This method is used to get the wait list entrants</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="23806355%2FFunctions%2F1745091852" anchor-label="getGenre" id="23806355%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-genre.html"><span>get</span><wbr></wbr><span><span>Genre</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="23806355%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-genre.html"><span class="token function">getGenre</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the genre.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="699907343%2FFunctions%2F1745091852" anchor-label="getLocation" id="699907343%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-location.html"><span>get</span><wbr></wbr><span><span>Location</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="699907343%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-location.html"><span class="token function">getLocation</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span>Location</div><div class="brief ">This method is used to get the location.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1116107576%2FFunctions%2F1745091852" anchor-label="getLottery_Winners" id="1116107576%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-lottery_-winners.html"><span>get</span><wbr></wbr><span><span>Lottery_Winners</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1116107576%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-lottery_-winners.html"><span class="token function">getLottery_Winners</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></div><div class="brief ">This method is used to get the lottery winners.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-626477382%2FFunctions%2F1745091852" anchor-label="getMax_People" id="-626477382%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-max_-people.html"><span>get</span><wbr></wbr><span><span>Max_People</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-626477382%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-max_-people.html"><span class="token function">getMax_People</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the max_People.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1903138183%2FFunctions%2F1745091852" anchor-label="getName" id="-1903138183%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-name.html"><span>get</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1903138183%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-name.html"><span class="token function">getName</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method is used to get the name.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1705867699%2FFunctions%2F1745091852" anchor-label="getWait_List_Maximum" id="-1705867699%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-wait_-list_-maximum.html"><span>get</span><wbr></wbr><span><span>Wait_List_Maximum</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1705867699%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-wait_-list_-maximum.html"><span class="token function">getWait_List_Maximum</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div><div class="brief ">This method gets the Wait List Maximum.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1676462199%2FFunctions%2F1745091852" anchor-label="setAccepted_Entrants" id="1676462199%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-accepted_-entrants.html"><span>set</span><wbr></wbr><span><span>Accepted_Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1676462199%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-accepted_-entrants.html"><span class="token function">setAccepted_Entrants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">accepted_Entrants<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the entrants who've accepted the invide.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-130486857%2FFunctions%2F1745091852" anchor-label="setCancelled_Entrants" id="-130486857%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-cancelled_-entrants.html"><span>set</span><wbr></wbr><span><span>Cancelled_Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-130486857%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-cancelled_-entrants.html"><span class="token function">setCancelled_Entrants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">cancelled_Entrants<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the cancelled entrants.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-499972315%2FFunctions%2F1745091852" anchor-label="setDate" id="-499972315%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-date.html"><span>set</span><wbr></wbr><span><span>Date</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-499972315%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-date.html"><span class="token function">setDate</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">date<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the date.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="948469307%2FFunctions%2F1745091852" anchor-label="setDeadline" id="948469307%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-deadline.html"><span>set</span><wbr></wbr><span><span>Deadline</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="948469307%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-deadline.html"><span class="token function">setDeadline</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">deadline<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the deadline.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1741858689%2FFunctions%2F1745091852" anchor-label="setDescription" id="1741858689%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-description.html"><span>set</span><wbr></wbr><span><span>Description</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1741858689%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-description.html"><span class="token function">setDescription</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">description<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the description.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-852669143%2FFunctions%2F1745091852" anchor-label="setEntrants" id="-852669143%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-entrants.html"><span>set</span><wbr></wbr><span><span>Entrants</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-852669143%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-entrants.html"><span class="token function">setEntrants</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">entrants<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the wait list entrants.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1177656730%2FFunctions%2F1745091852" anchor-label="setGenre" id="1177656730%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-genre.html"><span>set</span><wbr></wbr><span><span>Genre</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1177656730%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-genre.html"><span class="token function">setGenre</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">genre<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the genre.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1489155058%2FFunctions%2F1745091852" anchor-label="setLocation" id="-1489155058%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-location.html"><span>set</span><wbr></wbr><span><span>Location</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1489155058%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-location.html"><span class="token function">setLocation</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">location<span class="token operator">: </span>Location</span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the location.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-923684246%2FFunctions%2F1745091852" anchor-label="setLottery_Winners" id="-923684246%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-lottery_-winners.html"><span>set</span><wbr></wbr><span><span>Lottery_Winners</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-923684246%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-lottery_-winners.html"><span class="token function">setLottery_Winners</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">lottery_Winners<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/util/ArrayList.html">ArrayList</a><span class="token operator">&lt;</span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the lottery winners.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="815569961%2FFunctions%2F1745091852" anchor-label="setMax_People" id="815569961%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-max_-people.html"><span>set</span><wbr></wbr><span><span>Max_People</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="815569961%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-max_-people.html"><span class="token function">setMax_People</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">max_People<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the max_People.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1481598744%2FFunctions%2F1745091852" anchor-label="setName" id="-1481598744%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-name.html"><span>set</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1481598744%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-name.html"><span class="token function">setName</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">name<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the name.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1366524844%2FFunctions%2F1745091852" anchor-label="setWait_List_Maximum" id="-1366524844%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-wait_-list_-maximum.html"><span>set</span><wbr></wbr><span><span>Wait_List_Maximum</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1366524844%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-wait_-list_-maximum.html"><span class="token function">setWait_List_Maximum</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">wait_List_Maximum<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">This method is used to set the wait list maximum.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EditProfileModel</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            app
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":app:dokkaHtml/main">main</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="app::com.example.code_zombom_app.Entrant.EditProfile/EditProfileModel///PointingToDeclaration//1745091852">
+  <div class="breadcrumbs"><a href="../../../index.html">app</a><span class="delimiter">/</span><a href="../index.html">com.example.code_zombom_app.Entrant.EditProfile</a><span class="delimiter">/</span><span class="current">EditProfileModel</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Edit</span><wbr></wbr><span>Profile</span><wbr></wbr><span><span>Model</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">class </span><a href="index.html">EditProfileModel</a></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="-302674261%2FConstructors%2F1745091852" anchor-label="EditProfileModel" id="-302674261%2FConstructors%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-edit-profile-model.html"><span>Edit</span><wbr></wbr><span>Profile</span><wbr></wbr><span><span>Model</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-302674261%2FConstructors%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">db<span class="token operator">: </span>FirebaseFirestore<span class="token punctuation">, </span></span><span class="parameter ">email<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="TYPE">
+        <h2 class="">Types</h2>
+        <div class="table"><a data-name="346109790%2FClasslikes%2F1745091852" anchor-label="EditProfileRequest" id="346109790%2FClasslikes%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-edit-profile-request/index.html"><span>Edit</span><wbr></wbr><span>Profile</span><wbr></wbr><span><span>Request</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="346109790%2FClasslikes%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">enum </span><a href="-edit-profile-request/index.html">EditProfileRequest</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2068441890%2FClasslikes%2F1745091852" anchor-label="PopUpEdit" id="-2068441890%2FClasslikes%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-pop-up-edit/index.html"><span>Pop</span><wbr></wbr><span>Up</span><wbr></wbr><span><span>Edit</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2068441890%2FClasslikes%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">inner </span><span class="token keyword">class </span><a href="-pop-up-edit/index.html">PopUpEdit</a></div><div class="brief ">Use this class to tell the UI how to create a popup window to edit the name, email, and phone.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1877415046%2FProperties%2F1745091852" anchor-label="editState" id="-1877415046%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="edit-state.html"><span>edit</span><wbr></wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1877415046%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="edit-state.html">editState</a><span class="token operator">: </span><a href="-edit-profile-request/index.html">EditProfileModel.EditProfileRequest</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-535663579%2FProperties%2F1745091852" anchor-label="email" id="-535663579%2FProperties%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="email.html"><span><span>email</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-535663579%2FProperties%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">val </span><a href="email.html">email</a><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="955545870%2FFunctions%2F1745091852" anchor-label="addId" id="955545870%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="add-id.html"><span>add</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="955545870%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="add-id.html"><span class="token function">addId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">context<span class="token operator">: </span>Context</span></span><span class="token punctuation">)</span></div><div class="brief ">Add the device Id to the profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-942573972%2FFunctions%2F1745091852" anchor-label="deleteEntrant" id="-942573972%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="delete-entrant.html"><span>delete</span><wbr></wbr><span><span>Entrant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-942573972%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="delete-entrant.html"><span class="token function">deleteEntrant</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief ">Delete the entrant from the database</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-934870326%2FFunctions%2F1745091852" anchor-label="editEmail" id="-934870326%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="edit-email.html"><span>edit</span><wbr></wbr><span><span>Email</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-934870326%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="edit-email.html"><span class="token function">editEmail</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">email<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Edit the email of the profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2096532533%2FFunctions%2F1745091852" anchor-label="editEntrant" id="-2096532533%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="edit-entrant.html"><span>edit</span><wbr></wbr><span><span>Entrant</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2096532533%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="edit-entrant.html"><span class="token function">editEntrant</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief ">Edit the entrant's profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1411405983%2FFunctions%2F1745091852" anchor-label="editName" id="1411405983%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="edit-name.html"><span>edit</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1411405983%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="edit-name.html"><span class="token function">editName</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">name<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Edit the name of the profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1430862536%2FFunctions%2F1745091852" anchor-label="editPhone" id="-1430862536%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="edit-phone.html"><span>edit</span><wbr></wbr><span><span>Phone</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1430862536%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="edit-phone.html"><span class="token function">editPhone</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">phone<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Edit the phone number of the profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-898251448%2FFunctions%2F1745091852" anchor-label="getCurrentEmail" id="-898251448%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-current-email.html"><span>get</span><wbr></wbr><span>Current</span><wbr></wbr><span><span>Email</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-898251448%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-current-email.html"><span class="token function">getCurrentEmail</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="541486944%2FFunctions%2F1745091852" anchor-label="getName" id="541486944%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-name.html"><span>get</span><wbr></wbr><span><span>Name</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="541486944%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-name.html"><span class="token function">getName</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="409509632%2FFunctions%2F1745091852" anchor-label="getNotification" id="409509632%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-notification.html"><span>get</span><wbr></wbr><span><span>Notification</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="409509632%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-notification.html"><span class="token function">getNotification</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief ">Get the current notification status of the current entrant</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="872698881%2FFunctions%2F1745091852" anchor-label="getPhone" id="872698881%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="get-phone.html"><span>get</span><wbr></wbr><span><span>Phone</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="872698881%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="get-phone.html"><span class="token function">getPhone</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="772838449%2FFunctions%2F1745091852" anchor-label="isLinked" id="772838449%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="is-linked.html"><span>is</span><wbr></wbr><span><span>Linked</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="772838449%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="is-linked.html"><span class="token function">isLinked</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin-stdlib/kotlin/-boolean/index.html">Boolean</a></div><div class="brief ">Find out if this device is linked with the current entrant's profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1364073771%2FFunctions%2F1745091852" anchor-label="removeId" id="-1364073771%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remove-id.html"><span>remove</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1364073771%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="remove-id.html"><span class="token function">removeId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">id<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Remove the device id from the profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1039588009%2FFunctions%2F1745091852" anchor-label="requestPopUp" id="-1039588009%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="request-pop-up.html"><span>request</span><wbr></wbr><span>Pop</span><wbr></wbr><span><span>Up</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1039588009%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="request-pop-up.html"><span class="token function">requestPopUp</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">title<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">message<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a><span class="token punctuation">, </span></span><span class="parameter ">editType<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/String.html">String</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Request to create a popup window.</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1159876471%2FFunctions%2F1745091852" anchor-label="resetState" id="1159876471%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="reset-state.html"><span>reset</span><wbr></wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1159876471%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="reset-state.html"><span class="token function">resetState</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="443161146%2FFunctions%2F1745091852" anchor-label="setNotification" id="443161146%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="set-notification.html"><span>set</span><wbr></wbr><span><span>Notification</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="443161146%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="set-notification.html"><span class="token function">setNotification</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">notification<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/Boolean.html">Boolean</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Set the notification flag in the Entrant profile</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1504702343%2FFunctions%2F1745091852" anchor-label="SynchronizeData" id="1504702343%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-synchronize-data.html"><span>Synchronize</span><wbr></wbr><span><span>Data</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1504702343%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="-synchronize-data.html"><span class="token function">SynchronizeData</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1931872116%2FFunctions%2F1745091852" anchor-label="toggleLinkDeviceId" id="1931872116%2FFunctions%2F1745091852" data-filterable-set=":app:dokkaHtml/main"></a>
+          <div class="table-row" data-filterable-current=":app:dokkaHtml/main" data-filterable-set=":app:dokkaHtml/main">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="toggle-link-device-id.html"><span>toggle</span><wbr></wbr><span>Link</span><wbr></wbr><span>Device</span><wbr></wbr><span><span>Id</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1931872116%2FFunctions%2F1745091852"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":app:dokkaHtml/main"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="toggle-link-device-id.html"><span class="token function">toggleLinkDeviceId</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">save<span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/java/lang/Boolean.html">Boolean</a></span></span><span class="token punctuation">)</span></div><div class="brief ">Request to link/unlink an Android device</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2025 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
