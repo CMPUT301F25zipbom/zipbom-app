@@ -15,7 +15,16 @@
     <string name="no_categories_assigned">General</string>
     <string name="join_waiting_list_placeholder">Joining %1$s waiting list…</string>
     <string name="home_welcome_message">Welcome back! Choose how you want to explore today.</string>
-    <string name="home_organizer_portal_label">Organizer Tools</string>
+    <string name="home_subtitle">Plan events, join lotteries, and stay informed.</string>
+    <string name="home_card_entrant_title">Entrant Portal</string>
+    <string name="home_card_entrant_body">Browse live events, join waiting lists, and track your invitations.</string>
+    <string name="home_card_organizer_title">Organizer Tools</string>
+    <string name="home_card_organizer_body">Create events, manage lotteries, and monitor attendee responses.</string>
+    <string name="home_card_admin_title">Admin Console</string>
+    <string name="home_card_admin_body">Review posters, audit notifications, and moderate the community.</string>
+    <string name="home_card_action_enter">Go to Entrant Tools</string>
+    <string name="home_card_action_organizer">Go to Organizer Tools</string>
+    <string name="home_card_action_admin">Open Admin Console</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="back">Back</string>

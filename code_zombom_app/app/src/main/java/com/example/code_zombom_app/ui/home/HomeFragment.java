@@ -17,11 +17,21 @@ import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.databinding.FragmentHomeBinding;
 
+/**
+ * Entry point for the app's landing experience. Presents role-based cards (entrant, organizer,
+ * admin) and routes the user to the correct flow. The fragment relies on Material cards and chips
+ * for a more polished home design.
+ */
 public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
 
     private FragmentHomeBinding binding;
 
+    /**
+     * Inflates the view binding for the home fragment and retains it for later click wiring.
+     *
+     * @return root view attached to the binding
+     */
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         HomeViewModel homeViewModel =
@@ -32,33 +42,38 @@ public class HomeFragment extends Fragment {
 
         return root;
     }
+    /**
+     * Wires click listeners on the Entrant/Organizer/Admin chips so each one launches the expected flow.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // All Code in onViewCreated() is temporary
-        Button organizerButton = view.findViewById(R.id.toOrganizerUIForNow);
-        Button adminButton = view.findViewById(R.id.toAdminUI);
-        Button entrantLoginButton = view.findViewById(R.id.buttonEntrantLogin);
+        View entrantChip = view.findViewById(R.id.chip_home_entrant);
+        View organizerChip = view.findViewById(R.id.chip_home_organizer);
+        View adminChip = view.findViewById(R.id.chip_home_admin);
 
-        organizerButton.setOnClickListener(v -> {
+        organizerChip.setOnClickListener(v -> {
             NavHostFragment.findNavController(HomeFragment.this)
                     .navigate(R.id.action_home_to_events_graph);
         });
 
-        adminButton.setOnClickListener(v -> {
+        adminChip.setOnClickListener(v -> {
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.nav_host_fragment_activity_main, new AdminLoginFragment())
                     .addToBackStack(null) // Allows the user to press 'Back' to return to Home
                     .commit();
         });
 
-        entrantLoginButton.setOnClickListener(v -> {
+        entrantChip.setOnClickListener(v -> {
             Intent intent = new Intent(requireContext(), LoginActivity.class);
             startActivity(intent);
         });
     }
 
+    /**
+     * Clears the view binding reference when the view hierarchy is destroyed.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
