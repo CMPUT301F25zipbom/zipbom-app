@@ -89,7 +89,7 @@
             android:id="@+id/maxamountofentrants"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Max Entrants (optional)"
+            android:hint="Waitlist Max (optional)"
             android:inputType="number"
             android:textColor="#FFFFFF"
             android:textColorHint="#BCBCBC"
