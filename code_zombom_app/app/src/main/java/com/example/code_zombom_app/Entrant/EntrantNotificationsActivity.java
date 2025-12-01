@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.R;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,11 +33,13 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
 
     public static final String EXTRA_EMAIL = "Email";
 
+    private static final String PREFS_COLLECTION = "NotificationPreferences";
     private final ArrayList<EntrantNotification> notifications = new ArrayList<>();
     private ArrayAdapter<EntrantNotification> adapter;
     private ProgressBar progressBar;
     private TextView emptyView;
     private String email;
+    private FirebaseFirestore firestore;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,6 +47,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_entrant_notifications);
 
         email = getIntent().getStringExtra(EXTRA_EMAIL);
+        firestore = FirebaseFirestore.getInstance();
 
         ListView listView = findViewById(R.id.list_notifications);
         progressBar = findViewById(R.id.progress_notifications);
@@ -90,36 +94,99 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         }
 
         progressBar.setVisibility(View.VISIBLE);
-        FirebaseFirestore.getInstance()
-                .collectionGroup("Notifications")
-                .whereEqualTo("recipientEmail", email.trim().toLowerCase())
-                .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener(querySnapshot -> {
-                    notifications.clear();
-                    for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                        Date createdAt = extractDate(doc.get("createdAt"));
-                        notifications.add(new EntrantNotification(
-                                doc.getId(),
-                                doc.getReference(),
-                                doc.getString("eventId"),
-                                doc.getString("type"),
-                                doc.getString("eventName"),
-                                doc.getString("message"),
-                                createdAt,
-                                Boolean.TRUE.equals(doc.getBoolean("seen")),
-                                Boolean.TRUE.equals(doc.getBoolean("responded"))
-                        ));
+        resolveNotificationPreference(email.trim(), enabled -> {
+            if (!enabled) {
+                notifications.clear();
+                adapter.notifyDataSetChanged();
+                progressBar.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+                emptyView.setText(R.string.notifications_disabled_message);
+                return;
+            }
+
+            firestore.collectionGroup("Notifications")
+                    .whereEqualTo("recipientEmail", email.trim().toLowerCase())
+                    .orderBy("createdAt", Query.Direction.DESCENDING)
+                    .get()
+                    .addOnSuccessListener(querySnapshot -> {
+                        notifications.clear();
+                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                            Date createdAt = extractDate(doc.get("createdAt"));
+                            notifications.add(new EntrantNotification(
+                                    doc.getId(),
+                                    doc.getReference(),
+                                    doc.getString("eventId"),
+                                    doc.getString("type"),
+                                    doc.getString("eventName"),
+                                    doc.getString("message"),
+                                    createdAt,
+                                    Boolean.TRUE.equals(doc.getBoolean("seen")),
+                                    Boolean.TRUE.equals(doc.getBoolean("responded"))
+                            ));
+                        }
+                        adapter.notifyDataSetChanged();
+                        progressBar.setVisibility(View.GONE);
+                        emptyView.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+                    })
+                    .addOnFailureListener(e -> {
+                        progressBar.setVisibility(View.GONE);
+                        emptyView.setVisibility(View.VISIBLE);
+                        emptyView.setText(R.string.history_load_error);
+                    });
+        });
+    }
+
+    private void resolveNotificationPreference(@NonNull String rawEmail,
+                                               @NonNull PreferenceCallback callback) {
+        String trimmed = rawEmail.trim();
+        String normalized = trimmed.toLowerCase(Locale.ROOT);
+
+        DocumentReference prefRef = firestore.collection(PREFS_COLLECTION).document(normalized);
+        prefRef.get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                        callback.onResolved(enabled == null || enabled);
+                    } else {
+                        resolveFromProfiles(trimmed, normalized, callback);
                     }
-                    adapter.notifyDataSetChanged();
-                    progressBar.setVisibility(View.GONE);
-                emptyView.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
-            })
-                .addOnFailureListener(e -> {
-                    progressBar.setVisibility(View.GONE);
-                    emptyView.setVisibility(View.VISIBLE);
-                    emptyView.setText(R.string.history_load_error);
-                });
+                })
+                .addOnFailureListener(e -> resolveFromProfiles(trimmed, normalized, callback));
+    }
+
+    private void resolveFromProfiles(@NonNull String trimmed,
+                                     @NonNull String normalized,
+                                     @NonNull PreferenceCallback callback) {
+        fetchProfilePreference(trimmed, callback, () ->
+                fetchProfilePreference(normalized, callback, () -> callback.onResolved(true)));
+    }
+
+    private void fetchProfilePreference(@NonNull String documentId,
+                                        @NonNull PreferenceCallback callback,
+                                        @NonNull Runnable fallback) {
+        if (documentId.isEmpty()) {
+            fallback.run();
+            return;
+        }
+        firestore.collection("Profiles").document(documentId)
+                .get()
+                .addOnSuccessListener(snapshot -> {
+                    if (snapshot.exists()) {
+                        Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                        if (enabled != null) {
+                            callback.onResolved(enabled);
+                        } else {
+                            fallback.run();
+                        }
+                    } else {
+                        fallback.run();
+                    }
+                })
+                .addOnFailureListener(e -> fallback.run());
+    }
+
+    private interface PreferenceCallback {
+        void onResolved(boolean enabled);
     }
 
     private void markSeen(@NonNull EntrantNotification n) {

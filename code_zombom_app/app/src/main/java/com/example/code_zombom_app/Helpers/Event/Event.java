@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -50,7 +51,7 @@ public class Event implements Comparable<Event> {
     private ArrayList<String> lotterySelectionGuidelines;
 
 
-    private ArrayList<String> lotteryWinners;
+    //private ArrayList<String> lotteryWinners;
 
     // Name of the event: MUST HAVE
     private String name;
@@ -131,7 +132,7 @@ public class Event implements Comparable<Event> {
         restrictions = new ArrayList<>();
         lotterySelectionGuidelines = new ArrayList<>();
         cancelledList = new ArrayList<>();
-        lotteryWinners = new ArrayList<>();
+        //lotteryWinners = new ArrayList<>();
         createdDate = new Date(); // Get the current (created) date
         eventStartDate = null;
         eventEndDate = null;
@@ -612,13 +613,13 @@ public class Event implements Comparable<Event> {
         this.eventId = eventId;
     }
 
-    public ArrayList<String> getLotteryWinners() {
-        return lotteryWinners;
-    }
-
-    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
-        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
-    }
+//    public ArrayList<String> getLotteryWinners() {
+//        return lotteryWinners;
+//    }
+//
+//    public void setLotteryWinners(ArrayList<String> lotteryWinners) {
+//        this.lotteryWinners = (lotteryWinners == null) ? new ArrayList<>() : lotteryWinners;
+//    }
 
     public ArrayList<String> getCancelledList() {
         return cancelledList;
@@ -627,6 +628,17 @@ public class Event implements Comparable<Event> {
     public void setCancelledList(ArrayList<String> cancelledList) {
         this.cancelledList = (cancelledList == null) ? new ArrayList<>() : cancelledList;
     }
+
+    public void addCancelledEntrant(String email) {
+        if (!cancelledList.contains(email)) {
+            cancelledList.add(email);
+        }
+    }
+
+    public void leavePendingList(String email) {
+        pendingList.remove(email);
+    }
+
 
     /**
      * Define the natural sorting order for an event, which is by alphabetically sorting their name.

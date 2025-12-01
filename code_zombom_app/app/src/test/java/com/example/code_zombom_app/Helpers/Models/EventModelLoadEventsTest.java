@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 /**
  * Unit tests for EventModel.loadEvents()
  */
+
 @RunWith(MockitoJUnitRunner.class)
 public class EventModelLoadEventsTest {
 
@@ -40,10 +41,9 @@ public class EventModelLoadEventsTest {
 
     private EventModel eventModel;
 
-    // ---------- Testable subclass ----------
     private static class TestableEventModel extends EventModel {
         TestableEventModel(FirebaseFirestore firestore) {
-            super(firestore);  // IMPORTANT
+            super(firestore);
         }
     }
 
@@ -53,45 +53,24 @@ public class EventModelLoadEventsTest {
         Event.setQrCodeGenerationEnabled(false);
 
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
-
         eventModel = new TestableEventModel(mockFirestore);
     }
 
-    // Helper — create a Task that triggers success
     private Task<QuerySnapshot> mockSuccessTask(QuerySnapshot snapshot) {
         Task<QuerySnapshot> task = mock(Task.class);
-
         when(mockEventsCollection.get()).thenReturn(task);
-
-        // addOnSuccessListener
-        doAnswer(invocation -> {
-            OnSuccessListener<QuerySnapshot> listener = invocation.getArgument(0);
-            listener.onSuccess(snapshot);
-            return task;
-        }).when(task).addOnSuccessListener(any(OnSuccessListener.class));
-
-        // addOnFailureListener
+        doAnswer(inv -> { ((OnSuccessListener<QuerySnapshot>)inv.getArgument(0)).onSuccess(snapshot); return task; })
+                .when(task).addOnSuccessListener(any(OnSuccessListener.class));
         doAnswer(inv -> task).when(task).addOnFailureListener(any(OnFailureListener.class));
-
         return task;
     }
 
-    // Helper — create a Task that triggers failure
     private Task<QuerySnapshot> mockFailureTask(Exception e) {
         Task<QuerySnapshot> task = mock(Task.class);
-
         when(mockEventsCollection.get()).thenReturn(task);
-
-        // Success listener → do nothing
         doAnswer(inv -> task).when(task).addOnSuccessListener(any(OnSuccessListener.class));
-
-        // Failure listener → fire immediately
-        doAnswer(inv -> {
-            OnFailureListener listener = inv.getArgument(0);
-            listener.onFailure(e);
-            return task;
-        }).when(task).addOnFailureListener(any(OnFailureListener.class));
-
+        doAnswer(inv -> { ((OnFailureListener)inv.getArgument(0)).onFailure(e); return task; })
+                .when(task).addOnFailureListener(any(OnFailureListener.class));
         return task;
     }
 
@@ -105,9 +84,6 @@ public class EventModelLoadEventsTest {
         return e;
     }
 
-    // ---------------------------------------------------
-    // TEST 1 — Normal load
-    // ---------------------------------------------------
     @Test
     public void loadEvents_ReturnsValidEvents() {
         Event e1 = makeEvent("event1");
@@ -116,87 +92,60 @@ public class EventModelLoadEventsTest {
         List<QueryDocumentSnapshot> docs = List.of(mockDoc1, mockDoc2);
 
         when(mockQuerySnapshot.iterator()).thenReturn(docs.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
 
-        when(mockDoc1.exists()).thenReturn(true);
+
         when(mockDoc1.toObject(Event.class)).thenReturn(e1);
 
-        when(mockDoc2.exists()).thenReturn(true);
         when(mockDoc2.toObject(Event.class)).thenReturn(e2);
 
-
         mockSuccessTask(mockQuerySnapshot);
-
         eventModel.loadEvents();
 
         verify(mockFirestore).collection("Events");
         verify(mockEventsCollection).get();
     }
 
-    // ---------------------------------------------------
-    // TEST 2 — Empty result
-    // ---------------------------------------------------
     @Test
     public void loadEvents_EmptyCollection() {
-        when(mockQuerySnapshot.isEmpty()).thenReturn(true);
+
         when(mockQuerySnapshot.iterator()).thenReturn(new ArrayList<QueryDocumentSnapshot>().iterator());
-
         mockSuccessTask(mockQuerySnapshot);
-
         eventModel.loadEvents();
-
         verify(mockEventsCollection).get();
     }
 
-    // ---------------------------------------------------
-    // TEST 3 — Firestore failure
-    // ---------------------------------------------------
     @Test
     public void loadEvents_FirestoreFailure() {
         mockFailureTask(new Exception("Failed"));
-
         eventModel.loadEvents();
-
         verify(mockEventsCollection).get();
     }
 
-    // ---------------------------------------------------
-    // TEST 4 — Filters invalid events
-    // ---------------------------------------------------
     @Test
     public void loadEvents_FiltersInvalidEvents() {
-
         Event valid = makeEvent("valid");
         Event invalid = new Event("Invalid");
         invalid.setEventId(null);
 
         List<QueryDocumentSnapshot> docs = List.of(mockDoc1, mockDoc2);
 
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
         when(mockQuerySnapshot.iterator()).thenReturn(docs.iterator());
 
-        when(mockDoc1.exists()).thenReturn(true);
         when(mockDoc1.toObject(Event.class)).thenReturn(valid);
 
-        when(mockDoc2.exists()).thenReturn(true);
         when(mockDoc2.toObject(Event.class)).thenReturn(invalid);
 
         mockSuccessTask(mockQuerySnapshot);
-
         eventModel.loadEvents();
-
         verify(mockEventsCollection).get();
     }
 
-    // ---------------------------------------------------
-    // TEST 5 — correct Firestore path
-    // ---------------------------------------------------
     @Test
     public void loadEvents_CorrectPathUsed() {
+        when(mockQuerySnapshot.iterator()).thenReturn(new ArrayList<QueryDocumentSnapshot>().iterator());
         mockSuccessTask(mockQuerySnapshot);
-
         eventModel.loadEvents();
-
         verify(mockFirestore).collection("Events");
         verify(mockEventsCollection).get();
     }

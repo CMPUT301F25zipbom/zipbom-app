@@ -98,7 +98,6 @@ public class EventServiceLeaveWaitlistTest {
     public void setup() throws FirebaseFirestoreException {
         MockitoAnnotations.initMocks(this);
 
-        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
         Event.setQrCodeGenerationEnabled(false);
 
         eventService = new EventService(mockFirestore);
@@ -110,12 +109,8 @@ public class EventServiceLeaveWaitlistTest {
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
         when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
-
-        // also uses Transaction.get(...), so it must handle the checked exception
-        when(mockTransaction.get(mockProfileDocumentRef)).thenReturn(mockProfileDocumentSnapshot);
-        // Production code uses "notificationEnabled" (singular)
-        when(mockProfileDocumentSnapshot.getBoolean("notificationEnabled")).thenReturn(true);
     }
+
 
     // ---------------- tests ----------------
 
@@ -190,7 +185,6 @@ public class EventServiceLeaveWaitlistTest {
         e.joinWaitingList(NORM);
 
         mockTransactionGet(mockEventDocumentSnapshot);
-        when(mockEventDocumentSnapshot.toObject(Event.class)).thenReturn(e);
 
         Exception ex = new Exception("Firestore transaction failed");
         doAnswer(inv -> Tasks.forException(ex))

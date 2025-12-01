@@ -115,10 +115,6 @@ public class EventServiceTest {
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
         when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
-
-        when(mockTransaction.get(mockProfileDocumentRef)).thenReturn(mockProfileDocumentSnapshot);
-        // Production code uses "notificationEnabled" (singular)
-        when(mockProfileDocumentSnapshot.getBoolean("notificationEnabled")).thenReturn(true);
     }
 
     // ---------- tests ----------

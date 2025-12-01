@@ -108,19 +108,19 @@ public class EntrantMainModelFilterTest {
         documents.add(mockDocumentSnapshot3);
 
         when(mockDocumentSnapshot1.toObject(Event.class)).thenReturn(sportEvent);
-        when(mockDocumentSnapshot1.getId()).thenReturn("event-1");
-        when(mockDocumentSnapshot1.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot2.toObject(Event.class)).thenReturn(musicEvent);
-        when(mockDocumentSnapshot2.getId()).thenReturn("event-2");
-        when(mockDocumentSnapshot2.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot3.toObject(Event.class)).thenReturn(foodEvent);
-        when(mockDocumentSnapshot3.getId()).thenReturn("event-3");
-        when(mockDocumentSnapshot3.exists()).thenReturn(true);
+
+
 
         when(mockQuerySnapshot.iterator()).thenReturn(documents.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
@@ -178,19 +178,19 @@ public class EntrantMainModelFilterTest {
         documents.add(mockDocumentSnapshot3);
 
         when(mockDocumentSnapshot1.toObject(Event.class)).thenReturn(overlappingEvent);
-        when(mockDocumentSnapshot1.getId()).thenReturn("event-1");
-        when(mockDocumentSnapshot1.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot2.toObject(Event.class)).thenReturn(beforeEvent);
-        when(mockDocumentSnapshot2.getId()).thenReturn("event-2");
-        when(mockDocumentSnapshot2.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot3.toObject(Event.class)).thenReturn(afterEvent);
-        when(mockDocumentSnapshot3.getId()).thenReturn("event-3");
-        when(mockDocumentSnapshot3.exists()).thenReturn(true);
+
+
 
         when(mockQuerySnapshot.iterator()).thenReturn(documents.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
@@ -252,23 +252,22 @@ public class EntrantMainModelFilterTest {
         documents.add(mockDocumentSnapshot4);
 
         when(mockDocumentSnapshot1.toObject(Event.class)).thenReturn(matchingBoth);
-        when(mockDocumentSnapshot1.getId()).thenReturn("event-1");
-        when(mockDocumentSnapshot1.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot2.toObject(Event.class)).thenReturn(matchingInterestOnly);
-        when(mockDocumentSnapshot2.getId()).thenReturn("event-2");
-        when(mockDocumentSnapshot2.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot3.toObject(Event.class)).thenReturn(matchingAvailabilityOnly);
-        when(mockDocumentSnapshot3.getId()).thenReturn("event-3");
-        when(mockDocumentSnapshot3.exists()).thenReturn(true);
+
 
         when(mockDocumentSnapshot4.toObject(Event.class)).thenReturn(matchingNeither);
-        when(mockDocumentSnapshot4.getId()).thenReturn("event-4");
-        when(mockDocumentSnapshot4.exists()).thenReturn(true);
+
+
 
         when(mockQuerySnapshot.iterator()).thenReturn(documents.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
@@ -320,15 +319,15 @@ public class EntrantMainModelFilterTest {
         documents.add(mockDocumentSnapshot2);
 
         when(mockDocumentSnapshot1.toObject(Event.class)).thenReturn(wrongGenre);
-        when(mockDocumentSnapshot1.getId()).thenReturn("event-1");
-        when(mockDocumentSnapshot1.exists()).thenReturn(true);
+
+
 
         when(mockDocumentSnapshot2.toObject(Event.class)).thenReturn(wrongDates);
-        when(mockDocumentSnapshot2.getId()).thenReturn("event-2");
-        when(mockDocumentSnapshot2.exists()).thenReturn(true);
+
+
 
         when(mockQuerySnapshot.iterator()).thenReturn(documents.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
@@ -398,7 +397,7 @@ public class EntrantMainModelFilterTest {
         filter.setFilterGenre(null);
 
         when(mockQuerySnapshot.iterator()).thenReturn(new ArrayList<QueryDocumentSnapshot>().iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(true);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);
@@ -440,16 +439,16 @@ public class EntrantMainModelFilterTest {
         documents.add(mockDocumentSnapshot2);
 
         when(mockDocumentSnapshot1.toObject(Event.class)).thenReturn(validEvent);
-        when(mockDocumentSnapshot1.getId()).thenReturn("event-1");
-        when(mockDocumentSnapshot1.exists()).thenReturn(true);
+
+
 
         // Simulate conversion failure for second document
         when(mockDocumentSnapshot2.toObject(Event.class)).thenThrow(new RuntimeException("Conversion failed"));
-        when(mockDocumentSnapshot2.getId()).thenReturn("invalid-doc-id");
-        when(mockDocumentSnapshot2.exists()).thenReturn(true);
+
+
 
         when(mockQuerySnapshot.iterator()).thenReturn(documents.iterator());
-        when(mockQuerySnapshot.isEmpty()).thenReturn(false);
+
 
         Task<QuerySnapshot> mockTask = mock(Task.class);
         when(mockEventsCollection.get()).thenReturn(mockTask);

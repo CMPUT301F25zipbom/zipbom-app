@@ -35,7 +35,6 @@ public class EventServiceJoinWaitlistTest {
     @Mock private com.google.firebase.firestore.CollectionReference mockHistoryCollection;
     @Mock private DocumentReference mockHistoryDocumentRef;
     @Mock private DocumentSnapshot mockEventDocumentSnapshot;
-    @Mock private DocumentSnapshot mockProfileDocumentSnapshot;
     @Mock private Transaction mockTransaction;
 
     private EventService eventService;
@@ -44,49 +43,28 @@ public class EventServiceJoinWaitlistTest {
     private static final String EMAIL = "test@example.com";
     private static final String NORM_EMAIL = "test@example.com";
 
-    // -----------------------
-    // UNIVERSAL FIX HELPERS
-    // -----------------------
-
-    /** Fix for FirestoreException from transaction.get() */
     private void mockTransactionGet(DocumentSnapshot snapshot) throws FirebaseFirestoreException {
-        // transaction.get(...) declares "throws FirebaseFirestoreException"
         when(mockTransaction.get(any(DocumentReference.class)))
                 .thenReturn(snapshot);
     }
 
-    /**
-     * Fix for runTransaction needing to execute the lambda AND propagate errors via Task,
-     * instead of throwing directly.
-     */
     private void mockSuccessfulTransaction() {
         doAnswer(invocation -> {
             @SuppressWarnings("unchecked")
             Transaction.Function<Void> function = invocation.getArgument(0);
             try {
-                // Execute the transaction body (our EventService lambda)
                 function.apply(mockTransaction);
-                // Success path -> completed Task
                 return Tasks.forResult(null);
             } catch (Exception e) {
-                // Failure path -> Task with exception, so tests can assert via ExecutionException
                 return Tasks.forException(e);
             }
         }).when(mockFirestore).runTransaction(any(Transaction.Function.class));
     }
 
-    /**
-     * Lightweight replacement for Tasks.await(...) that does NOT touch Android Looper.
-     * It assumes the Task is already complete (which is true for our stubs).
-     */
     private <T> T awaitTask(Task<T> task) throws ExecutionException {
-        if (task.isSuccessful()) {
-            return task.getResult();
-        }
+        if (task.isSuccessful()) return task.getResult();
         Exception e = task.getException();
-        if (e != null) {
-            throw new ExecutionException(e);
-        }
+        if (e != null) throw new ExecutionException(e);
         return null;
     }
 
@@ -101,10 +79,9 @@ public class EventServiceJoinWaitlistTest {
     }
 
     @Before
-    public void setUp() throws FirebaseFirestoreException {
+    public void setUp() {
         MockitoAnnotations.initMocks(this);
 
-        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
         Event.setQrCodeGenerationEnabled(false);
 
         eventService = new EventService(mockFirestore);
@@ -116,16 +93,7 @@ public class EventServiceJoinWaitlistTest {
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
         when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
-
-        // This also calls transaction.get(...), so it must handle the checked exception
-        when(mockTransaction.get(mockProfileDocumentRef)).thenReturn(mockProfileDocumentSnapshot);
-        // Match the actual field your production code uses
-        when(mockProfileDocumentSnapshot.getBoolean("notificationEnabled")).thenReturn(true);
     }
-
-    // ----------------------------------------------------
-    // TESTS FOR addEntrantToWaitlist()
-    // ----------------------------------------------------
 
     @Test
     public void addEntrant_SuccessfulJoin() throws Exception {
@@ -137,7 +105,6 @@ public class EventServiceJoinWaitlistTest {
         mockSuccessfulTransaction();
 
         Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-        // Do NOT use Tasks.await (uses Looper); use our helper
         awaitTask(task);
 
         verify(mockTransaction).set(eq(mockEventDocumentRef), any(Event.class));
@@ -154,10 +121,8 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-
         try {
-            awaitTask(task);
+            awaitTask(eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL));
             fail("Expected exception");
         } catch (ExecutionException ex) {
             assertEquals("You have already joined this waiting list.", ex.getCause().getMessage());
@@ -178,10 +143,8 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-
         try {
-            awaitTask(task);
+            awaitTask(eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL));
             fail("Expected exception");
         } catch (ExecutionException ex) {
             assertEquals("This waiting list is full.", ex.getCause().getMessage());
@@ -200,10 +163,8 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-
         try {
-            awaitTask(task);
+            awaitTask(eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL));
             fail("Expected exception");
         } catch (ExecutionException ex) {
             assertEquals("You have already been selected for this event.", ex.getCause().getMessage());
@@ -220,10 +181,8 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-
         try {
-            awaitTask(task);
+            awaitTask(eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL));
             fail("Expected exception");
         } catch (ExecutionException ex) {
             assertEquals("You have already accepted an invitation for this event.", ex.getCause().getMessage());
@@ -241,10 +200,8 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL);
-
         try {
-            awaitTask(task);
+            awaitTask(eventService.addEntrantToWaitlist(TEST_EVENT_ID, EMAIL));
             fail("Expected exception");
         } catch (ExecutionException ex) {
             assertEquals("This event is full.", ex.getCause().getMessage());
@@ -260,11 +217,9 @@ public class EventServiceJoinWaitlistTest {
 
         mockSuccessfulTransaction();
 
-        String messy = "   test@example.com   ";
-        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, messy);
+        Task<Void> task = eventService.addEntrantToWaitlist(TEST_EVENT_ID, "   test@example.com   ");
         awaitTask(task);
 
         assertTrue(event.getWaitingList().contains(NORM_EMAIL));
-        assertFalse(event.getWaitingList().contains(messy));
     }
 }

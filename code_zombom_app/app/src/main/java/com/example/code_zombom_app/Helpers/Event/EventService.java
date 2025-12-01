@@ -1,5 +1,7 @@
 package com.example.code_zombom_app.Helpers.Event;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -11,11 +13,13 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.SetOptions;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -176,8 +180,6 @@ public class EventService {
             // Write winner/loser notifications under the event for entrant listeners
             for (String winner : winners) {
                 if (isNotificationsEnabled(transaction, winner)) {
-                    // Look up the entrant's first name so the invitation feels personalized.
-                    String displayName = resolveEntrantDisplayName(transaction, winner);
                     transaction.set(eventRef.collection("Notifications").document(),
                             buildNotification(
                                     winner,
@@ -185,7 +187,7 @@ public class EventService {
                                     event.getName(),
                                     event.getDrawTimestamp(),
                                     event.getEventId(),
-                                    "Congratulations " + displayName + "! You have been selected for " + event.getName()
+                                    "Congratulations! You are a lottery winner and have been selected for " + event.getName()
                             ));
                 }
             }
@@ -200,7 +202,7 @@ public class EventService {
                                     event.getName(),
                                     event.getDrawTimestamp(),
                                     event.getEventId(),
-                                    "You were not selected this time for " + event.getName()
+                                    "Sorry! You were not selected this time for " + event.getName()
                             ));
                 }
             }
@@ -235,7 +237,6 @@ public class EventService {
 
     /**
      * Builds a QR payload string from the canonical event state, falling back to poster URL when available.
-     * //TODO: Maybe in the future build a QR code that when scanned take the entrant to the event in the app ONLY
      */
     public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
@@ -387,17 +388,53 @@ public class EventService {
      * is missing the flag or the profile document does not exist.
      */
     private boolean isNotificationsEnabled(@NonNull Transaction transaction, @NonNull String email) {
-        String normalized = email.trim();
-        DocumentReference profileRef = firestore.collection("Profiles").document(normalized);
-        try {
-            DocumentSnapshot snapshot = transaction.get(profileRef);
-            // Firestore stores this flag as "notificationEnabled" (singular) on the profile.
-            Boolean enabled = snapshot.getBoolean("notificationEnabled");
-            return enabled == null || enabled;
-        } catch (Exception e) {
-            // Fail open to avoid suppressing critical notifications when profile read fails.
-            return true;
+        String normalized = normalizeEmailKey(email);
+        if (normalized.isEmpty()) {
+            return false;
         }
+
+        DocumentReference preferenceRef = firestore.collection("NotificationPreferences")
+                .document(normalized);
+        try {
+            DocumentSnapshot snapshot = transaction.get(preferenceRef);
+            if (snapshot.exists()) {
+                Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                if (enabled != null) {
+                    return enabled;
+                }
+            }
+        } catch (Exception ignored) {
+            // fall back to profile lookups
+        }
+
+        List<String> profileKeys = Arrays.asList(email.trim(), normalized);
+        for (String key : profileKeys) {
+            if (key.isEmpty()) {
+                continue;
+            }
+            DocumentReference profileRef = firestore.collection("Profiles").document(key);
+            try {
+                DocumentSnapshot snapshot = transaction.get(profileRef);
+                if (!snapshot.exists()) {
+                    continue;
+                }
+                Boolean enabled = snapshot.getBoolean("notificationEnabled");
+                if (enabled != null) {
+                    return enabled;
+                }
+            } catch (Exception ignored) {
+                // try next
+            }
+        }
+
+        return true;
+    }
+
+    private String normalizeEmailKey(@Nullable String email) {
+        if (email == null) {
+            return "";
+        }
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 
     public Task<Void> notifyWaitlistEntrants(@NonNull String eventId, @Nullable String message) {
@@ -410,6 +447,53 @@ public class EventService {
 
     public Task<Void> notifyCancelledEntrants(@NonNull String eventId, @Nullable String message) {
         return notifyGroup(eventId, NotificationGroup.CANCELLED, "org_cancelled", message);
+    }
+
+    /**
+     * Moves all entrants from the pending (accepted) list to the cancelled list.
+     * This is intended for use after a lottery draw and acceptance period have concluded.
+     *
+     * @param documentId The event's document id
+     * @return Task representing completion of the transaction.
+     */
+    public Task<Void> cancelUnregisteredEntrants(@NonNull String documentId) {
+        return firestore.runTransaction((Transaction.Function<Void>) transaction -> {
+            DocumentReference eventRef = firestore.collection("Events").document(documentId);
+            Event event = transaction.get(eventRef).toObject(Event.class);
+            if (event == null) {
+                // This will trigger the error you saw before if the object can't be created
+                throw new IllegalStateException("Error converting document to Event object. Check Firestore field names!");
+            }
+
+            // Get the current lists from the event object
+            ArrayList<String> chosenList = event.getChosenList();
+            ArrayList<String> cancelledList = event.getCancelledList();
+
+            // Nothing to do if the pending list is already empty
+            if (chosenList == null || chosenList.isEmpty()) {
+                return null;
+            }
+            // Iterate through a copy of the pending list to avoid modification issues during the loop
+            for (String entrantEmail : new ArrayList<>(chosenList)) {
+                // Add the entrant to the cancelled list if they aren't already there
+                if (!cancelledList.contains(entrantEmail)) {
+                    cancelledList.add(entrantEmail);
+                }
+                // Record this specific action in the entrant's history
+                recordHistory(transaction, event, entrantEmail, Entrant.Status.CANCELLED);
+            }
+
+            // Clear the original pending list completely
+            chosenList.clear();
+
+            // Set the modified lists back to the event object to ensure they are saved
+            event.setChosenList(chosenList);
+            event.setCancelledList(cancelledList);
+
+            // Persist all the changes to the event document in Firestore.
+            transaction.set(eventRef, event);
+            return null;
+        });
     }
 
     private enum NotificationGroup { WAITLIST, SELECTED, CANCELLED }
@@ -467,11 +551,11 @@ public class EventService {
             case "org_waitlist":
                 return "Update for waitlist of " + name;
             case "org_selected":
-                return "Congratulations! You are selected for " + name;
+                return "Congratulations! You are a lottery winner and have been selected for " + name;
             case "org_cancelled":
                 return "Update for cancelled entrants of " + name;
             case "win":
-                return "You have been selected for " + name;
+                return "Congratulations! You are a lottery winner and have been selected for " + name;
             case "lose":
                 return "You were not selected this time for " + name;
             default:
@@ -479,26 +563,6 @@ public class EventService {
         }
     }
 
-    private String resolveEntrantDisplayName(@NonNull Transaction transaction, @NonNull String email) {
-        try {
-            // Pull the entrant profile inside the transaction to read the stored name.
-            DocumentSnapshot profile = transaction.get(
-                    firestore.collection("Profiles").document(email.trim()));
-            if (profile.exists()) {
-                String fullName = profile.getString("name");
-                if (fullName != null) {
-                    String trimmed = fullName.trim();
-                    if (!trimmed.isEmpty()) {
-                        return trimmed;
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-            // Fallback handled below
-        }
-        // Fall back to the email if no profile or name is available.
-        return email;
-    }
   private static String nullToEmpty( @Nullable String value) {return value == null? "" : value;
-                                                             }
+                                                               }
 }

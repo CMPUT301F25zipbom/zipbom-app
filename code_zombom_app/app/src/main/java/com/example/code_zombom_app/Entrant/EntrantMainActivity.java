@@ -206,7 +206,6 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
      *
      * @param model The control model of this view
      */
-    //TODO: Implement a sorting method as well
     private void openFilterPopUpWindow(EntrantMainModel model) {
         EventFilter filter = new EventFilter();
 
@@ -600,7 +599,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
     private String defaultMessage(String type, String eventName) {
         String name = (eventName == null || eventName.trim().isEmpty()) ? "this event" : eventName;
         if ("win".equalsIgnoreCase(type) || "org_selected".equalsIgnoreCase(type)) {
-            return "You have been selected for " + name;
+            return "Congratulations! You are a lottery winner and have been selected for " + name;
         } else if ("lose".equalsIgnoreCase(type)) {
             return "You were not selected this time for " + name;
         } else {
