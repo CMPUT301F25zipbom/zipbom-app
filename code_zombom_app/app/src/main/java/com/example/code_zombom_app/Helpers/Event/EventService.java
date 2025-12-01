@@ -26,6 +26,8 @@ import java.util.Set;
 /**
  * Centralised entry point for persisting and fetching events.
  * All role-specific screens should funnel writes through this service to avoid schema drift.
+ * @author Deng Ngut
+ * @version 11/24/2025
  */
 public class EventService {
 

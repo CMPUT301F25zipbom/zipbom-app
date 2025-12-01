@@ -20,7 +20,7 @@ import com.example.code_zombom_app.databinding.FragmentHomeBinding;
 /**
  * Entry point for the app's landing experience. Presents role-based cards (entrant, organizer,
  * admin) and routes the user to the correct flow. The fragment relies on Material cards and chips
- * for a more polished home design.
+for design.
  */
 public class HomeFragment extends Fragment {
     private HomeViewModel homeViewModel;
@@ -71,9 +71,6 @@ public class HomeFragment extends Fragment {
         });
     }
 
-    /**
-     * Clears the view binding reference when the view hierarchy is destroyed.
-     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();

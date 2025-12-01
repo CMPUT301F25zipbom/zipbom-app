@@ -25,6 +25,7 @@
     <string name="home_card_action_enter">Go to Entrant Tools</string>
     <string name="home_card_action_organizer">Go to Organizer Tools</string>
     <string name="home_card_action_admin">Open Admin Console</string>
+    <string name="tap_to_select_date">Tap to choose a date</string>
     <string name="enter_phone_number">Enter Phone Number</string>
     <string name="enter_your_name">Enter your name</string>
     <string name="back">Back</string>
