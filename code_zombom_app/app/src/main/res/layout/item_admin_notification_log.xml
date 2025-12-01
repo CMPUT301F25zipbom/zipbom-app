@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:backgroundTint="#1E1E1E"> <!-- Dark Grey Card -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Top Row: Event Name and Type Badge -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/text_log_event"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Event Name"
+                android:textColor="#BB86FC"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/text_log_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="TYPE"
+                android:background="#333333"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textColor="#03DAC5"
+                android:textSize="11sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <!-- Recipient -->
+        <TextView
+            android:id="@+id/text_log_recipient"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="To: user@email.com"
+            android:textColor="#AAAAAA"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"/>
+
+        <!-- Message Body -->
+        <TextView
+            android:id="@+id/text_log_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Message content goes here..."
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/text_log_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nov 30, 2:00 PM"
+            android:gravity="end"
+            android:textColor="#666666"
+            android:textSize="12sp"
+            android:layout_marginTop="8dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>
