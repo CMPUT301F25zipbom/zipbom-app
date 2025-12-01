@@ -239,14 +239,17 @@ public class Event implements Comparable<Event> {
      * @since 1.0.0
      */
     public void joinWaitingList(String entrant) {
-        if (waitingEntrantCount == waitlistLimit)
-            throw new RuntimeException("Wait list is full");
+        if (waitlistLimit > 0 && waitingEntrantCount >= waitlistLimit) {
+            throw new RuntimeException("Waitlist is full");
+        }
 
         if (!waitingList.contains(entrant)) {
-            this.waitingList.add(entrant);
+            waitingList.add(entrant);
             waitingEntrantCount++;
         }
     }
+
+
 
     /**
      * Remove an entrant from the waiting list. An entrant can call this method if they wish

@@ -103,17 +103,22 @@ public class EventServiceTest {
     public void setUp() throws FirebaseFirestoreException {
         MockitoAnnotations.initMocks(this);
 
-        // IMPORTANT: disable QR generation so Event() doesn't touch Bitmap APIs in JVM tests
+        // Disable QR generation so Event() does not touch Bitmap APIs in JVM tests
         Event.setQrCodeGenerationEnabled(false);
 
         eventService = new EventService(mockFirestore);
 
+        // Events collection + event document
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
         when(mockEventsCollection.document(EVENT_ID)).thenReturn(mockEventDocumentRef);
 
+        // Profiles collection + profile document
         when(mockFirestore.collection("Profiles")).thenReturn(mockProfilesCollection);
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
-        when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
+
+        // History subcollection (used by EventService.recordHistory)
+        // Stub on both event and profile docs to be robust to implementation details
+        when(mockEventDocumentRef.collection(anyString())).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
     }
 

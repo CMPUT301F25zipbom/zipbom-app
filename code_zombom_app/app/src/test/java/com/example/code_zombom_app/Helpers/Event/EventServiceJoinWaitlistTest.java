@@ -82,16 +82,22 @@ public class EventServiceJoinWaitlistTest {
     public void setUp() {
         MockitoAnnotations.initMocks(this);
 
+        // Disable QR code generation for tests
         Event.setQrCodeGenerationEnabled(false);
 
         eventService = new EventService(mockFirestore);
 
+        // Events collection + event document
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
         when(mockEventsCollection.document(TEST_EVENT_ID)).thenReturn(mockEventDocumentRef);
 
+        // Profiles collection + profile document
         when(mockFirestore.collection("Profiles")).thenReturn(mockProfilesCollection);
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
-        when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
+
+        // History subcollection under whichever doc EventService.recordHistory() uses
+        // (event or profile). Using anyString() to be robust to name changes.
+        when(mockEventDocumentRef.collection(anyString())).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
     }
 

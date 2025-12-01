@@ -254,9 +254,7 @@ public class EventService {
     public static String buildQrPayload(com.example.code_zombom_app.Helpers.Event.Event event, @Nullable String posterUrl) {
         StringBuilder qrDataBuilder = new StringBuilder();
         qrDataBuilder.append("Event: ").append(event != null ? nullToEmpty(event.getName()) : "").append("\n");
-        String locationText = (event != null && event.getLocation() != null)
-                ? event.getLocation().toString()
-                : "";
+        String locationText = event != null ? nullToEmpty(event.getLocation().getName()) : "";
         qrDataBuilder.append("Location: ").append(locationText).append("\n");
         qrDataBuilder.append("Date: ").append(event != null && event.getEventStartDate() != null
                 ? event.getEventStartDate().toString() : "").append("\n");
@@ -425,10 +423,9 @@ public class EventService {
             return;
         }
         String normalizedEmail = entrantEmail.trim();
-        DocumentReference historyRef = firestore.collection("Profiles")
-                .document(normalizedEmail)
-                .collection("History")
-                .document(); // generate unique entry per status change
+        DocumentReference historyRef = firestore.collection("Events").document(event.getEventId())
+                .collection("History").document();
+
 
         Map<String, Object> payload = new HashMap<>();
         payload.put("eventId", event.getEventId());

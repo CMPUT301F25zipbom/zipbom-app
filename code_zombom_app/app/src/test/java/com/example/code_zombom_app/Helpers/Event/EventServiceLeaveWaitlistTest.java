@@ -35,7 +35,7 @@ public class EventServiceLeaveWaitlistTest {
     @Mock private com.google.firebase.firestore.CollectionReference mockHistoryCollection;
     @Mock private DocumentReference mockHistoryDocumentRef;
     @Mock private DocumentSnapshot mockEventDocumentSnapshot;
-    @Mock private DocumentSnapshot mockProfileDocumentSnapshot;
+    @Mock private DocumentSnapshot mockProfileDocumentSnapshot; // currently unused but fine
     @Mock private Transaction mockTransaction;
 
     private EventService eventService;
@@ -102,15 +102,18 @@ public class EventServiceLeaveWaitlistTest {
 
         eventService = new EventService(mockFirestore);
 
+        // Events collection + event document
         when(mockFirestore.collection("Events")).thenReturn(mockEventsCollection);
         when(mockEventsCollection.document(EVENT_ID)).thenReturn(mockEventDocumentRef);
 
+        // Profiles collection + profile document
         when(mockFirestore.collection("Profiles")).thenReturn(mockProfilesCollection);
         when(mockProfilesCollection.document(anyString())).thenReturn(mockProfileDocumentRef);
-        when(mockProfileDocumentRef.collection("History")).thenReturn(mockHistoryCollection);
+
+        // History subcollection under whichever doc EventService.recordHistory() uses
+        when(mockEventDocumentRef.collection(anyString())).thenReturn(mockHistoryCollection);
         when(mockHistoryCollection.document()).thenReturn(mockHistoryDocumentRef);
     }
-
 
     // ---------------- tests ----------------
 
