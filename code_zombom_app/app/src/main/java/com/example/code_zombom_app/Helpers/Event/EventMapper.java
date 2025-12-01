@@ -101,6 +101,7 @@ public final class EventMapper {
         dto.setMax_People(String.valueOf(event.getCapacity()));
         dto.setWait_List_Maximum(String.valueOf(event.getWaitlistLimit()));
         dto.setEntrants(event.getWaitingList());
+        dto.setCancelled_Entrants(event.getCancelledList());
         dto.setAccepted_Entrants(event.getPendingList());
         dto.setLottery_Winners(event.getChosenList());
         dto.setPosterUrl(event.getPosterUrl());
