@@ -114,7 +114,7 @@ public class ProfileAdminFragment extends Fragment {
                             .append("Role: ").append(type);
 
                     View profileView = LayoutInflater.from(getContext())
-                            .inflate(R.layout.profile_admin_list, profilesContainer, false);
+                            .inflate(R.layout.admin_profile_list, profilesContainer, false);
 
                     TextView textView = profileView.findViewById(R.id.profile_item_textview);
                     ImageButton deleteButton = profileView.findViewById(R.id.button_delete_profile);
@@ -180,7 +180,7 @@ public class ProfileAdminFragment extends Fragment {
      */
     private void showProfileDetailsDialog(QueryDocumentSnapshot snapshot) {
         View dialogView = LayoutInflater.from(requireContext())
-                .inflate(R.layout.profile_pop_up, null);
+                .inflate(R.layout.unsure_profile_pop_up, null);
 
         TextView title = dialogView.findViewById(R.id.profile_details_title);
         TextView body = dialogView.findViewById(R.id.profile_details_body);

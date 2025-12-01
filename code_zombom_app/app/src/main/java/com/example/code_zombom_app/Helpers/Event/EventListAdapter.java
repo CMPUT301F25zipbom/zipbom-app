@@ -62,7 +62,7 @@ public class EventListAdapter extends ArrayAdapter<Event> {
         ViewHolder holder;
 
         if (convertView == null) {
-            convertView = inflater.inflate(R.layout.listview_events, parent, false);
+            convertView = inflater.inflate(R.layout.entrant_listview_events, parent, false);
             holder = new ViewHolder();
 
             holder.name = convertView.findViewById(R.id.textView_listView_event_name);

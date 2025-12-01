@@ -8,7 +8,7 @@
         android:id="@+id/organizerMainFragment"
         android:name="com.example.code_zombom_app.organizer.OrganizerMainFragment"
         android:label="fragment_organizer_main"
-        tools:layout="@layout/fragment_organizer_main" >
+        tools:layout="@layout/organizer_main_fragment" >
 
         <!-- This action defines the path TO the AddEventFragment -->
         <action
@@ -27,16 +27,16 @@
         android:id="@+id/addEventFragment"
         android:name="com.example.code_zombom_app.organizer.AddEventFragment"
         android:label="fragment_add_event"
-        tools:layout="@layout/fragment_add_event" />
+        tools:layout="@layout/organizer_add_event_fragment" />
     <fragment
         android:id="@+id/editEventFragment"
         android:name="com.example.code_zombom_app.organizer.EditEventFragment"
         android:label="Edit Event"
-        tools:layout="@layout/fragment_edit_event" />
+        tools:layout="@layout/organizer_fragment_edit_event" />
     <fragment
         android:id="@+id/eventFullDetailsFragment"
         android:name="com.example.code_zombom_app.organizer.EventFullDetailsFragment"
         android:label="fragment_full_event_details"
-        tools:layout="@layout/fragment_full_event_details" />
+        tools:layout="@layout/organizer_full_event_details_fragment" />
 
 </navigation>

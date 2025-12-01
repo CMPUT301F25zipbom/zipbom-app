@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity implements TView<LoadUpload
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_login); // Inflate the UI view
+        setContentView(R.layout.entrant_activity_login); // Inflate the UI view
 
         LoadUploadProfileModel model = new LoadUploadProfileModel(FirebaseFirestore.getInstance());
         LoginController controller = new LoginController(model,

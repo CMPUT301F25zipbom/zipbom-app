@@ -44,7 +44,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrant_notifications);
+        setContentView(R.layout.entrant_notifications_activity);
 
         email = getIntent().getStringExtra(EXTRA_EMAIL);
         firestore = FirebaseFirestore.getInstance();
@@ -54,7 +54,7 @@ public class EntrantNotificationsActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.text_notifications_empty);
 
         adapter = new ArrayAdapter<EntrantNotification>(this,
-                R.layout.item_entrant_notification,
+                R.layout.entrant_notification_item,
                 R.id.text_notification_title,
                 notifications) {
             @NonNull

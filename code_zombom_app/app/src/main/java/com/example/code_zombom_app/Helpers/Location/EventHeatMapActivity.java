@@ -43,7 +43,7 @@ public class EventHeatMapActivity extends AppCompatActivity implements OnMapRead
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_event_heatmap);
+        setContentView(R.layout.organizer_event_heatmap_activity);
 
         db = FirebaseFirestore.getInstance();
         eventId = getIntent().getStringExtra(EXTRA_EVENT_ID);

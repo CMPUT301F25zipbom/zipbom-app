@@ -125,7 +125,7 @@ public class EventsAdminFragment extends Fragment {
                 for (QueryDocumentSnapshot snapshot : value) {
                     String eventDetails = formatEventString(snapshot);
 
-                    View eventView = safeInflater.inflate(R.layout.event_admin_list_item, eventsContainer, false);
+                    View eventView = safeInflater.inflate(R.layout.admin_event_list_item, eventsContainer, false);
 
                     TextView eventTextView = eventView.findViewById(R.id.textView_event_list_items_details);
                     ImageButton deleteButton = eventView.findViewById(R.id.button_delete_event);
@@ -236,7 +236,7 @@ public class EventsAdminFragment extends Fragment {
      */
     private void showEventDetailsDialog(QueryDocumentSnapshot snapshot) {
         View dialogView = LayoutInflater.from(getContext())
-                .inflate(R.layout.event_pop_up, null);
+                .inflate(R.layout.unsure_event_pop_up, null);
 
         TextView title = dialogView.findViewById(R.id.event_details_title);
         TextView body = dialogView.findViewById(R.id.event_details_body);

@@ -46,7 +46,7 @@ public class EntrantEventAdapter extends ListAdapter<Event, EntrantEventAdapter.
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.listview_events, parent, false);
+                .inflate(R.layout.entrant_listview_events, parent, false);
         return new EventViewHolder(view);
     }
 

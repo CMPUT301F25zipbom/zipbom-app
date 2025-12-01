@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.system.Os;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,8 +14,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.content.ContentResolver;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -77,7 +73,7 @@ public abstract class BaseEventFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Use a common layout for both add and edit fragments
-        return inflater.inflate(R.layout.fragment_edit_event, container, false);
+        return inflater.inflate(R.layout.organizer_fragment_edit_event, container, false);
     }
 
     @Override

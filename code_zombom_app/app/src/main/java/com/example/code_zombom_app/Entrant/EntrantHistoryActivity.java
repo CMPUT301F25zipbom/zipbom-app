@@ -41,13 +41,13 @@ public class EntrantHistoryActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrant_history);
+        setContentView(R.layout.entrant_history_activity);
 
         ListView listView = findViewById(R.id.list_history);
         progressBar = findViewById(R.id.progress_history);
         emptyView = findViewById(R.id.text_history_empty);
 
-        adapter = new ArrayAdapter<HistoryEntry>(this, R.layout.item_entrant_history, R.id.text_history_title, historyEntries) {
+        adapter = new ArrayAdapter<HistoryEntry>(this, R.layout.entrant_history_item, R.id.text_history_title, historyEntries) {
             @NonNull
             @Override
             public View getView(int position, @Nullable View convertView, @NonNull android.view.ViewGroup parent) {

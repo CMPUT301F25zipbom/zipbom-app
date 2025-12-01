@@ -1,12 +1,9 @@
 package com.example.code_zombom_app.organizer;
 
-import android.Manifest;
 import android.content.ContentValues;
-import android.content.pm.PackageManager;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,37 +12,21 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 
 import com.example.code_zombom_app.Helpers.Event.Event;
 import com.example.code_zombom_app.Helpers.Event.EventService;
 import com.example.code_zombom_app.Helpers.Location.EventHeatMapActivity;
-import com.example.code_zombom_app.Helpers.Location.Location;
-import com.example.code_zombom_app.Helpers.Users.Entrant;
 import com.example.code_zombom_app.R;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.io.ByteArrayOutputStream;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Tejwinder Johal
@@ -101,7 +82,7 @@ public class OrganizerDialog extends Dialog {
         // We don't want a title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         // Set the custom layout for the dialog popup
-        setContentView(R.layout.dialog_event_options);
+        setContentView(R.layout.organizer_dialog_event_options);
 
         // Find the buttons
         Button viewStartButton = findViewById(R.id.button_start_draw);

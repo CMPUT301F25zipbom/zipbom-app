@@ -9,7 +9,7 @@
         android:id="@+id/entrantEventListFragment"
         android:name="com.example.code_zombom_app.EntrantEventListFragment"
         android:label="fragment_entrant_event_list"
-        tools:layout="@layout/fragment_entrant_event_list" >
+        tools:layout="@layout/entrant_event_list_fragment" >
         <action
             android:id="@+id/action_entrantEventListFragment_to_entrantEventDetailsFragment"
             app:destination="@id/entrantEventDetailsFragment" />
@@ -22,7 +22,7 @@
         android:id="@+id/homeFragment"
         android:name="com.example.code_zombom_app.ui.home.HomeFragment"
         android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        tools:layout="@layout/unsure_fragment_home" >
         <action
             android:id="@+id/action_homeFragment_to_loginActivity"
             app:destination="@id/loginActivity" />
@@ -52,6 +52,6 @@
         android:id="@+id/entrantEventDetailsFragment"
         android:name="com.example.code_zombom_app.EntrantEventDetailsFragment"
         android:label="Entrant Event Details"
-        tools:layout="@layout/fragment_entrant_event_details" />
+        tools:layout="@layout/entrant_event_details_fragment" />
 
 </navigation>

@@ -48,7 +48,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/entrant_event_search"
         app:layout_constraintVertical_bias="0.0"
-        tools:listitem="@layout/listview_events" />
+        tools:listitem="@layout/entrant_listview_events" />
 
     <TextView
         android:id="@+id/entrant_event_empty"

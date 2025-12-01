@@ -90,7 +90,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_entrant_main);
+        setContentView(R.layout.entrant_main_activity);
 
         email = getIntent().getStringExtra("Email"); // Get the email address
 
@@ -210,7 +210,7 @@ public class EntrantMainActivity extends AppCompatActivity implements TView<Entr
         EventFilter filter = new EventFilter();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        View view = getLayoutInflater().inflate(R.layout.popup_entrant_filter_events, null);
+        View view = getLayoutInflater().inflate(R.layout.entrant_filter_events_popup, null);
 
         Spinner spinnerGenre = view.findViewById(R.id.spinnerFilterByGenre);
 

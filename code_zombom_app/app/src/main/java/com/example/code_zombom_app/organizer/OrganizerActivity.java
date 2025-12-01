@@ -24,7 +24,7 @@ public class OrganizerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fragment_organizer_main);
+        setContentView(R.layout.organizer_main_fragment);
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), Location.getGoogleApi());

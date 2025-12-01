@@ -18,7 +18,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
 import com.example.code_zombom_app.Helpers.Users.Entrant;
-import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Entrant.EntrantHistoryActivity;
@@ -41,7 +40,7 @@ public class EditProfileActivity extends AppCompatActivity implements TView<Edit
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_entrant_profile);
+        setContentView(R.layout.entrant_profile_activity);
         email = getIntent().getStringExtra("Email");
 
         editName = findViewById(R.id.textViewEntrantProfileName);

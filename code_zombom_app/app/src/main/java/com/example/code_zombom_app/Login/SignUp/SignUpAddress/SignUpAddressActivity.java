@@ -19,7 +19,7 @@ public class SignUpAddressActivity extends AppCompatActivity implements TView<Si
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_signup_address);
+        setContentView(R.layout.entrant_activity_signup_address);
 
         if (!Places.isInitialized())
             Places.initialize(getApplicationContext(), Location.getGoogleApi());

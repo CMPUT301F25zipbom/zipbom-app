@@ -105,7 +105,7 @@ public class AddEventFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Use a common layout for both add and edit fragments
-        return inflater.inflate(R.layout.fragment_add_event, container, false);
+        return inflater.inflate(R.layout.organizer_add_event_fragment, container, false);
     }
 
     @Override

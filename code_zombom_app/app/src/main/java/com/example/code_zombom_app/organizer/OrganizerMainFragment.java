@@ -34,18 +34,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
-import com.example.code_zombom_app.Helpers.Event.EventService;
-import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Helpers.Event.Event;
-import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -105,7 +99,7 @@ public class OrganizerMainFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the fragment layout
-        View view = inflater.inflate(R.layout.fragment_organizer_main, container, false);
+        View view = inflater.inflate(R.layout.organizer_main_fragment, container, false);
         return view;
     }
 
@@ -179,7 +173,7 @@ public class OrganizerMainFragment extends Fragment {
 
                         // --- GET THE EVENT ID AND BUILD THE TEXT ---
                         View eventItemView = LayoutInflater.from(getContext()).inflate(
-                                R.layout.event_list_item, eventsContainer, false);
+                                R.layout.unsure_event_list_item, eventsContainer, false);
                         TextView eventDetailsTextView = eventItemView.findViewById(
                                 R.id.textView_event_list_items_details);
                         ImageView qrCodeImageView = eventItemView.findViewById(

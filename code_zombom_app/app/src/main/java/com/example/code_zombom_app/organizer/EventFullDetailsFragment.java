@@ -74,7 +74,7 @@ public class EventFullDetailsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_full_event_details, container, false);
+        return inflater.inflate(R.layout.organizer_full_event_details_fragment, container, false);
     }
 
     /**

@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.code_zombom_app.Helpers.Location.Location;
 import com.example.code_zombom_app.Helpers.MVC.GModel;
 import com.example.code_zombom_app.Helpers.MVC.TView;
-import com.example.code_zombom_app.Helpers.Models.LoadUploadProfileModel;
 import com.example.code_zombom_app.Login.SignUp.SignUpAddress.SignUpAddressActivity;
 import com.example.code_zombom_app.R;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,7 +23,7 @@ public class SignUpActivity extends AppCompatActivity implements TView<SignUpMod
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_signup);
+        setContentView(R.layout.entrant_activity_signup);
         textViewAddress = findViewById(R.id.textViewAddress);
 
         SignUpModel model = new SignUpModel(FirebaseFirestore.getInstance());

@@ -19,7 +19,7 @@ import com.example.code_zombom_app.R;
 public class AdminHomeFragment extends Fragment {
 
     public AdminHomeFragment() {
-        super(R.layout.fragment_admin_home);
+        super(R.layout.admin_home_fragment);
     }
 
     /**

@@ -37,7 +37,7 @@ public class PostersAdminFragment extends Fragment {
     private static final String TAG = "PostersAdminFragment";
 
     public PostersAdminFragment() {
-        super(R.layout.fragment_posters_admin);
+        super(R.layout.posters_admin_fragment);
     }
 
     /**
