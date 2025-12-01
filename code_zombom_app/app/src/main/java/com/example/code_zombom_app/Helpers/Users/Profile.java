@@ -158,6 +158,16 @@ public class Profile {
     }
 
     /**
+     * Sets the profile type. Mainly used when deserializing legacy documents that did not
+     * explicitly store a type field.
+     *
+     * @param type The type to apply to this profile
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
      * Set the location for a Profile.
      *
      * @param location The location to set

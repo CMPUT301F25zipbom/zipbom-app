@@ -52,32 +52,30 @@ public class LoadUploadProfileModel extends GModel {
         db.collection("Profiles").document(email)
                 .get()
                 .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        state = State.LOGIN_SUCCESS;
-
-                        Profile profile = null;
-                        String type = snapshot.getString("type");
-                        if ("Entrant".equals(type)) {
-                            // Keep entrant-specific fields intact by deserializing into Entrant
-                            try {
-                                profile = snapshot.toObject(Entrant.class);
-                            } catch (RuntimeException e) {
-                                Log.e("Loading Profile Error", "Silently ignoring documents" +
-                                        "that not convertible to type Entrant", e);
-                            }
-                        } else {
-                            profile = snapshot.toObject(Profile.class);
-                        }
-
-                        if (profile != null) {
-                            setInterMsg("Profile", profile);
-                        }
-                        notifyViews();
-                    } else {
+                    if (!snapshot.exists()) {
                         state = State.LOGIN_FAILURE;
                         errorMsg = "Cannot find profile!";
                         notifyViews();
+                        return;
                     }
+
+                    Profile profile = deserializeProfile(snapshot, email);
+                    if (profile == null) {
+                        state = State.LOGIN_FAILURE;
+                        errorMsg = "Profile is missing required fields.";
+                        notifyViews();
+                        return;
+                    }
+
+                    try {
+                        setInterMsg("Profile", profile);
+                        state = State.LOGIN_SUCCESS;
+                    } catch (IllegalArgumentException e) {
+                        Log.e(errorTag, "Unable to pass profile to the view layer", e);
+                        state = State.LOGIN_FAILURE;
+                        errorMsg = "Cannot share profile data with the view.";
+                    }
+                    notifyViews();
 
                 })
                 .addOnFailureListener(e -> {
@@ -86,6 +84,61 @@ public class LoadUploadProfileModel extends GModel {
                     errorMsg = "Cannot query the database!";
                     notifyViews();
                 });
+    }
+
+    @Nullable
+    private Profile deserializeProfile(DocumentSnapshot snapshot, String email) {
+        if (snapshot == null) {
+            return null;
+        }
+
+        String rawType = snapshot.getString("type");
+        String resolvedType = rawType != null ? rawType.trim() : "";
+        if (resolvedType.isEmpty()) {
+            resolvedType = "Entrant";
+            Log.w("LoadUploadProfileModel", "Profile " + email +
+                    " missing type; defaulting to Entrant");
+        }
+
+        Profile profile = null;
+        boolean usedPlainProfile = false;
+        try {
+            switch (resolvedType) {
+                case "Organizer":
+                    profile = snapshot.toObject(Organizer.class);
+                    break;
+                case "Admin":
+                    profile = snapshot.toObject(Admin.class);
+                    break;
+                case "Entrant":
+                    profile = snapshot.toObject(Entrant.class);
+                    break;
+                default:
+                    profile = snapshot.toObject(Profile.class);
+                    usedPlainProfile = true;
+                    break;
+            }
+        } catch (RuntimeException e) {
+            Log.e("LoadUploadProfileModel", "Unable to map profile for " + email, e);
+        }
+
+        if (profile == null && !usedPlainProfile) {
+            try {
+                profile = snapshot.toObject(Profile.class);
+                usedPlainProfile = true;
+            } catch (RuntimeException e) {
+                Log.e("LoadUploadProfileModel", "Plain profile fallback failed for " + email, e);
+            }
+        }
+
+        if (profile != null) {
+            String profileType = profile.getType();
+            if (profileType == null || profileType.trim().isEmpty()) {
+                profile.setType(resolvedType);
+            }
+        }
+
+        return profile;
     }
 
     /**

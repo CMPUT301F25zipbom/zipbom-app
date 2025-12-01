@@ -1,12 +1,18 @@
 package com.example.code_zombom_app.Helpers.Event;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -153,6 +159,7 @@ public class EventListAdapter extends ArrayAdapter<Event> {
                 Toast.makeText(getContext(), "Join waiting list successfully",
                         Toast.LENGTH_SHORT).show();
                 notifyDataSetChanged();
+                showLotteryGuidelinesDialog();
             } catch (RuntimeException e) {
                 Log.e("Join Event Error", "Wait list is full", e);
                 Toast.makeText(getContext(), "The wait list is full", Toast.LENGTH_SHORT).show();
@@ -179,6 +186,35 @@ public class EventListAdapter extends ArrayAdapter<Event> {
 
         return convertView;
     }
-}
 
+    private void showLotteryGuidelinesDialog() {
+        Context context = getContext();
+        if (context == null || !(context instanceof Activity)) {
+            return;
+        }
+        Activity activity = (Activity) context;
+        if (activity.isFinishing()) {
+            return;
+        }
+
+        Dialog dialog = new Dialog(activity);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_lottery_guidelines);
+        dialog.setCanceledOnTouchOutside(true);
+
+        ImageButton closeButton = dialog.findViewById(R.id.button_guidelines_close);
+        if (closeButton != null) {
+            closeButton.setOnClickListener(v -> dialog.dismiss());
+        }
+
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialog.show();
+    }
+}
 

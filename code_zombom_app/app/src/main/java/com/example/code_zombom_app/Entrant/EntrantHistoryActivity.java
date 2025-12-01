@@ -115,6 +115,10 @@ public class EntrantHistoryActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Simple immutable model consumed by the history list adapter. Mirrors the fields stored
+     * under Profiles/{email}/History in Firestore so binders can map status and timestamps.
+     */
     private static class HistoryEntry {
         final String eventId;
         final String eventName;

@@ -36,6 +36,7 @@ public class Admin extends Profile{
         LEAVE,
         SELECTED,
         CONFIRMED,
+        REGISTERED,
         DECLINED,
 
     }
