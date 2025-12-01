@@ -34,18 +34,12 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.code_zombom_app.Helpers.Event.EventMapper;
-import com.example.code_zombom_app.Helpers.Event.EventService;
-import com.example.code_zombom_app.Login.LoginActivity;
 import com.example.code_zombom_app.MainActivity;
 import com.example.code_zombom_app.R;
 import com.example.code_zombom_app.Helpers.Event.Event;
-import com.example.code_zombom_app.Helpers.Event.EventMapper;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import com.google.zxing.WriterException;
-import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * @author Robert Enstrom, Tejwinder Johal
@@ -70,7 +64,7 @@ public class OrganizerMainFragment extends Fragment {
      * This function gets the model and saves it to eventViewModel
      *
      * @param savedInstanceState If the fragment is being re-created from
-     *                           a previous saved state, this is the state.
+     * a previous saved state, this is the state.
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -118,8 +112,6 @@ public class OrganizerMainFragment extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //eventDisplayTextView = view.findViewById(R.id.event_display_textview);
-
         // View setup
         super.onViewCreated(view, savedInstanceState);
 
@@ -139,14 +131,11 @@ public class OrganizerMainFragment extends Fragment {
         });
 
         Button buttonLogOut = view.findViewById(R.id.button_organizer_main_fragment_logout);
-        buttonLogOut.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent main = new Intent(requireActivity(), MainActivity.class);
-                main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(main);
-                requireActivity().finish();
-            }
+        buttonLogOut.setOnClickListener(v -> {
+            Intent main = new Intent(requireActivity(), MainActivity.class);
+            main.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(main);
+            requireActivity().finish();
         });
     }
 
@@ -167,7 +156,7 @@ public class OrganizerMainFragment extends Fragment {
             if (value != null && !value.isEmpty()) {
                 for (QueryDocumentSnapshot snapshot : value) {
                     try {
-                        // --- NEW: Automatically convert the document to an Event object ---
+                        // Automatically convert the document to an Event object
                         Event event = snapshot.toObject(Event.class);
                         // If toObject returns null, something is wrong with the data mapping (e.g., field name mismatch)
                         if (event == null) {
@@ -177,7 +166,7 @@ public class OrganizerMainFragment extends Fragment {
                             continue; // Skip this document and move to the next
                         }
 
-                        // --- GET THE EVENT ID AND BUILD THE TEXT ---
+                        // GET THE EVENT ID AND BUILD THE TEXT
                         View eventItemView = LayoutInflater.from(getContext()).inflate(
                                 R.layout.event_list_item, eventsContainer, false);
                         TextView eventDetailsTextView = eventItemView.findViewById(
@@ -198,7 +187,7 @@ public class OrganizerMainFragment extends Fragment {
 
                         qrCodeImageView.setTag(event.getEventId());
 
-                        // --- Use the convenience method from the Event class ---
+                        // Use the convenience method from the Event class
                         String eventText = event.getDescription();
                         eventDetailsTextView.setText("Details: " + eventText);
                         textViewName.setText("Name: " + event.getName());
@@ -213,7 +202,7 @@ public class OrganizerMainFragment extends Fragment {
 
                         qrCodeImageView.setImageBitmap(event.getEventIdBitmap());
 
-                        // --- Set click listener (pass the object or its properties) ---
+                        // Set click listener (pass the object or its properties)
                         eventItemView.setOnClickListener(v -> showEventOptionsDialog(event));
                         eventsContainer.addView(eventItemView);
                         EventForOrg eventForOrg = EventMapper.toDto(event);
@@ -254,7 +243,7 @@ public class OrganizerMainFragment extends Fragment {
         Bitmap qrBitmapForEvent = qrCodeBitmaps.get(eventForOrg.getEventId());
 
         // Find the specific ImageView using the tag
-        // We search within the fragment's main view.
+        // search within the fragment's main view.
         ImageView qrImageViewForEvent = null;
         if (fragmentView != null) {
             qrImageViewForEvent = fragmentView.findViewWithTag(eventForOrg.getEventId());
@@ -273,19 +262,16 @@ public class OrganizerMainFragment extends Fragment {
         };
         // Create the dialog with the direct references.
         // This now matches the new constructor you will create in OrganizerDialog.
-        OrganizerDialog dialog = new OrganizerDialog(
-                requireContext(),
-                eventForOrg,
-                event,
-                navController,
-                qrImageViewForEvent,
-                qrBitmapForEvent,
-                requestExportPermissionTask // <-- Pass the task to the dialog
+        OrganizerDialog dialog = new OrganizerDialog(requireContext(), eventForOrg, event, navController, requestExportPermissionTask // <-- Pass the task to the dialog
         );
 
         dialog.show();
     }
 
+    /**
+     * Exports the registered entrants to a CSV file.
+     * @param event
+     */
     private void exportEntrantsToCsv(EventForOrg event) {
         // This is the exact same logic from your dialog, now moved here.
         ArrayList<String> entrants = event.getAccepted_Entrants();

@@ -2,9 +2,6 @@ package com.example.code_zombom_app.organizer;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -24,20 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Calendar;
 import java.util.Date;
-import com.example.code_zombom_app.Helpers.Event.Event;
-import com.example.code_zombom_app.Helpers.Event.EventMapper;
-import com.example.code_zombom_app.organizer.EventForOrg;
-import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Calendar;
-
-import kotlinx.coroutines.scheduling.Task;
 
 /**
  * Fragment that allows an organizer to edit an existing Event.
@@ -236,7 +221,7 @@ public class EditEventFragment extends AddEventFragment {
         baseEvent.setEventEndDate(getDateFromDatePicker(datePickerEndDate));
         baseEvent.setLocation(location);
 
-        // We notify users
+        // notify users
         notifyusers(baseEvent);
 
         try {
@@ -253,7 +238,7 @@ public class EditEventFragment extends AddEventFragment {
             baseEvent.setWaitlistLimit(0);
         }
 
-        // NOTE: we do NOT touch waitlist entries, chosen list, etc.
+        // NOTE: do NOT touch waitlist entries, chosen list, etc.
     }
 
     /**
@@ -261,7 +246,7 @@ public class EditEventFragment extends AddEventFragment {
      * @param ourevent is our event.
      */
     void notifyusers (Event ourevent){
-        // We need to loop through the list of people and see if they have notifications turned on.
+        // loop through the list of people and see if they have notifications turned on.
         // Then we check to see if they have a phone number, then we SMS. If not, then we only email.
 
         // Get this list of entrants and then we loop through
