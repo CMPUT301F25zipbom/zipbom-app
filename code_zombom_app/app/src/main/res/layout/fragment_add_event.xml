@@ -2,6 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#49317C">
 
     <LinearLayout
@@ -39,39 +40,111 @@
             android:textColorHint="#BCBCBC"
             android:layout_marginBottom="12dp" />
 
-        <!-- Start Date (Scroll Wheel Picker) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/start_date"
-            android:textColor="#000000"
+            android:textColor="@android:color/white"
             android:layout_marginBottom="4dp" />
 
-        <DatePicker
-            android:id="@+id/datePickerStart"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_start_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:calendarViewShown="false"
-            android:spinnersShown="true"
             android:layout_marginBottom="16dp"
-            android:theme="@style/DatePickerWhiteText" />
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#7C4DFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
 
-        <!-- Deadline Date (Scroll Wheel Picker) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/textStartDatePrimary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mon, Dec 1"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textStartDateSecondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="December 2025"
+                    android:textColor="#F3E8FF"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/tap_to_select_date"
+                    android:textColor="#E0E0E0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/end_date"
-            android:textColor="#FFFFFF"
+            android:textColor="@android:color/white"
             android:layout_marginBottom="4dp" />
 
-        <DatePicker
-            android:id="@+id/datePickerDeadline"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/card_end_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:calendarViewShown="false"
-            android:spinnersShown="true"
             android:layout_marginBottom="16dp"
-            android:theme="@style/DatePickerWhiteText"/>
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardBackgroundColor="#7C4DFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:id="@+id/textEndDatePrimary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tue, Dec 2"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/textEndDateSecondary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="December 2025"
+                    android:textColor="#F3E8FF"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="@string/tap_to_select_date"
+                    android:textColor="#E0E0E0"
+                    android:textSize="12sp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <Spinner
             android:id="@+id/spinnerGenre"

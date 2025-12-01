@@ -160,25 +160,14 @@ public class EditEventFragment extends AddEventFragment {
         // Dates
         Date start = event.getEventStartDate();
         if (start != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(start);
-            datePickerStartDate.updateDate(
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-            );
+            startCalendar.setTime(start);
         }
 
         Date end = event.getEventEndDate();
         if (end != null) {
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(end);
-            datePickerEndDate.updateDate(
-                    cal.get(Calendar.YEAR),
-                    cal.get(Calendar.MONTH),
-                    cal.get(Calendar.DAY_OF_MONTH)
-            );
+            endCalendar.setTime(end);
         }
+        updateDateDisplays();
 
         // Genre → set spinner selection
         if (event.getGenre() != null && spinnerGenre != null &&
@@ -217,8 +206,8 @@ public class EditEventFragment extends AddEventFragment {
         baseEvent.setName(eventNameEditText.getText().toString().trim());
         baseEvent.setDescription(descriptionEditText.getText().toString().trim());
         baseEvent.setGenre(selectedGenre);
-        baseEvent.setEventStartDate(getDateFromDatePicker(datePickerStartDate));
-        baseEvent.setEventEndDate(getDateFromDatePicker(datePickerEndDate));
+        baseEvent.setEventStartDate(getDateFromCalendar(startCalendar));
+        baseEvent.setEventEndDate(getDateFromCalendar(endCalendar));
         baseEvent.setLocation(location);
 
         // notify users
