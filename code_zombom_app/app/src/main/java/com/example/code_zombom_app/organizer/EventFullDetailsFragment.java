@@ -68,7 +68,7 @@ public class EventFullDetailsFragment extends Fragment {
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
      *
-     * @return
+     * @return This function returns the inflated view of the 'main' ui page for the organizer
      */
     @Nullable
     @Override
