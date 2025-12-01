@@ -1,6 +1,5 @@
 package com.example.code_zombom_app.organizer;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
@@ -16,11 +15,6 @@ public class EventViewModel extends ViewModel {
 
     // Use a Map to store events: The key is the event ID (String), and the value is the event text (String).
     private final MutableLiveData<Map<String, String>> eventsMap = new MutableLiveData<>(new HashMap<>());
-
-    // Expose the LiveData of the Map to the UI.
-    public LiveData<Map<String, String>> getEventsMap() {
-        return eventsMap;
-    }
 
     /**
      * Method to set a new map of events.
